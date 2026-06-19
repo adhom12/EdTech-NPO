@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+html,
+body {
+  font-family: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: #121417;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbar while keeping scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Question skeleton shimmer */
+@keyframes skeleton-shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.skeleton-bar {
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  background-color: #E5E7EB;
+  border-radius: 4px;
+  display: block;
+}
+
+/* ── Print layout ── */
+@media print {
+  /* Strip chrome */
+  .workspace-header,
+  .params-panel,
+  .chat-panel {
+    display: none !important;
+  }
+
+  /* Reset layout containers so canvas fills the page */
+  body {
+    background: white !important;
+    color: #1f2937 !important;
+  }
+
+  .workspace-columns {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Canvas wrapper: remove dark bg, let paper breathe */
+  .document-canvas-wrapper {
+    width: 100% !important;
+    overflow: visible !important;
+    background: white !important;
+    height: auto !important;
+  }
+
+  /* Paper card: strip shadow and dark-mode margin */
+  .print-paper {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Keep each question on one page where possible */
+  .question-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Hide on-hover action buttons */
+  .question-hover-actions {
+    display: none !important;
+  }
+
+  /* Skeleton bars should never appear in print */
+  .skeleton-bar {
+    display: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 18mm 20mm;
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"C:\\\\Users\\\\adamh\\\\Desktop\\\\Projects\\\\AI Edtech NPO\\\\EdTech Thang\")",
+      "Read(//c/Users/adamh/Desktop/Projects/AI Edtech NPO/EdTech Thang/**)",
+      "Bash(dir /a \"C:\\\\Users\\\\adamh\\\\Desktop\\\\Projects\\\\AI Edtech NPO\\\\EdTech Thang\\\\worksheet-gen\")",
+      "PowerShell($src = \"C:\\\\Users\\\\adamh\\\\Desktop\\\\Projects\\\\AI Edtech NPO\\\\EdTech Thang\"; $dst = \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\docs\"; Copy-Item \"$src\\\\SESSION_CONTEXT.md\" \"$dst\\\\SESSION_CONTEXT.md\"; Copy-Item \"$src\\\\build-structure.md\" \"$dst\\\\build-structure.md\"; Copy-Item \"$src\\\\sample-questions-supabase.sql\" \"$dst\\\\sample-questions-supabase.sql\"; Copy-Item \"$src\\\\syllabus-edexcel-maths.md\" \"$dst\\\\syllabus-edexcel-maths.md\"; Write-Host \"Docs copied\")",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(npm run *)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/auth)",
+      "Read(//c/tmp/**)",
+      "PowerShell(cd \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\"; $job = Start-Job { Set-Location \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\"; npm run dev 2>&1 }; Start-Sleep 15; Receive-Job $job)",
+      "PowerShell($job = Start-Job { Set-Location \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\"; npm run dev 2>&1 }; Start-Sleep 15; Receive-Job $job)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s -I http://localhost:3000/)",
+      "Bash(curl -s -I http://localhost:3001/)",
+      "Bash(curl -v http://localhost:3001/)",
+      "PowerShell(Stop-Process -Id 25160 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(curl -s -I http://localhost:3001/ 2>&1)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\api\\\\questions\\\\[id]\" && mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\admin\\\\review\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO",
+      "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO\\worksheet-gen\\app\\api\\questions"
+    ]
+  }
+}
