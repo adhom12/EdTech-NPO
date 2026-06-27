@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/aurora/client'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Block } from '@/lib/renderMath'
 import type { Question } from '@/lib/questions'
@@ -128,53 +128,58 @@ export async function POST(request: NextRequest) {
   }
 
   const gradeNum = parseInt(String(grade).replace(/\D/g, '')) || 10
-  const supabase = await createClient()
+  const sql = await getDb()
 
   // Look up topic_id from legacy topic string (only used when no skills provided)
   let topicId: string | null = null
   if (topic && (!skills || skills.length === 0)) {
-    const { data: topicData } = await supabase
-      .from('topics')
-      .select('id')
-      .eq('syllabus', syllabus)
-      .eq('subject', subject)
-      .ilike('name', topic)
-      .limit(1)
-      .maybeSingle()
-    topicId = topicData?.id ?? null
+    const topicRows = await sql`
+      SELECT id FROM topics
+      WHERE syllabus = ${syllabus}
+        AND subject = ${subject}
+        AND name ILIKE ${topic}
+      LIMIT 1
+    `
+    topicId = (topicRows[0]?.id as string) ?? null
   }
 
   // Query verified questions matching all filters
-  let query = supabase
-    .from('questions')
-    .select('*')
-    .eq('syllabus', syllabus)
-    .eq('subject', subject)
-    .eq('grade', gradeNum)
-    .eq('criterion', criterion)
-    .eq('difficulty', difficulty)
-    .eq('verified', true)
-    .limit(count)
-
-  if (topicId) {
-    query = query.eq('topic_id', topicId)
+  let verifiedRows: DbRow[]
+  try {
+    verifiedRows = topicId
+      ? await sql`
+          SELECT * FROM questions
+          WHERE syllabus = ${syllabus}
+            AND subject = ${subject}
+            AND grade = ${gradeNum}
+            AND criterion = ${criterion}
+            AND difficulty = ${difficulty}
+            AND verified = true
+            AND topic_id = ${topicId}
+          LIMIT ${count}
+        ` as DbRow[]
+      : await sql`
+          SELECT * FROM questions
+          WHERE syllabus = ${syllabus}
+            AND subject = ${subject}
+            AND grade = ${gradeNum}
+            AND criterion = ${criterion}
+            AND difficulty = ${difficulty}
+            AND verified = true
+          LIMIT ${count}
+        ` as DbRow[]
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 
-  const { data: verifiedRows, error } = await query
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  const verified = verifiedRows ?? []
-
-  if (verified.length >= count) {
+  if (verifiedRows.length >= count) {
     return NextResponse.json({
-      questions: verified.slice(0, count).map((row, i) => dbRowToQuestion(row as DbRow, i)),
+      questions: verifiedRows.slice(0, count).map((row, i) => dbRowToQuestion(row, i)),
     })
   }
 
   // Generate the deficit with Claude
-  const deficit = count - verified.length
+  const deficit = count - verifiedRows.length
   let generated: GeneratedQuestion[]
 
   try {
@@ -195,7 +200,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Store AI-generated questions in DB
+  // Store AI-generated questions in Aurora
   const insertPayload = generated.map((q) => ({
     topic_id: topicId,
     syllabus,
@@ -210,14 +215,19 @@ export async function POST(request: NextRequest) {
     verified: false,
   }))
 
-  const { data: insertedRows } = await supabase
-    .from('questions')
-    .insert(insertPayload)
-    .select()
+  let insertedRows: DbRow[] = []
+  try {
+    insertedRows = await sql`
+      INSERT INTO questions ${sql(insertPayload, 'topic_id', 'syllabus', 'subject', 'grade', 'criterion', 'difficulty', 'question_type', 'question_text', 'mark_scheme', 'source', 'verified')}
+      RETURNING *
+    ` as DbRow[]
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed to store questions', detail: String(err) }, { status: 500 })
+  }
 
-  const allRows = [...verified, ...(insertedRows ?? [])]
+  const allRows = [...verifiedRows, ...insertedRows]
 
   return NextResponse.json({
-    questions: allRows.map((row, i) => dbRowToQuestion(row as DbRow, i)),
+    questions: allRows.map((row, i) => dbRowToQuestion(row, i)),
   })
 }

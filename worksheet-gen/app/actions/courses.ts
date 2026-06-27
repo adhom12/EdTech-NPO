@@ -1,9 +1,9 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { createAdminClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/aurora/client'
 
-// Replace with supabase.auth.getUser() once auth is wired up
+// Replace with supabase.auth.getUser() once auth is wired up (Phase 4)
 const DEV_TEACHER_ID = 'e3987e0e-6bd4-4438-94fe-e821e1f1e0f1'
 
 export async function createCourse(formData: FormData) {
@@ -15,16 +15,15 @@ export async function createCourse(formData: FormData) {
     return { error: 'All fields are required' }
   }
 
-  const supabase = createAdminClient()
-
-  const { error } = await supabase.from('courses').insert({
-    teacher_id: DEV_TEACHER_ID,
-    label,
-    subject,
-    curriculum_id,
-  })
-
-  if (error) return { error: error.message }
+  try {
+    const sql = await getDb()
+    await sql`
+      INSERT INTO courses (teacher_id, label, subject, curriculum_id)
+      VALUES (${DEV_TEACHER_ID}, ${label}, ${subject}, ${curriculum_id})
+    `
+  } catch (err) {
+    return { error: String(err) }
+  }
 
   redirect('/')
 }
