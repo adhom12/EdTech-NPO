@@ -1,39 +1,44 @@
 import { Navbar } from '@/components/Navbar'
 import { CourseCard } from '@/components/CourseCard'
 import { AddCourseCard } from '@/components/AddCourseCard'
-import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/aurora/client'
 
-// Replace with supabase.auth.getUser() once auth is wired up
+// Replace with real session once auth is wired (Phase 4)
 const DEV_TEACHER_ID = 'e3987e0e-6bd4-4438-94fe-e821e1f1e0f1'
 
-type CurriculaShape = { board: string; qualification: string; syllabus_code: string }
-type WorksheetCountShape = { id: string }[]
-
 export default async function Dashboard() {
-  const supabase = await createClient()
+  let courses: Record<string, unknown>[] = []
+  let curricula: Record<string, unknown>[] = []
+  let dbError: string | null = null
 
-  const [
-    { data: courses, error: coursesError },
-    { data: curricula, error: curriculaError },
-  ] = await Promise.all([
-    supabase
-      .from('courses')
-      .select('id, label, subject, curricula(board, qualification, syllabus_code), worksheets(id)')
-      .eq('teacher_id', DEV_TEACHER_ID)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('curricula')
-      .select('id, board, qualification, syllabus_code')
-      .order('board'),
-  ])
+  try {
+    const sql = await getDb()
+    ;[courses, curricula] = await Promise.all([
+      sql`
+        SELECT
+          c.id, c.label, c.subject,
+          cu.board, cu.qualification, cu.syllabus_code,
+          (SELECT COUNT(*) FROM worksheets w WHERE w.course_id = c.id)::int AS worksheet_count
+        FROM courses c
+        LEFT JOIN curricula cu ON c.curriculum_id = cu.id
+        WHERE c.teacher_id = ${DEV_TEACHER_ID}
+        ORDER BY c.created_at DESC
+      `,
+      sql`
+        SELECT id, board, qualification, syllabus_code
+        FROM curricula
+        ORDER BY board
+      `,
+    ])
+  } catch (err) {
+    dbError = String(err)
+  }
 
-  console.log('courses result:', JSON.stringify({ count: courses?.length, error: coursesError?.message }))
-
-  if (coursesError) {
+  if (dbError) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#121417' }}>
         <p className="text-sm font-mono" style={{ color: '#F87171' }}>
-          DB error (courses): {coursesError.message}
+          DB error: {dbError}
         </p>
       </div>
     )
@@ -57,22 +62,18 @@ export default async function Dashboard() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(courses ?? []).map((course) => {
-              const c = course.curricula as unknown as CurriculaShape | null
-              const worksheetCount = (course.worksheets as WorksheetCountShape | null)?.length ?? 0
-              return (
-                <CourseCard
-                  key={course.id}
-                  id={course.id}
-                  label={course.label}
-                  subject={course.subject}
-                  board={c?.board ?? ''}
-                  qualification={c?.qualification ?? ''}
-                  worksheetCount={worksheetCount}
-                />
-              )
-            })}
-            <AddCourseCard curricula={curricula ?? []} />
+            {courses.map((course) => (
+              <CourseCard
+                key={course.id as string}
+                id={course.id as string}
+                label={course.label as string}
+                subject={course.subject as string}
+                board={(course.board as string) ?? ''}
+                qualification={(course.qualification as string) ?? ''}
+                worksheetCount={(course.worksheet_count as number) ?? 0}
+              />
+            ))}
+            <AddCourseCard curricula={curricula as { id: string; board: string; qualification: string; syllabus_code: string }[]} />
           </div>
         </section>
       </main>

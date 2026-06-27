@@ -1,26 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/aurora/client'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const curriculum_id = searchParams.get('curriculum_id')
 
-  const supabase = await createClient()
+  try {
+    const sql = await getDb()
 
-  let query = supabase
-    .from('skills')
-    .select('id, skill_name, spec_reference, topic, subtopic')
-    .order('topic')
-    .order('subtopic')
-    .order('skill_name')
-    .limit(500)
+    const rows = curriculum_id
+      ? await sql`
+          SELECT id, skill_name, spec_reference, topic, subtopic
+          FROM skills
+          WHERE curriculum_id = ${curriculum_id}
+          ORDER BY topic, subtopic, skill_name
+          LIMIT 500
+        `
+      : await sql`
+          SELECT id, skill_name, spec_reference, topic, subtopic
+          FROM skills
+          ORDER BY topic, subtopic, skill_name
+          LIMIT 500
+        `
 
-  if (curriculum_id) {
-    query = query.eq('curriculum_id', curriculum_id)
+    return NextResponse.json(rows)
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
   }
-
-  const { data, error } = await query
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data ?? [])
 }

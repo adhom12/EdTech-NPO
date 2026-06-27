@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getDb } from '@/lib/aurora/client'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -11,20 +11,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'syllabus and subject are required' }, { status: 400 })
   }
 
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('topics')
-    .select('id, name')
-    .eq('syllabus', syllabus)
-    .eq('subject', subject)
-    .ilike('name', `${q}%`)
-    .order('name')
-    .limit(10)
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  try {
+    const sql = await getDb()
+    const rows = await sql`
+      SELECT id, name
+      FROM topics
+      WHERE syllabus = ${syllabus}
+        AND subject = ${subject}
+        AND name ILIKE ${q + '%'}
+      ORDER BY name
+      LIMIT 10
+    `
+    return NextResponse.json(rows)
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
   }
-
-  return NextResponse.json(data)
 }
