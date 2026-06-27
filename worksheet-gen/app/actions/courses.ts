@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { getDb } from '@/lib/aurora/client'
 
 // Replace with supabase.auth.getUser() once auth is wired up (Phase 4)
@@ -25,5 +26,6 @@ export async function createCourse(formData: FormData) {
     return { error: String(err) }
   }
 
+  revalidatePath('/')
   redirect('/')
 }
