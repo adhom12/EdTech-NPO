@@ -63,4 +63,26 @@ _Completed: 2026-06-27_
 
 ---
 
+## Phase 3 — Migrate write paths to Aurora
+_Completed: 2026-06-27_
+
+**Routes/actions migrated:**
+- `app/actions/courses.ts` → `createCourse` uses Aurora INSERT
+- `app/actions/worksheets.ts` → `createWorksheet` (INSERT RETURNING id), `deleteWorksheet` (DELETE)
+- `app/api/generate/route.ts` → topic lookup, verified question query, AI question INSERT all on Aurora
+- `app/api/questions/[id]/route.ts` → PATCH (verify) and DELETE on Aurora; Supabase retained only for `auth.getUser()` + admin role check against Aurora `users` table
+- `app/api/chat/route.ts` — no DB calls, no change needed
+
+**Notes:**
+- `api/generate` uses postgres.js `sql(insertPayload, 'col1', ...)` syntax for bulk insert
+- Admin routes: Supabase auth.getUser() → Aurora users table role check → Aurora questions mutation
+
+**Files changed:**
+- `app/actions/courses.ts`
+- `app/actions/worksheets.ts`
+- `app/api/generate/route.ts`
+- `app/api/questions/[id]/route.ts`
+
+**Status:** COMPLETE — ready for Phase 4
+
 ---
