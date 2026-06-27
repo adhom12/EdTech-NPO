@@ -15,6 +15,7 @@
     "@aws-sdk/rds-signer": "^3.1075.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.1",
+    "@vercel/functions": "^3.7.4",
     "katex": "^0.17.0",
     "next": "16.2.7",
     "postgres": "^3.4.9",
