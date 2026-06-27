@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       .select('id, board, qualification, subject, syllabus_code, created_at')
     if (curricula?.length) {
       await sql`
-        INSERT INTO curricula (id, board, qualification, subject, syllabus_code, created_at)
+        INSERT INTO curricula
         ${sql(curricula, 'id', 'board', 'qualification', 'subject', 'syllabus_code', 'created_at')}
         ON CONFLICT (syllabus_code) DO NOTHING
       `
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       for (let i = 0; i < skills.length; i += 500) {
         const batch = skills.slice(i, i + 500)
         await sql`
-          INSERT INTO skills (id, curriculum_id, skill_id, topic, subtopic, skill_name, tier, spec_reference, source, created_at)
+          INSERT INTO skills
           ${sql(batch, 'id', 'curriculum_id', 'skill_id', 'topic', 'subtopic', 'skill_name', 'tier', 'spec_reference', 'source', 'created_at')}
           ON CONFLICT DO NOTHING
         `
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       .select('id, name, syllabus, subject, created_at')
     if (topics?.length) {
       await sql`
-        INSERT INTO topics (id, name, syllabus, subject, created_at)
+        INSERT INTO topics
         ${sql(topics, 'id', 'name', 'syllabus', 'subject', 'created_at')}
         ON CONFLICT DO NOTHING
       `
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       for (let i = 0; i < questions.length; i += 200) {
         const batch = questions.slice(i, i + 200)
         await sql`
-          INSERT INTO questions (id, topic_id, syllabus, subject, grade, criterion, difficulty, question_type, question_text, mark_scheme, source, verified, verified_by, verified_at, created_at)
+          INSERT INTO questions
           ${sql(batch, 'id', 'topic_id', 'syllabus', 'subject', 'grade', 'criterion', 'difficulty', 'question_type', 'question_text', 'mark_scheme', 'source', 'verified', 'verified_by', 'verified_at', 'created_at')}
           ON CONFLICT DO NOTHING
         `
