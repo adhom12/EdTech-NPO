@@ -33,6 +33,11 @@ function dbRowToQuestion(row: DbRow, index: number): Question {
   }
 }
 
+interface Skill {
+  skill_name: string
+  spec_reference: string | null
+}
+
 interface GeneratedQuestion {
   marks: number
   blocks: Block[]
@@ -46,16 +51,25 @@ async function generateWithClaude(params: {
   criterion: string
   difficulty: string
   topic?: string
+  skills?: Skill[]
   count: number
 }): Promise<GeneratedQuestion[]> {
-  const { syllabus, subject, grade, criterion, difficulty, topic, count } = params
+  const { syllabus, subject, grade, criterion, difficulty, topic, skills, count } = params
+
+  const skillsSection = skills && skills.length > 0
+    ? skills.length === 1
+      ? `- Skill: ${skills[0].skill_name}${skills[0].spec_reference ? ` [${skills[0].spec_reference}]` : ''}`
+      : `- Skills to cover (distribute all ${count} questions across these — do not focus only on the first):\n${skills.map((s, i) => `  ${i + 1}. ${s.skill_name}${s.spec_reference ? ` [${s.spec_reference}]` : ''}`).join('\n')}`
+    : topic
+      ? `- Topic: ${topic}`
+      : null
 
   const prompt = `You are an expert ${subject} teacher creating exam-style worksheet questions.
 
 Generate ${count} question${count > 1 ? 's' : ''} for:
 - Syllabus: ${syllabus}
 - Subject: ${subject}
-- Grade: Grade ${grade}${topic ? `\n- Topic: ${topic}` : ''}
+- Grade: Grade ${grade}${skillsSection ? `\n${skillsSection}` : ''}
 - Criterion: ${criterion}
 - Difficulty: ${difficulty}
 
@@ -107,7 +121,7 @@ Example for a Physics question:
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { syllabus, subject, grade, criterion, difficulty, topic, count = 5 } = body
+  const { syllabus, subject, grade, criterion, difficulty, topic, skills, count = 5 } = body
 
   if (!syllabus || !subject || !grade || !criterion || !difficulty) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
@@ -116,9 +130,9 @@ export async function POST(request: NextRequest) {
   const gradeNum = parseInt(String(grade).replace(/\D/g, '')) || 10
   const supabase = await createClient()
 
-  // Look up topic_id if topic provided
+  // Look up topic_id from legacy topic string (only used when no skills provided)
   let topicId: string | null = null
-  if (topic) {
+  if (topic && (!skills || skills.length === 0)) {
     const { data: topicData } = await supabase
       .from('topics')
       .select('id')
@@ -171,6 +185,7 @@ export async function POST(request: NextRequest) {
       criterion,
       difficulty,
       topic: topic || undefined,
+      skills: skills?.length > 0 ? skills : undefined,
       count: deficit,
     })
   } catch (err) {

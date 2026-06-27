@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
+import { deleteWorksheet } from "@/app/actions/worksheets";
 
 export interface Worksheet {
   id: string;
+  courseId: string;
   title: string;
   syllabus: string;
   subject: string;
@@ -17,6 +19,7 @@ interface WorksheetCardProps {
 
 export function WorksheetCard({ worksheet }: WorksheetCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -91,7 +94,8 @@ export function WorksheetCard({ worksheet }: WorksheetCardProps) {
               }}
             >
               <button
-                className="w-full text-left px-3 py-2 text-xs font-medium transition-colors"
+                disabled={isPending}
+                className="w-full text-left px-3 py-2 text-xs font-medium transition-colors disabled:opacity-40"
                 style={{ color: "#F87171" }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.backgroundColor =
@@ -103,9 +107,12 @@ export function WorksheetCard({ worksheet }: WorksheetCardProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   setMenuOpen(false);
+                  startTransition(async () => {
+                    await deleteWorksheet(worksheet.id, worksheet.courseId);
+                  });
                 }}
               >
-                Delete
+                {isPending ? "Deleting…" : "Delete"}
               </button>
             </div>
           )}

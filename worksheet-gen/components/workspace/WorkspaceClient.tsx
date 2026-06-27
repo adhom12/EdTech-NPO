@@ -7,6 +7,7 @@ import { ChatPanel } from "./ChatPanel";
 import { INITIAL_QUESTIONS } from "@/lib/questions";
 import type { Question } from "@/lib/questions";
 import type { Block } from "@/lib/renderMath";
+import type { SkillRow } from "./ParametersPanel";
 
 export const DEFAULT_PARAMETERS: Record<string, string> = {
   syllabus: "Cambridge IGCSE",
@@ -14,25 +15,28 @@ export const DEFAULT_PARAMETERS: Record<string, string> = {
   grade: "Grade 10",
   criterion: "A — Knowing & Understanding",
   difficulty: "Meeting",
-  topic: "",
 };
 
 
 export function WorkspaceClient({ worksheetTitle }: { worksheetTitle: string }) {
   const [parameters, setParameters] = useState<Record<string, string>>(DEFAULT_PARAMETERS);
+  const [selectedSkills, setSelectedSkills] = useState<SkillRow[]>([]);
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS);
   const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleApplyParameters = useCallback(async (newParams: Record<string, string>) => {
+  const handleApplyParameters = useCallback(async (newParams: Record<string, string>, skills: SkillRow[]) => {
     setParameters(newParams);
+    setSelectedSkills(skills);
     setIsGenerating(true);
+
+    const skillPayload = skills.map(s => ({ skill_name: s.skill_name, spec_reference: s.spec_reference }));
 
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newParams, count: 5 }),
+        body: JSON.stringify({ ...newParams, skills: skillPayload, count: 5 }),
       });
 
       if (!res.ok) {
@@ -87,7 +91,7 @@ export function WorkspaceClient({ worksheetTitle }: { worksheetTitle: string }) 
 
   return (
     <>
-      <ParametersPanel values={parameters} onApply={handleApplyParameters} />
+      <ParametersPanel values={parameters} selectedSkills={selectedSkills} onApply={handleApplyParameters} />
       <DocumentCanvas
         worksheetTitle={worksheetTitle}
         parameters={parameters}

@@ -1,6 +1,7 @@
 import "katex/dist/katex.min.css";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceClient } from "@/components/workspace/WorkspaceClient";
+import { createClient } from "@/lib/supabase/server";
 
 const WORKSHEET_TITLES: Record<string, string> = {
   "1": "Forces & Newton's Laws — Structured Questions",
@@ -17,14 +18,23 @@ export default async function WorkspacePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const title = WORKSHEET_TITLES[id] ?? "Untitled Worksheet";
+
+  const supabase = await createClient();
+  const { data: worksheet } = await supabase
+    .from("worksheets")
+    .select("title, course_id")
+    .eq("id", id)
+    .single();
+
+  const title = worksheet?.title ?? WORKSHEET_TITLES[id] ?? "Untitled Worksheet";
+  const backHref = worksheet?.course_id ? `/courses/${worksheet.course_id}` : "/";
 
   return (
     <div
       className="flex flex-col overflow-hidden"
       style={{ height: "100vh", backgroundColor: "#121417" }}
     >
-      <WorkspaceHeader title={title} />
+      <WorkspaceHeader title={title} backHref={backHref} />
 
       <div className="workspace-columns flex flex-1 overflow-hidden">
         <WorkspaceClient worksheetTitle={title} />

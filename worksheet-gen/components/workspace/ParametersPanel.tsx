@@ -91,29 +91,35 @@ const ChevronIcon = () => (
   </svg>
 );
 
-interface TopicSuggestion {
+export interface SkillRow {
   id: string;
-  name: string;
+  skill_name: string;
+  spec_reference: string | null;
+  topic: string;
+  subtopic: string;
 }
 
 interface ParametersPanelProps {
   values: Record<string, string>;
-  onApply: (values: Record<string, string>) => void;
+  selectedSkills: SkillRow[];
+  onApply: (values: Record<string, string>, skills: SkillRow[]) => void;
 }
 
-export function ParametersPanel({ values, onApply }: ParametersPanelProps) {
+export function ParametersPanel({ values, selectedSkills, onApply }: ParametersPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [animIn, setAnimIn] = useState(false);
   const [draft, setDraft] = useState<Record<string, string>>(values);
-  const [suggestions, setSuggestions] = useState<TopicSuggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [draftSkills, setDraftSkills] = useState<SkillRow[]>(selectedSkills);
+  const [allSkills, setAllSkills] = useState<SkillRow[]>([]);
+  const [skillFilter, setSkillFilter] = useState("");
+  const skillFetchRef = useRef<AbortController | null>(null);
 
   const enterEdit = useCallback(() => {
     setDraft(values);
+    setDraftSkills(selectedSkills);
+    setSkillFilter("");
     setIsEditing(true);
-    setSuggestions([]);
-  }, [values]);
+  }, [values, selectedSkills]);
 
   useEffect(() => {
     if (isEditing) {
@@ -128,54 +134,58 @@ export function ParametersPanel({ values, onApply }: ParametersPanelProps) {
 
   const cancelEdit = useCallback(() => {
     setAnimIn(false);
-    setSuggestions([]);
     setTimeout(() => {
       setIsEditing(false);
       setDraft(values);
+      setDraftSkills(selectedSkills);
     }, 150);
-  }, [values]);
+  }, [values, selectedSkills]);
 
   const applyEdit = useCallback(() => {
-    onApply(draft);
+    onApply(draft, draftSkills);
     setAnimIn(false);
-    setSuggestions([]);
     setTimeout(() => setIsEditing(false), 150);
-  }, [draft, onApply]);
+  }, [draft, draftSkills, onApply]);
 
-  const fetchSuggestions = useCallback(async (q: string, syllabus: string, subject: string) => {
-    if (!syllabus || !subject) return;
-    try {
-      const params = new URLSearchParams({ syllabus, subject, q });
-      const res = await fetch(`/api/topics?${params}`);
-      if (res.ok) {
-        const data: TopicSuggestion[] = await res.json();
-        setSuggestions(data);
-        setShowSuggestions(data.length > 0);
-      }
-    } catch {}
+  // Fetch skills whenever panel opens or syllabus/subject changes
+  useEffect(() => {
+    if (!isEditing) return;
+    if (skillFetchRef.current) skillFetchRef.current.abort();
+    const controller = new AbortController();
+    skillFetchRef.current = controller;
+
+    fetch("/api/skills", { signal: controller.signal })
+      .then((r) => r.json())
+      .then((data: SkillRow[]) => setAllSkills(data))
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, [isEditing]);
+
+  const toggleSkill = useCallback((skill: SkillRow) => {
+    setDraftSkills((prev) =>
+      prev.some((s) => s.id === skill.id)
+        ? prev.filter((s) => s.id !== skill.id)
+        : [...prev, skill]
+    );
   }, []);
 
-  const handleTopicChange = useCallback(
-    (value: string) => {
-      setDraft((prev) => ({ ...prev, topic: value }));
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      if (value.length === 0) {
-        setSuggestions([]);
-        setShowSuggestions(false);
-        return;
-      }
-      debounceRef.current = setTimeout(() => {
-        fetchSuggestions(value, draft.syllabus, draft.subject);
-      }, 300);
-    },
-    [draft.syllabus, draft.subject, fetchSuggestions]
-  );
+  // Group + filter skills for display
+  const filteredSkills = skillFilter
+    ? allSkills.filter(
+        (s) =>
+          s.skill_name.toLowerCase().includes(skillFilter.toLowerCase()) ||
+          (s.spec_reference ?? "").toLowerCase().includes(skillFilter.toLowerCase()) ||
+          s.topic.toLowerCase().includes(skillFilter.toLowerCase())
+      )
+    : allSkills;
 
-  const selectSuggestion = useCallback((name: string) => {
-    setDraft((prev) => ({ ...prev, topic: name }));
-    setSuggestions([]);
-    setShowSuggestions(false);
-  }, []);
+  const skillsByTopic = filteredSkills.reduce<Record<string, SkillRow[]>>((acc, s) => {
+    const key = s.subtopic ? `${s.topic} — ${s.subtopic}` : s.topic;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(s);
+    return acc;
+  }, {});
 
   return (
     <aside
@@ -205,13 +215,11 @@ export function ParametersPanel({ values, onApply }: ParametersPanelProps) {
             style={{ color: "#9AA0A6" }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.color = "#FFFFFF";
-              (e.currentTarget as HTMLElement).style.backgroundColor =
-                "#2C2E33";
+              (e.currentTarget as HTMLElement).style.backgroundColor = "#2C2E33";
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLElement).style.color = "#9AA0A6";
-              (e.currentTarget as HTMLElement).style.backgroundColor =
-                "transparent";
+              (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
             }}
           >
             <PencilIcon />
@@ -222,12 +230,8 @@ export function ParametersPanel({ values, onApply }: ParametersPanelProps) {
             onClick={cancelEdit}
             className="text-xs font-medium transition-colors rounded px-1.5 py-1"
             style={{ color: "#9AA0A6" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#FFFFFF";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#9AA0A6";
-            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#FFFFFF"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#9AA0A6"; }}
           >
             Cancel
           </button>
@@ -241,33 +245,38 @@ export function ParametersPanel({ values, onApply }: ParametersPanelProps) {
           <div className="px-5 py-6 space-y-6">
             {CONTROLS.map((ctrl) => (
               <div key={ctrl.name}>
-                <p
-                  className="text-xs font-semibold uppercase tracking-wider mb-1.5"
-                  style={{ color: "#9AA0A6" }}
-                >
+                <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#9AA0A6" }}>
                   {ctrl.label}
                 </p>
-                <p
-                  className="text-sm font-medium leading-snug"
-                  style={{ color: "#FFFFFF" }}
-                >
+                <p className="text-sm font-medium leading-snug" style={{ color: "#FFFFFF" }}>
                   {values[ctrl.name]}
                 </p>
               </div>
             ))}
             <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-wider mb-1.5"
-                style={{ color: "#9AA0A6" }}
-              >
-                Topic
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#9AA0A6" }}>
+                Skills
               </p>
-              <p
-                className="text-sm font-medium leading-snug"
-                style={{ color: values.topic ? "#FFFFFF" : "#4B5563" }}
-              >
-                {values.topic || "All Topics"}
-              </p>
+              {selectedSkills.length === 0 ? (
+                <p className="text-sm font-medium leading-snug" style={{ color: "#4B5563" }}>
+                  None selected
+                </p>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  {selectedSkills.map((s) => (
+                    <div key={s.id} className="flex items-start gap-1.5">
+                      {s.spec_reference && (
+                        <span className="text-xs font-mono flex-shrink-0 mt-0.5" style={{ color: "#4D528A" }}>
+                          {s.spec_reference}
+                        </span>
+                      )}
+                      <span className="text-xs leading-snug" style={{ color: "#E5E7EB" }}>
+                        {s.skill_name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -291,107 +300,121 @@ export function ParametersPanel({ values, onApply }: ParametersPanelProps) {
                 >
                   {ctrl.label}
                 </label>
-
                 <div className="relative">
                   <select
                     id={`edit-${ctrl.name}`}
                     value={draft[ctrl.name]}
                     onChange={(e) => {
-                      setDraft((prev) => ({
-                        ...prev,
-                        [ctrl.name]: e.target.value,
-                      }));
-                      // Clear topic suggestions when syllabus/subject changes
-                      if (ctrl.name === "syllabus" || ctrl.name === "subject") {
-                        setSuggestions([]);
-                        setShowSuggestions(false);
-                      }
+                      setDraft((prev) => ({ ...prev, [ctrl.name]: e.target.value }));
                     }}
                     className="w-full pl-3 pr-8 py-2 rounded-lg text-sm appearance-none cursor-pointer focus:outline-none transition-colors"
-                    style={{
-                      backgroundColor: "#121417",
-                      border: "1px solid #3A3D44",
-                      color: "#FFFFFF",
-                    }}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor = "#4D528A")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor = "#3A3D44")
-                    }
+                    style={{ backgroundColor: "#121417", border: "1px solid #3A3D44", color: "#FFFFFF" }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "#4D528A")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "#3A3D44")}
                   >
                     {ctrl.options.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
+                      <option key={opt} value={opt}>{opt}</option>
                     ))}
                   </select>
-                  <span
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
-                    style={{ color: "#9AA0A6" }}
-                  >
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#9AA0A6" }}>
                     <ChevronIcon />
                   </span>
                 </div>
               </div>
             ))}
 
-            {/* Topic field with typeahead */}
+            {/* Skill picker */}
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="edit-topic"
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ color: "#9AA0A6" }}
-              >
-                Topic
+              <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#9AA0A6" }}>
+                Skills{draftSkills.length > 0 ? ` · ${draftSkills.length} selected` : ""}
               </label>
-              <div className="relative">
-                <input
-                  id="edit-topic"
-                  type="text"
-                  value={draft.topic ?? ""}
-                  onChange={(e) => handleTopicChange(e.target.value)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = "#4D528A";
-                    if (suggestions.length > 0) setShowSuggestions(true);
-                  }}
-                  placeholder="e.g. Forces and Motion"
-                  className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors"
-                  style={{
-                    backgroundColor: "#121417",
-                    border: "1px solid #3A3D44",
-                    color: "#FFFFFF",
-                  }}
-                />
-                {showSuggestions && suggestions.length > 0 && (
-                  <div
-                    className="absolute left-0 right-0 top-full mt-1 rounded-lg overflow-hidden z-10"
-                    style={{
-                      backgroundColor: "#1E2024",
-                      border: "1px solid #3A3D44",
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-                    }}
-                  >
-                    {suggestions.map((s) => (
-                      <button
-                        key={s.id}
-                        onMouseDown={() => selectSuggestion(s.name)}
-                        className="w-full text-left px-3 py-2 text-sm transition-colors"
-                        style={{ color: "#E5E7EB" }}
-                        onMouseEnter={(e) =>
-                          ((e.currentTarget as HTMLElement).style.backgroundColor = "#2C2E33")
-                        }
-                        onMouseLeave={(e) =>
-                          ((e.currentTarget as HTMLElement).style.backgroundColor = "transparent")
-                        }
+
+              {/* Search filter */}
+              <input
+                type="text"
+                value={skillFilter}
+                onChange={(e) => setSkillFilter(e.target.value)}
+                placeholder="Filter skills…"
+                className="w-full px-3 py-1.5 rounded-lg text-xs focus:outline-none"
+                style={{ backgroundColor: "#121417", border: "1px solid #3A3D44", color: "#FFFFFF" }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#4D528A")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#3A3D44")}
+              />
+
+              {/* Grouped skill list */}
+              <div
+                className="rounded-lg overflow-y-auto"
+                style={{ border: "1px solid #3A3D44", maxHeight: "280px" }}
+              >
+                {allSkills.length === 0 ? (
+                  <p className="px-3 py-4 text-xs text-center" style={{ color: "#4B5563" }}>
+                    Loading skills…
+                  </p>
+                ) : Object.keys(skillsByTopic).length === 0 ? (
+                  <p className="px-3 py-4 text-xs text-center" style={{ color: "#4B5563" }}>
+                    No skills match
+                  </p>
+                ) : (
+                  Object.entries(skillsByTopic).map(([groupLabel, skills]) => (
+                    <div key={groupLabel}>
+                      <div
+                        className="px-3 py-1.5 text-xs font-semibold sticky top-0"
+                        style={{ backgroundColor: "#0F1114", color: "#9AA0A6" }}
                       >
-                        {s.name}
-                      </button>
-                    ))}
-                  </div>
+                        {groupLabel}
+                      </div>
+                      {skills.map((skill, idx) => {
+                        const isSelected = draftSkills.some((s) => s.id === skill.id);
+                        return (
+                          <button
+                            key={skill.id}
+                            onClick={() => toggleSkill(skill)}
+                            className="w-full text-left px-3 py-2 flex items-start gap-2 transition-colors"
+                            style={{
+                              backgroundColor: isSelected ? "rgba(77,82,138,0.25)" : "transparent",
+                              borderTop: idx === 0 ? "none" : "1px solid #2C2E33",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)";
+                            }}
+                            onMouseLeave={(e) => {
+                              (e.currentTarget as HTMLElement).style.backgroundColor = isSelected ? "rgba(77,82,138,0.25)" : "transparent";
+                            }}
+                          >
+                            <span
+                              className="flex-shrink-0 mt-0.5 text-xs"
+                              style={{ color: isSelected ? "#4D528A" : "#3A3D44" }}
+                            >
+                              {isSelected ? "✓" : "○"}
+                            </span>
+                            <span className="flex-1 text-xs leading-snug" style={{ color: isSelected ? "#FFFFFF" : "#E5E7EB" }}>
+                              {skill.skill_name}
+                            </span>
+                            {skill.spec_reference && (
+                              <span className="flex-shrink-0 text-xs font-mono" style={{ color: "#9AA0A6" }}>
+                                {skill.spec_reference}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))
                 )}
               </div>
+
+              {/* Clear selection */}
+              {draftSkills.length > 0 && (
+                <button
+                  onClick={() => setDraftSkills([])}
+                  className="text-xs self-start"
+                  style={{ color: "#9AA0A6" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#FFFFFF"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#9AA0A6"; }}
+                >
+                  Clear selection
+                </button>
+              )}
             </div>
           </div>
         )}

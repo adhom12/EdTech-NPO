@@ -4,9 +4,10 @@ import Link from "next/link";
 
 interface WorkspaceHeaderProps {
   title: string;
+  backHref?: string;
 }
 
-export function WorkspaceHeader({ title }: WorkspaceHeaderProps) {
+export function WorkspaceHeader({ title, backHref = "/" }: WorkspaceHeaderProps) {
   return (
     <header
       className="workspace-header flex-shrink-0 flex items-center justify-between px-6 h-14"
@@ -17,7 +18,7 @@ export function WorkspaceHeader({ title }: WorkspaceHeaderProps) {
     >
       <div className="flex items-center gap-3 min-w-0">
         <Link
-          href="/"
+          href={backHref}
           className="flex items-center gap-1.5 text-sm flex-shrink-0 transition-colors"
           style={{ color: "#9AA0A6" }}
         >
@@ -33,7 +34,7 @@ export function WorkspaceHeader({ title }: WorkspaceHeaderProps) {
           >
             <path d="M9 2L4 7l5 5" />
           </svg>
-          Back to Library
+          {backHref === "/" ? "Back to Library" : "Back to Course"}
         </Link>
 
         <span className="flex-shrink-0 text-sm" style={{ color: "#3A3D44" }}>
