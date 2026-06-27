@@ -1,12 +1,15 @@
+import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/Navbar'
 import { CourseCard } from '@/components/CourseCard'
 import { AddCourseCard } from '@/components/AddCourseCard'
 import { getDb } from '@/lib/aurora/client'
-
-// Replace with real session once auth is wired (Phase 4)
-const DEV_TEACHER_ID = 'e3987e0e-6bd4-4438-94fe-e821e1f1e0f1'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function Dashboard() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
   let courses: Record<string, unknown>[] = []
   let curricula: Record<string, unknown>[] = []
   let dbError: string | null = null
@@ -21,7 +24,7 @@ export default async function Dashboard() {
           (SELECT COUNT(*) FROM worksheets w WHERE w.course_id = c.id)::int AS worksheet_count
         FROM courses c
         LEFT JOIN curricula cu ON c.curriculum_id = cu.id
-        WHERE c.teacher_id = ${DEV_TEACHER_ID}
+        WHERE c.teacher_id = ${user.id}
         ORDER BY c.created_at DESC
       `,
       sql`
