@@ -33,7 +33,7 @@ export default async function AdminReviewPage() {
           </a>
         </div>
 
-        <ReviewTable questions={questions as Parameters<typeof ReviewTable>[0]['questions']} />
+        <ReviewTable questions={questions as unknown as Parameters<typeof ReviewTable>[0]['questions']} />
       </div>
     </div>
   );
