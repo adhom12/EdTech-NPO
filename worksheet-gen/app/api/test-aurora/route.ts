@@ -15,7 +15,7 @@ export async function GET() {
     return NextResponse.json({
       ok: true,
       version: ver.version,
-      tables: tables.map((t: { table_name: string }) => t.table_name),
+      tables: tables.map((t) => (t as { table_name: string }).table_name),
     })
   } catch (err) {
     return NextResponse.json(
