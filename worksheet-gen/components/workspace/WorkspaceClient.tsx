@@ -18,7 +18,13 @@ export const DEFAULT_PARAMETERS: Record<string, string> = {
 };
 
 
-export function WorkspaceClient({ worksheetTitle }: { worksheetTitle: string }) {
+export function WorkspaceClient({
+  worksheetTitle,
+  curriculumId,
+}: {
+  worksheetTitle: string;
+  curriculumId: string | null;
+}) {
   const [parameters, setParameters] = useState<Record<string, string>>(DEFAULT_PARAMETERS);
   const [selectedSkills, setSelectedSkills] = useState<SkillRow[]>([]);
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS);
@@ -91,7 +97,12 @@ export function WorkspaceClient({ worksheetTitle }: { worksheetTitle: string }) 
 
   return (
     <>
-      <ParametersPanel values={parameters} selectedSkills={selectedSkills} onApply={handleApplyParameters} />
+      <ParametersPanel
+        values={parameters}
+        selectedSkills={selectedSkills}
+        onApply={handleApplyParameters}
+        curriculumId={curriculumId}
+      />
       <DocumentCanvas
         worksheetTitle={worksheetTitle}
         parameters={parameters}

@@ -91,6 +91,32 @@ const ChevronIcon = () => (
   </svg>
 );
 
+function GroupCheckbox({
+  checked,
+  indeterminate,
+  onChange,
+}: {
+  checked: boolean;
+  indeterminate: boolean;
+  onChange: () => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = indeterminate;
+  }, [indeterminate]);
+
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      className="cursor-pointer flex-shrink-0"
+      style={{ accentColor: "#4D528A", width: 13, height: 13 }}
+    />
+  );
+}
+
 export interface SkillRow {
   id: string;
   skill_name: string;
@@ -103,9 +129,10 @@ interface ParametersPanelProps {
   values: Record<string, string>;
   selectedSkills: SkillRow[];
   onApply: (values: Record<string, string>, skills: SkillRow[]) => void;
+  curriculumId: string | null;
 }
 
-export function ParametersPanel({ values, selectedSkills, onApply }: ParametersPanelProps) {
+export function ParametersPanel({ values, selectedSkills, onApply, curriculumId }: ParametersPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [animIn, setAnimIn] = useState(false);
   const [draft, setDraft] = useState<Record<string, string>>(values);
@@ -147,20 +174,24 @@ export function ParametersPanel({ values, selectedSkills, onApply }: ParametersP
     setTimeout(() => setIsEditing(false), 150);
   }, [draft, draftSkills, onApply]);
 
-  // Fetch skills whenever panel opens or syllabus/subject changes
+  // Fetch skills scoped to curriculum when panel opens
   useEffect(() => {
     if (!isEditing) return;
     if (skillFetchRef.current) skillFetchRef.current.abort();
     const controller = new AbortController();
     skillFetchRef.current = controller;
 
-    fetch("/api/skills", { signal: controller.signal })
+    const url = curriculumId
+      ? `/api/skills?curriculum_id=${curriculumId}`
+      : "/api/skills";
+
+    fetch(url, { signal: controller.signal })
       .then((r) => r.json())
       .then((data: SkillRow[]) => setAllSkills(data))
       .catch(() => {});
 
     return () => controller.abort();
-  }, [isEditing]);
+  }, [isEditing, curriculumId]);
 
   const toggleSkill = useCallback((skill: SkillRow) => {
     setDraftSkills((prev) =>
@@ -170,7 +201,17 @@ export function ParametersPanel({ values, selectedSkills, onApply }: ParametersP
     );
   }, []);
 
-  // Group + filter skills for display
+  const toggleGroup = useCallback((groupSkills: SkillRow[]) => {
+    setDraftSkills((prev) => {
+      const allSelected = groupSkills.every((s) => prev.some((d) => d.id === s.id));
+      if (allSelected) {
+        return prev.filter((d) => !groupSkills.some((s) => s.id === d.id));
+      }
+      const existingIds = new Set(prev.map((d) => d.id));
+      return [...prev, ...groupSkills.filter((s) => !existingIds.has(s.id))];
+    });
+  }, []);
+
   const filteredSkills = skillFilter
     ? allSkills.filter(
         (s) =>
@@ -329,7 +370,6 @@ export function ParametersPanel({ values, selectedSkills, onApply }: ParametersP
                 Skills{draftSkills.length > 0 ? ` · ${draftSkills.length} selected` : ""}
               </label>
 
-              {/* Search filter */}
               <input
                 type="text"
                 value={skillFilter}
@@ -341,7 +381,6 @@ export function ParametersPanel({ values, selectedSkills, onApply }: ParametersP
                 onBlur={(e) => (e.currentTarget.style.borderColor = "#3A3D44")}
               />
 
-              {/* Grouped skill list */}
               <div
                 className="rounded-lg overflow-y-auto"
                 style={{ border: "1px solid #3A3D44", maxHeight: "280px" }}
@@ -355,55 +394,72 @@ export function ParametersPanel({ values, selectedSkills, onApply }: ParametersP
                     No skills match
                   </p>
                 ) : (
-                  Object.entries(skillsByTopic).map(([groupLabel, skills]) => (
-                    <div key={groupLabel}>
-                      <div
-                        className="px-3 py-1.5 text-xs font-semibold sticky top-0"
-                        style={{ backgroundColor: "#0F1114", color: "#9AA0A6" }}
-                      >
-                        {groupLabel}
-                      </div>
-                      {skills.map((skill, idx) => {
-                        const isSelected = draftSkills.some((s) => s.id === skill.id);
-                        return (
-                          <button
-                            key={skill.id}
-                            onClick={() => toggleSkill(skill)}
-                            className="w-full text-left px-3 py-2 flex items-start gap-2 transition-colors"
-                            style={{
-                              backgroundColor: isSelected ? "rgba(77,82,138,0.25)" : "transparent",
-                              borderTop: idx === 0 ? "none" : "1px solid #2C2E33",
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)";
-                            }}
-                            onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLElement).style.backgroundColor = isSelected ? "rgba(77,82,138,0.25)" : "transparent";
-                            }}
-                          >
-                            <span
-                              className="flex-shrink-0 mt-0.5 text-xs"
-                              style={{ color: isSelected ? "#4D528A" : "#3A3D44" }}
+                  Object.entries(skillsByTopic).map(([groupLabel, groupSkills]) => {
+                    const selectedInGroup = groupSkills.filter((s) =>
+                      draftSkills.some((d) => d.id === s.id)
+                    );
+                    const allSelected = selectedInGroup.length === groupSkills.length;
+                    const someSelected = selectedInGroup.length > 0 && !allSelected;
+
+                    return (
+                      <div key={groupLabel}>
+                        <div
+                          className="px-3 py-1.5 text-xs font-semibold sticky top-0 flex items-center gap-2"
+                          style={{ backgroundColor: "#0F1114", color: "#9AA0A6" }}
+                        >
+                          <GroupCheckbox
+                            checked={allSelected}
+                            indeterminate={someSelected}
+                            onChange={() => toggleGroup(groupSkills)}
+                          />
+                          <span className="flex-1 truncate">{groupLabel}</span>
+                          {selectedInGroup.length > 0 && (
+                            <span style={{ color: "#4D528A" }}>
+                              {selectedInGroup.length}/{groupSkills.length}
+                            </span>
+                          )}
+                        </div>
+                        {groupSkills.map((skill, idx) => {
+                          const isSelected = draftSkills.some((s) => s.id === skill.id);
+                          return (
+                            <button
+                              key={skill.id}
+                              onClick={() => toggleSkill(skill)}
+                              className="w-full text-left px-3 py-2 flex items-start gap-2 transition-colors"
+                              style={{
+                                backgroundColor: isSelected ? "rgba(77,82,138,0.25)" : "transparent",
+                                borderTop: idx === 0 ? "none" : "1px solid #2C2E33",
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)";
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLElement).style.backgroundColor = isSelected ? "rgba(77,82,138,0.25)" : "transparent";
+                              }}
                             >
-                              {isSelected ? "✓" : "○"}
-                            </span>
-                            <span className="flex-1 text-xs leading-snug" style={{ color: isSelected ? "#FFFFFF" : "#E5E7EB" }}>
-                              {skill.skill_name}
-                            </span>
-                            {skill.spec_reference && (
-                              <span className="flex-shrink-0 text-xs font-mono" style={{ color: "#9AA0A6" }}>
-                                {skill.spec_reference}
+                              <span
+                                className="flex-shrink-0 mt-0.5 text-xs"
+                                style={{ color: isSelected ? "#4D528A" : "#3A3D44" }}
+                              >
+                                {isSelected ? "✓" : "○"}
                               </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ))
+                              <span className="flex-1 text-xs leading-snug" style={{ color: isSelected ? "#FFFFFF" : "#E5E7EB" }}>
+                                {skill.skill_name}
+                              </span>
+                              {skill.spec_reference && (
+                                <span className="flex-shrink-0 text-xs font-mono" style={{ color: "#9AA0A6" }}>
+                                  {skill.spec_reference}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })
                 )}
               </div>
 
-              {/* Clear selection */}
               {draftSkills.length > 0 && (
                 <button
                   onClick={() => setDraftSkills([])}
