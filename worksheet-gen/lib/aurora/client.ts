@@ -1,18 +1,38 @@
+import { writeFileSync } from 'fs'
+import { fromWebIdentity } from '@aws-sdk/credential-providers'
 import { Signer } from '@aws-sdk/rds-signer'
 import postgres, { type Sql } from 'postgres'
 
-// Cached connection per serverless instance lifetime.
-// Token expires after 15 min — for serverless this is fine since
-// cold starts are frequent enough that stale tokens are rarely an issue.
 let _sql: Sql | null = null
 
 async function getToken(): Promise<string> {
+  const oidcToken = process.env.VERCEL_OIDC_TOKEN
+  if (!oidcToken) {
+    throw new Error(
+      'VERCEL_OIDC_TOKEN is not set. ' +
+      'Go to Vercel project Settings → Security → enable OIDC Federation, then redeploy.'
+    )
+  }
+
+  // fromWebIdentity expects a file path; /tmp is writable in Vercel's runtime
+  const tokenFile = '/tmp/vercel-oidc-token'
+  writeFileSync(tokenFile, oidcToken)
+
+  const credentials = fromWebIdentity({
+    roleArn: process.env.AURORA_AWS_ROLE_ARN!,
+    webIdentityTokenFile: tokenFile,
+    roleSessionName: 'worksheet-gen',
+    clientConfig: { region: process.env.AURORA_AWS_REGION! },
+  })
+
   const signer = new Signer({
     hostname: process.env.AURORA_PGHOST!,
     port: Number(process.env.AURORA_PGPORT ?? 5432),
     region: process.env.AURORA_AWS_REGION!,
     username: process.env.AURORA_PGUSER!,
+    credentials,
   })
+
   return signer.getAuthToken()
 }
 

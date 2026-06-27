@@ -18,9 +18,17 @@ export async function GET() {
       tables: tables.map((t) => (t as { table_name: string }).table_name),
     })
   } catch (err) {
-    return NextResponse.json(
-      { ok: false, error: String(err) },
-      { status: 500 }
-    )
+    return NextResponse.json({
+      ok: false,
+      error: String(err),
+      diagnostics: {
+        hasOidcToken: !!process.env.VERCEL_OIDC_TOKEN,
+        hasRoleArn: !!process.env.AURORA_AWS_ROLE_ARN,
+        hasHost: !!process.env.AURORA_PGHOST,
+        hasRegion: !!process.env.AURORA_AWS_REGION,
+        hasUser: !!process.env.AURORA_PGUSER,
+        hasDatabase: !!process.env.AURORA_PGDATABASE,
+      },
+    }, { status: 500 })
   }
 }
