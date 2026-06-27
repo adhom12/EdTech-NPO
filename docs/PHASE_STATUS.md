@@ -35,4 +35,32 @@ All application tables migrate to Aurora PostgreSQL. Supabase is used exclusivel
 
 ---
 
+## Phase 2 — Migrate read paths to Aurora
+_Completed: 2026-06-27_
+
+**Routes migrated:**
+- `GET /api/skills` → Aurora
+- `GET /api/topics` → Aurora
+- `app/page.tsx` (dashboard) → Aurora (courses + curricula)
+- `app/courses/[id]/page.tsx` (course detail) → Aurora (course, worksheets, topic suggestions)
+
+**Data seeded into Aurora from Supabase:**
+- curricula: 3 (AQA 8300, Cambridge 0580, Edexcel 4MA1)
+- skills: 636
+- topics: 45
+- questions: 0 (none existed in Supabase yet — will be generated fresh via Aurora)
+
+**Verified:** Dashboard loads, Add Course dropdown shows 3 curricula, course detail page renders correctly.
+
+**Files changed:**
+- `app/api/skills/route.ts` — Aurora
+- `app/api/topics/route.ts` — Aurora
+- `app/page.tsx` — Aurora
+- `app/courses/[id]/page.tsx` — Aurora
+- `app/api/seed-from-supabase/route.ts` — DELETED after use
+
+**Status:** COMPLETE — ready for Phase 3
+
+---
+
 ---

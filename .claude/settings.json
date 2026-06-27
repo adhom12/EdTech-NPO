@@ -29,7 +29,8 @@
       "Skill(update-config:*)",
       "Bash(npm install *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(rm -rf \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\api\\\\seed-from-supabase\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO",
