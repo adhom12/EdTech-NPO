@@ -19,11 +19,23 @@
       "Bash(curl -v http://localhost:3001/)",
       "PowerShell(Stop-Process -Id 25160 -Force -ErrorAction SilentlyContinue)",
       "PowerShell(curl -s -I http://localhost:3001/ 2>&1)",
-      "Bash(mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\api\\\\questions\\\\[id]\" && mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\admin\\\\review\")"
+      "Bash(mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\api\\\\questions\\\\[id]\" && mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\admin\\\\review\")",
+      "mcp__claude_ai_Google_Drive__search_files",
+      "Bash(ls \"C:\\\\Users\\\\adamh\\\\Downloads\\\\EduHub\\\\IGCSE Math Taxonomy\")",
+      "Read(//c/Users/adamh/Downloads/EduHub/IGCSE Math Taxonomy/**)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\actions\" && mkdir -p \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\courses\\\\[id]\")",
+      "Bash(npx tsc *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(npm install *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO",
-      "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO\\worksheet-gen\\app\\api\\questions"
+      "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO\\worksheet-gen\\app\\api\\questions",
+      "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO\\worksheet-gen\\app\\courses",
+      "C:\\Users\\adamh\\.claude"
     ]
   }
 }
