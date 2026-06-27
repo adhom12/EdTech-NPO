@@ -4,6 +4,7 @@ import { Navbar } from '@/components/Navbar'
 import { WorksheetCard, type Worksheet } from '@/components/WorksheetCard'
 import { SortControls } from '@/components/SortControls'
 import { getDb } from '@/lib/aurora/client'
+import { addStudent, removeStudent } from '@/app/actions/students'
 
 function formatRelative(dateStr: string): string {
   const ms = Date.now() - new Date(dateStr).getTime()
@@ -29,7 +30,7 @@ export default async function CourseDetailPage({
   const [{ id }, { sort = 'newest' }] = await Promise.all([params, searchParams])
   const sql = await getDb()
 
-  const [courseRows, worksheetRows] = await Promise.all([
+  const [courseRows, worksheetRows, studentRows] = await Promise.all([
     sql`
       SELECT
         c.id, c.label, c.subject,
@@ -44,6 +45,12 @@ export default async function CourseDetailPage({
       FROM worksheets
       WHERE course_id = ${id}
       ORDER BY created_at DESC
+    `,
+    sql`
+      SELECT id, student_name, student_identifier
+      FROM classes
+      WHERE course_id = ${id}
+      ORDER BY created_at ASC
     `,
   ])
 
@@ -185,6 +192,91 @@ export default async function CourseDetailPage({
             <CreateButton />
           </div>
         )}
+        {/* Roster section */}
+        <section className="mt-12">
+          <h2
+            className="text-xs font-semibold uppercase tracking-widest mb-5"
+            style={{ color: '#9AA0A6' }}
+          >
+            Class Roster
+            <span className="ml-2 font-normal normal-case tracking-normal" style={{ color: '#4B5563' }}>
+              {studentRows.length} {studentRows.length === 1 ? 'student' : 'students'}
+            </span>
+          </h2>
+
+          <div
+            className="rounded-xl overflow-hidden mb-4"
+            style={{ border: '1px solid #2C2E33' }}
+          >
+            {studentRows.length === 0 ? (
+              <p className="px-5 py-4 text-sm" style={{ color: '#4B5563' }}>
+                No students added yet.
+              </p>
+            ) : (
+              <div>
+                {studentRows.map((s, idx) => {
+                  const removeAction = removeStudent.bind(null, s.id as string, id)
+                  return (
+                    <div
+                      key={s.id as string}
+                      className="flex items-center justify-between px-5 py-3"
+                      style={{
+                        borderTop: idx === 0 ? 'none' : '1px solid #2C2E33',
+                        backgroundColor: '#1A1D21',
+                      }}
+                    >
+                      <div>
+                        <span className="text-sm text-white">{s.student_name as string}</span>
+                        {s.student_identifier && (
+                          <span className="ml-2 text-xs font-mono" style={{ color: '#9AA0A6' }}>
+                            {s.student_identifier as string}
+                          </span>
+                        )}
+                      </div>
+                      <form action={removeAction}>
+                        <button
+                          type="submit"
+                          className="text-xs transition-colors"
+                          style={{ color: '#4B5563' }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#F87171' }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#4B5563' }}
+                        >
+                          Remove
+                        </button>
+                      </form>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          <form action={addStudent} className="flex gap-2">
+            <input type="hidden" name="course_id" value={id} />
+            <input
+              type="text"
+              name="student_name"
+              placeholder="Student name"
+              required
+              className="flex-1 px-3 py-2 rounded-lg text-sm focus:outline-none"
+              style={{ backgroundColor: '#1A1D21', border: '1px solid #2C2E33', color: '#E8EAED' }}
+            />
+            <input
+              type="text"
+              name="student_identifier"
+              placeholder="ID (optional)"
+              className="w-28 px-3 py-2 rounded-lg text-sm focus:outline-none"
+              style={{ backgroundColor: '#1A1D21', border: '1px solid #2C2E33', color: '#E8EAED' }}
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-85"
+              style={{ backgroundColor: '#4D528A' }}
+            >
+              Add
+            </button>
+          </form>
+        </section>
       </main>
     </div>
   )

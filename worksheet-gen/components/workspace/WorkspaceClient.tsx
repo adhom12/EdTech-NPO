@@ -21,9 +21,11 @@ export const DEFAULT_PARAMETERS: Record<string, string> = {
 export function WorkspaceClient({
   worksheetTitle,
   curriculumId,
+  courseId,
 }: {
   worksheetTitle: string;
   curriculumId: string | null;
+  courseId: string | null;
 }) {
   const [parameters, setParameters] = useState<Record<string, string>>(DEFAULT_PARAMETERS);
   const [selectedSkills, setSelectedSkills] = useState<SkillRow[]>([]);
@@ -42,7 +44,7 @@ export function WorkspaceClient({
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newParams, skills: skillPayload, count: 5 }),
+        body: JSON.stringify({ ...newParams, skills: skillPayload, count: 5, course_id: courseId }),
       });
 
       if (!res.ok) {
@@ -95,6 +97,16 @@ export function WorkspaceClient({
     [questions, parameters]
   );
 
+  const handleFlag = useCallback(async (questionId: string) => {
+    const reason = window.prompt('Why are you flagging this question?\n\nExamples: Inaccurate answer, Unclear wording, Wrong difficulty, Off-topic')
+    if (!reason?.trim()) return
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question_id: questionId, reason: reason.trim() }),
+    })
+  }, [])
+
   return (
     <>
       <ParametersPanel
@@ -109,6 +121,7 @@ export function WorkspaceClient({
         questions={questions}
         loadingIds={loadingIds}
         isGenerating={isGenerating}
+        onFlag={handleFlag}
       />
       <ChatPanel onSubmit={handleChatSubmit} />
     </>

@@ -1,25 +1,19 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { getDb } from "@/lib/aurora/client";
 import { ReviewTable } from "./ReviewTable";
 
 export default async function AdminReviewPage() {
-  const supabase = await createClient();
+  const sql = await getDb();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/auth");
-
-  const { data: userData } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (userData?.role !== "admin") redirect("/");
-
-  const { data: questions, error } = await supabase
-    .from("questions_pending_review")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const questions = await sql`
+    SELECT
+      q.id, q.syllabus, q.subject, q.grade, q.criterion, q.difficulty,
+      q.question_type, q.question_text, q.mark_scheme, q.source,
+      t.name AS topic_name
+    FROM questions q
+    LEFT JOIN topics t ON q.topic_id = t.id
+    WHERE q.verified = false
+    ORDER BY q.created_at DESC
+  `;
 
   return (
     <div style={{ backgroundColor: "#121417", minHeight: "100vh", padding: "2rem" }}>
@@ -31,25 +25,15 @@ export default async function AdminReviewPage() {
               className="ml-2 text-sm font-normal px-2 py-0.5 rounded-full"
               style={{ backgroundColor: "#2C2E33", color: "#9AA0A6" }}
             >
-              {questions?.length ?? 0}
+              {questions.length}
             </span>
           </h1>
-          <a
-            href="/"
-            className="text-sm"
-            style={{ color: "#9AA0A6" }}
-          >
+          <a href="/" className="text-sm" style={{ color: "#9AA0A6" }}>
             ← Back to dashboard
           </a>
         </div>
 
-        {error ? (
-          <p style={{ color: "#F28B82", fontSize: "0.875rem" }}>
-            Error loading queue: {error.message}
-          </p>
-        ) : (
-          <ReviewTable questions={questions ?? []} />
-        )}
+        <ReviewTable questions={questions as Parameters<typeof ReviewTable>[0]['questions']} />
       </div>
     </div>
   );

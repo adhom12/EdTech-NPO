@@ -25,6 +25,7 @@ function dbRowToQuestion(row: DbRow, index: number): Question {
   }
 
   return {
+    id: row.id as string,
     number: index + 1,
     marks,
     blocks,
@@ -121,7 +122,7 @@ Example for a Physics question:
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { syllabus, subject, grade, criterion, difficulty, topic, skills, count = 5 } = body
+  const { syllabus, subject, grade, criterion, difficulty, topic, skills, count = 5, course_id } = body
 
   if (!syllabus || !subject || !grade || !criterion || !difficulty) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
@@ -226,6 +227,16 @@ export async function POST(request: NextRequest) {
   }
 
   const allRows = [...verifiedRows, ...insertedRows]
+
+  // Fire analytics event — non-blocking, ignore failures
+  sql`
+    INSERT INTO analytics_events (course_id, event_type, payload)
+    VALUES (
+      ${course_id ?? null},
+      'worksheet_generated',
+      ${JSON.stringify({ syllabus, subject, grade: gradeNum, criterion, difficulty, count: allRows.length })}::jsonb
+    )
+  `.catch(() => {})
 
   return NextResponse.json({
     questions: allRows.map((row, i) => dbRowToQuestion(row, i)),

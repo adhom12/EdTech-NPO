@@ -1,6 +1,7 @@
 import type { Block } from "./renderMath";
 
 export interface Question {
+  id?: string;
   number: number;
   marks: number;
   blocks: Block[];

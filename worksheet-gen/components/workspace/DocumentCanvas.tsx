@@ -9,6 +9,7 @@ interface DocumentCanvasProps {
   questions: Question[];
   loadingIds: Set<number>;
   isGenerating?: boolean;
+  onFlag?: (questionId: string) => void;
 }
 
 function QuestionSkeleton({ marks }: { marks: number }) {
@@ -44,9 +45,11 @@ function QuestionSkeleton({ marks }: { marks: number }) {
 function QuestionBlock({
   q,
   isLoading,
+  onFlag,
 }: {
   q: Question;
   isLoading: boolean;
+  onFlag?: (questionId: string) => void;
 }) {
   if (isLoading) {
     return <QuestionSkeleton marks={q.marks} />;
@@ -146,14 +149,19 @@ function QuestionBlock({
           className="text-xs font-medium transition-colors"
           style={{ color: "#6B7280" }}
         >
-          Regenerate Question
+          Regenerate
         </button>
-        <button
-          className="text-xs font-medium transition-colors"
-          style={{ color: "#6B7280" }}
-        >
-          Delete
-        </button>
+        {onFlag && q.id && (
+          <button
+            onClick={() => onFlag(q.id!)}
+            className="text-xs font-medium transition-colors"
+            style={{ color: "#6B7280" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#F28B82" }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6B7280" }}
+          >
+            Flag
+          </button>
+        )}
       </div>
     </div>
   );
@@ -165,6 +173,7 @@ export function DocumentCanvas({
   questions,
   loadingIds,
   isGenerating = false,
+  onFlag,
 }: DocumentCanvasProps) {
   const headerMeta = `${parameters.syllabus} ${parameters.subject} · ${parameters.grade} · ${parameters.difficulty}`.toUpperCase();
 
@@ -220,6 +229,7 @@ export function DocumentCanvas({
                   key={q.number}
                   q={q}
                   isLoading={loadingIds.has(q.number)}
+                  onFlag={onFlag}
                 />
               ))}
         </div>

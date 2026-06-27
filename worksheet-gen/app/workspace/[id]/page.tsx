@@ -21,7 +21,8 @@ export default async function WorkspacePage({
 
   const row = rows[0];
   const title = (row?.title as string) ?? "Untitled Worksheet";
-  const backHref = row?.course_id ? `/courses/${row.course_id as string}` : "/";
+  const courseId = (row?.course_id as string) ?? null;
+  const backHref = courseId ? `/courses/${courseId}` : "/";
   const curriculumId = (row?.curriculum_id as string) ?? null;
 
   return (
@@ -31,7 +32,7 @@ export default async function WorkspacePage({
     >
       <WorkspaceHeader title={title} backHref={backHref} />
       <div className="workspace-columns flex flex-1 overflow-hidden">
-        <WorkspaceClient worksheetTitle={title} curriculumId={curriculumId} />
+        <WorkspaceClient worksheetTitle={title} curriculumId={curriculumId} courseId={courseId} />
       </div>
     </div>
   );
