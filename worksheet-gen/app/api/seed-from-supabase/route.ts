@@ -21,27 +21,22 @@ export async function POST(req: NextRequest) {
     if (curricula?.length) {
       await sql`
         INSERT INTO curricula (id, board, qualification, subject, syllabus_code, created_at)
-        SELECT id, board, qualification, subject, syllabus_code, created_at
-        FROM jsonb_to_recordset(${JSON.stringify(curricula)}::jsonb)
-          AS t(id uuid, board text, qualification text, subject text, syllabus_code text, created_at timestamptz)
+        ${sql(curricula, 'id', 'board', 'qualification', 'subject', 'syllabus_code', 'created_at')}
         ON CONFLICT (syllabus_code) DO NOTHING
       `
       counts.curricula = curricula.length
     }
 
-    // --- skills ---
+    // --- skills (batch 500) ---
     const { data: skills } = await supabase
       .from('skills')
       .select('id, curriculum_id, skill_id, topic, subtopic, skill_name, tier, spec_reference, source, created_at')
     if (skills?.length) {
-      // Insert in batches of 500 to avoid query size limits
       for (let i = 0; i < skills.length; i += 500) {
         const batch = skills.slice(i, i + 500)
         await sql`
           INSERT INTO skills (id, curriculum_id, skill_id, topic, subtopic, skill_name, tier, spec_reference, source, created_at)
-          SELECT id, curriculum_id, skill_id, topic, subtopic, skill_name, tier, spec_reference, source, created_at
-          FROM jsonb_to_recordset(${JSON.stringify(batch)}::jsonb)
-            AS t(id uuid, curriculum_id uuid, skill_id text, topic text, subtopic text, skill_name text, tier text, spec_reference text, source text, created_at timestamptz)
+          ${sql(batch, 'id', 'curriculum_id', 'skill_id', 'topic', 'subtopic', 'skill_name', 'tier', 'spec_reference', 'source', 'created_at')}
           ON CONFLICT DO NOTHING
         `
       }
@@ -55,15 +50,13 @@ export async function POST(req: NextRequest) {
     if (topics?.length) {
       await sql`
         INSERT INTO topics (id, name, syllabus, subject, created_at)
-        SELECT id, name, syllabus, subject, created_at
-        FROM jsonb_to_recordset(${JSON.stringify(topics)}::jsonb)
-          AS t(id uuid, name text, syllabus text, subject text, created_at timestamptz)
+        ${sql(topics, 'id', 'name', 'syllabus', 'subject', 'created_at')}
         ON CONFLICT DO NOTHING
       `
       counts.topics = topics.length
     }
 
-    // --- questions ---
+    // --- questions (batch 200) ---
     const { data: questions } = await supabase
       .from('questions')
       .select('id, topic_id, syllabus, subject, grade, criterion, difficulty, question_type, question_text, mark_scheme, source, verified, verified_by, verified_at, created_at')
@@ -72,9 +65,7 @@ export async function POST(req: NextRequest) {
         const batch = questions.slice(i, i + 200)
         await sql`
           INSERT INTO questions (id, topic_id, syllabus, subject, grade, criterion, difficulty, question_type, question_text, mark_scheme, source, verified, verified_by, verified_at, created_at)
-          SELECT id, topic_id, syllabus, subject, grade, criterion, difficulty, question_type, question_text, mark_scheme, source, verified, verified_by, verified_at, created_at
-          FROM jsonb_to_recordset(${JSON.stringify(batch)}::jsonb)
-            AS t(id uuid, topic_id uuid, syllabus text, subject text, grade int, criterion text, difficulty text, question_type text, question_text text, mark_scheme text, source text, verified boolean, verified_by uuid, verified_at timestamptz, created_at timestamptz)
+          ${sql(batch, 'id', 'topic_id', 'syllabus', 'subject', 'grade', 'criterion', 'difficulty', 'question_type', 'question_text', 'mark_scheme', 'source', 'verified', 'verified_by', 'verified_at', 'created_at')}
           ON CONFLICT DO NOTHING
         `
       }
