@@ -63,7 +63,7 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
           >
             <path d="M7 2v10M2 7h10" />
           </svg>
-          <span className="text-sm font-medium">Add course</span>
+          <span className="text-sm font-medium">Add class</span>
         </div>
       </button>
 
@@ -78,7 +78,7 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
             className="w-full max-w-md rounded-2xl p-6"
             style={{ backgroundColor: '#1E2024', border: '1px solid #2C2E33' }}
           >
-            <h2 className="text-base font-semibold text-white mb-5">New course</h2>
+            <h2 className="text-base font-semibold text-white mb-5">New class</h2>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
@@ -156,7 +156,7 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
                   className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-50"
                   style={{ backgroundColor: '#4D528A' }}
                 >
-                  {isPending ? 'Creating…' : 'Create course'}
+                  {isPending ? 'Creating…' : 'Create class'}
                 </button>
               </div>
             </form>

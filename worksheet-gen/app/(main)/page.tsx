@@ -76,7 +76,7 @@ export default async function Dashboard() {
             className="text-xs font-semibold uppercase tracking-widest"
             style={{ color: '#6B7280' }}
           >
-            Active Courses
+            Active Classes
           </h2>
           <span className="text-xs" style={{ color: '#4B5563' }}>
             {courses.length} {courses.length === 1 ? 'course' : 'courses'}

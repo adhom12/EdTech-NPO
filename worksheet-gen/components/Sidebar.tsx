@@ -16,7 +16,7 @@ const NAV = [
     ),
   },
   {
-    label: "Courses",
+    label: "Classes",
     href: "/courses",
     exact: false,
     icon: (

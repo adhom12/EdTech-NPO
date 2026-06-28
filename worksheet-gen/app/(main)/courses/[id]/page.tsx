@@ -150,8 +150,8 @@ export default async function CourseDetailPage({
         <div className="flex items-start justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-4 text-sm">
-              <Link href="/" className="transition-colors hover:text-white" style={{ color: '#A8B0BE' }}>
-                Courses
+              <Link href="/courses" className="transition-colors hover:text-white" style={{ color: '#A8B0BE' }}>
+                Classes
               </Link>
               <span style={{ color: '#4B5563' }}>/</span>
               <span className="text-white">{course.label as string}</span>
