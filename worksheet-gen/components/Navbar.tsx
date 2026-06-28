@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export function Navbar() {
   return (
     <nav
@@ -9,9 +11,9 @@ export function Navbar() {
       <div className="flex items-center gap-4 px-8 h-14">
         {/* Logo */}
         <div className="flex-shrink-0 w-44">
-          <span className="text-base font-semibold text-white tracking-tight select-none">
-            WorksheetGen
-          </span>
+          <Link href="/" className="text-base font-semibold text-white tracking-tight select-none hover:opacity-80 transition-opacity">
+            EduHub
+          </Link>
         </div>
 
         {/* Search — constrained and centered */}
