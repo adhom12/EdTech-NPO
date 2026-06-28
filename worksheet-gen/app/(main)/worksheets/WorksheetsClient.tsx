@@ -30,8 +30,13 @@ type MenuState = {
   courseId: string
   curriculumId: string | null
   title: string
+  /** px from top of viewport when opening downward */
   top: number
+  /** px from bottom of viewport when flipping upward */
+  bottom: number
+  /** px from right edge of viewport — aligns right edge of menu with trigger */
   right: number
+  flipUp: boolean
 }
 
 type AssignState = {
@@ -40,28 +45,27 @@ type AssignState = {
   curriculumId: string | null
 }
 
+// Estimated dropdown height for flip calculation (3 items + divider + padding)
+const MENU_HEIGHT_EST = 140
+
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+    day: 'numeric', month: 'short', year: 'numeric',
   })
 }
 
 function formatDateLong(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: 'numeric', month: 'long', year: 'numeric',
   })
 }
 
 function abbreviateBoard(board: string): string {
-  const b = board.trim()
-  if (b.toLowerCase().includes('cambridge assessment international')) return 'CIE'
-  if (b.toLowerCase().includes('cambridge assessment')) return 'Cambridge'
-  if (b.toLowerCase().includes('oxford cambridge')) return 'OCR'
-  return b
+  const b = board.trim().toLowerCase()
+  if (b.includes('cambridge assessment international')) return 'CIE'
+  if (b.includes('cambridge assessment')) return 'Cambridge'
+  if (b.includes('oxford cambridge')) return 'OCR'
+  return board.trim()
 }
 
 function subjectAccent(subject: string): string {
@@ -88,7 +92,7 @@ function DocThumbnail({ subject }: { subject: string }) {
   return (
     <div
       className="relative w-full flex-shrink-0"
-      style={{ paddingBottom: '62%', backgroundColor: '#181B22', borderBottom: '1px solid #252830' }}
+      style={{ paddingBottom: '62%', backgroundColor: '#141B21', borderBottom: '1px solid #25333E' }}
     >
       <div className="absolute inset-0 overflow-hidden">
         <div
@@ -101,49 +105,30 @@ function DocThumbnail({ subject }: { subject: string }) {
         />
         <div className="absolute inset-0 px-5 pt-10 pb-4 flex flex-col">
           <div className="mb-3">
-            <div className="h-2 rounded-sm mb-1.5" style={{ width: '58%', backgroundColor: '#323845' }} />
-            <div className="h-1.5 rounded-sm"    style={{ width: '37%', backgroundColor: '#262B38' }} />
+            <div className="h-2 rounded-sm mb-1.5" style={{ width: '58%', backgroundColor: '#2B3040' }} />
+            <div className="h-1.5 rounded-sm"    style={{ width: '37%', backgroundColor: '#222835' }} />
           </div>
-          <div className="mb-3" style={{ height: 1, backgroundColor: '#21252E' }} />
+          <div className="mb-3" style={{ height: 1, backgroundColor: '#1A2030' }} />
           {EXAM_QS.map(({ n, marks, lines, answers }) => (
             <div key={n} className="mb-3.5">
               <div className="flex items-start gap-1.5 mb-1.5">
-                <span
-                  className="flex-shrink-0 font-bold"
-                  style={{ fontSize: 7, color: accent + 'BB', lineHeight: 1, marginTop: 2 }}
-                >
+                <span className="flex-shrink-0 font-bold" style={{ fontSize: 7, color: accent + 'BB', lineHeight: 1, marginTop: 2 }}>
                   {n}.
                 </span>
                 <div className="flex flex-col gap-1 flex-1 min-w-0">
                   {lines.map((w, i) => (
-                    <div
-                      key={i}
-                      className="h-1.5 rounded-sm"
-                      style={{ width: `${w}%`, backgroundColor: i === 0 ? '#2B3040' : '#252A38' }}
-                    />
+                    <div key={i} className="h-1.5 rounded-sm" style={{ width: `${w}%`, backgroundColor: i === 0 ? '#283040' : '#222A38' }} />
                   ))}
                 </div>
                 <div
                   className="flex-shrink-0 flex items-center justify-center rounded"
-                  style={{
-                    width: 20, height: 14,
-                    border: `0.75px solid ${accent}45`,
-                    backgroundColor: `${accent}10`,
-                  }}
+                  style={{ width: 20, height: 14, border: `0.75px solid ${accent}45`, backgroundColor: `${accent}10` }}
                 >
                   <span style={{ fontSize: 6, color: accent + 'AA', fontWeight: 700 }}>{marks}m</span>
                 </div>
               </div>
               {Array.from({ length: answers }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    height: 1,
-                    borderBottom: '1px dashed #2A2D38',
-                    marginLeft: 14,
-                    marginBottom: 6,
-                  }}
-                />
+                <div key={i} style={{ height: 1, borderBottom: '1px dashed #252A38', marginLeft: 14, marginBottom: 6 }} />
               ))}
             </div>
           ))}
@@ -169,7 +154,7 @@ function CurriculumChip({ board, qualification }: { board: string; qualification
   return (
     <span
       className="inline-flex items-center text-xs px-2 py-0.5 rounded-full flex-shrink-0"
-      style={{ backgroundColor: '#1A1D24', color: '#5A6070', border: '1px solid #252830' }}
+      style={{ backgroundColor: '#1A242C', color: '#64748B', border: '1px solid #25333E' }}
     >
       {abbreviateBoard(board)} {qualification}
     </span>
@@ -190,9 +175,9 @@ function ThreeDotsBtn({ onMenu }: { onMenu: (e: React.MouseEvent<HTMLButtonEleme
     <button
       title="More options"
       className="p-1.5 rounded-md flex-shrink-0 transition-all"
-      style={{ color: '#3D4350', backgroundColor: 'transparent' }}
-      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#252830'; e.currentTarget.style.color = '#E8EAED' }}
-      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#3D4350' }}
+      style={{ color: '#3D4450', backgroundColor: 'transparent' }}
+      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#25333E'; e.currentTarget.style.color = '#F8FAFC' }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#3D4450' }}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMenu(e) }}
     >
       <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
@@ -220,11 +205,11 @@ function MenuItem({
       disabled={disabled}
       className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-left"
       style={{
-        color: disabled ? '#3D4350' : danger ? '#F87171' : '#A8B0BE',
+        color: disabled ? '#3D4450' : danger ? '#F87171' : '#94A3B8',
         backgroundColor: 'transparent',
         cursor: disabled ? 'not-allowed' : 'pointer',
       }}
-      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = '#252830' }}
+      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = '#25333E' }}
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
     >
       {icon}
@@ -247,20 +232,17 @@ function GridCard({
 }) {
   const accent = subjectAccent(ws.subject)
   return (
-    /* height:100% fills the grid cell so every card in a row matches the tallest */
     <Link href={`/workspace/${ws.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
       <div
-        className="rounded-xl overflow-hidden flex flex-col h-full group transition-colors duration-150 border border-[#252830] hover:border-[#06B6D4]"
-        style={{ backgroundColor: '#16191F' }}
+        className="rounded-xl overflow-hidden flex flex-col h-full group transition-colors duration-150 border border-[#25333E] hover:border-[#06B6D4]"
+        style={{ backgroundColor: '#1A242C' }}
       >
         <DocThumbnail subject={ws.subject} />
-
-        {/* Content area: flex-1 so all cards match the tallest, pushing footer to bottom */}
         <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1 min-w-0">
           <p
             className="text-[15px] font-semibold leading-snug mb-2.5 group-hover:text-[#A5F3FC] transition-colors"
             style={{
-              color: '#E8EAED',
+              color: '#F8FAFC',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
@@ -269,22 +251,20 @@ function GridCard({
           >
             {displayTitle}
           </p>
-
           <div className="flex items-center gap-1.5 flex-wrap mb-auto">
             <SubjectChip subject={ws.subject} />
             {ws.board && ws.qualification && (
               <CurriculumChip board={ws.board} qualification={ws.qualification} />
             )}
           </div>
-
-          {/* Footer: class label on its own row, last edited below it */}
+          {/* Footer: class on its own row, last edited below */}
           <div className="flex items-end justify-between gap-2 mt-3">
             <div className="flex flex-col gap-0.5 min-w-0">
               <div className="flex items-center gap-1.5">
                 <WorksheetIcon color={accent} />
-                <span className="text-xs truncate" style={{ color: '#5A6070' }}>{ws.courseLabel}</span>
+                <span className="text-xs truncate" style={{ color: '#64748B' }}>{ws.courseLabel}</span>
               </div>
-              <span className="text-xs pl-0" style={{ color: '#2E3340' }}>
+              <span className="text-xs" style={{ color: '#334155' }}>
                 Last edited {formatDateLong(ws.createdAt)}
               </span>
             </div>
@@ -311,11 +291,11 @@ function ToolBtn({
       className="flex items-center justify-center rounded-md transition-all"
       style={{
         padding: '6px',
-        backgroundColor: active ? '#1C1F28' : 'transparent',
-        border: active ? '1px solid #303440' : '1px solid transparent',
-        color: active ? '#06B6D4' : '#6B7280',
+        backgroundColor: active ? '#1A242C' : 'transparent',
+        border: active ? '1px solid #25333E' : '1px solid transparent',
+        color: active ? '#06B6D4' : '#64748B',
       }}
-      onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = '#1A1D24' }}
+      onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = '#1A242C' }}
       onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}
     >
       {children}
@@ -326,28 +306,81 @@ function ToolBtn({
 export function WorksheetsClient({ worksheets, courses }: { worksheets: WorksheetDoc[]; courses: CourseOption[] }) {
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [sort, setSort] = useState<'newest' | 'az'>('newest')
+
+  // Menu: two-phase state for enter+exit animation
   const [menu, setMenu] = useState<MenuState | null>(null)
+  const [menuAnimating, setMenuAnimating] = useState(false)
+  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Rename modal
   const [renaming, setRenaming] = useState<{ id: string; title: string } | null>(null)
   const [renameAnimating, setRenameAnimating] = useState(false)
   const [renameInput, setRenameInput] = useState('')
-  const [localTitles, setLocalTitles] = useState<Record<string, string>>({})
-  const [localCourseIds, setLocalCourseIds] = useState<Record<string, string>>({})
+  const renameInputRef = useRef<HTMLInputElement>(null)
+  const renameCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Assign modal
   const [assigning, setAssigning] = useState<AssignState | null>(null)
   const [assignAnimating, setAssignAnimating] = useState(false)
   const [assignPending, setAssignPending] = useState(false)
   const assignCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const renameInputRef = useRef<HTMLInputElement>(null)
-  const renameCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Optimistic overrides
+  const [localTitles, setLocalTitles] = useState<Record<string, string>>({})
+  const [localCourseIds, setLocalCourseIds] = useState<Record<string, string>>({})
+
+  // ── Menu lifecycle ──────────────────────────────────────────────────────────
+
+  // Trigger enter animation one frame after the menu mounts
   useEffect(() => {
     if (!menu) return
-    function onClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenu(null)
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
+    const id = requestAnimationFrame(() => setMenuAnimating(true))
+    return () => cancelAnimationFrame(id)
   }, [menu])
+
+  // Close on outside click — animated
+  useEffect(() => {
+    if (!menu) return
+    function onOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) closeMenu()
+    }
+    document.addEventListener('mousedown', onOutside)
+    return () => document.removeEventListener('mousedown', onOutside)
+  }, [menu])
+
+  function closeMenu() {
+    setMenuAnimating(false)
+    if (menuCloseTimer.current) clearTimeout(menuCloseTimer.current)
+    menuCloseTimer.current = setTimeout(() => setMenu(null), 150)
+  }
+
+  function dismissMenu() {
+    // Immediate close (used when an action takes over the screen)
+    if (menuCloseTimer.current) clearTimeout(menuCloseTimer.current)
+    setMenuAnimating(false)
+    setMenu(null)
+  }
+
+  function openMenu(e: React.MouseEvent<HTMLButtonElement>, ws: WorksheetDoc) {
+    if (menuCloseTimer.current) clearTimeout(menuCloseTimer.current)
+    const rect = e.currentTarget.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    const flipUp = spaceBelow < MENU_HEIGHT_EST + 8
+    setMenuAnimating(false)
+    setMenu({
+      id: ws.id,
+      courseId: localCourseIds[ws.id] ?? ws.courseId,
+      curriculumId: ws.curriculumId,
+      title: localTitles[ws.id] ?? ws.title,
+      top: rect.bottom + 4,
+      bottom: window.innerHeight - rect.top + 4,
+      right: window.innerWidth - rect.right,
+      flipUp,
+    })
+  }
+
+  // ── Rename lifecycle ────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!renaming) return
@@ -358,49 +391,18 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
     return () => cancelAnimationFrame(id)
   }, [renaming])
 
-  useEffect(() => {
-    if (!assigning) return
-    const id = requestAnimationFrame(() => setAssignAnimating(true))
-    return () => cancelAnimationFrame(id)
-  }, [assigning])
-
-  function openMenu(e: React.MouseEvent<HTMLButtonElement>, ws: WorksheetDoc) {
-    const rect = e.currentTarget.getBoundingClientRect()
-    setMenu({
-      id: ws.id,
-      courseId: localCourseIds[ws.id] ?? ws.courseId,
-      curriculumId: ws.curriculumId,
-      title: localTitles[ws.id] ?? ws.title,
-      top: rect.bottom + 4,
-      right: window.innerWidth - rect.right,
-    })
-  }
-
   function startRename() {
     if (!menu) return
     setRenameInput(menu.title)
     setRenameAnimating(false)
     setRenaming({ id: menu.id, title: menu.title })
-    setMenu(null)
-  }
-
-  function startAssign() {
-    if (!menu) return
-    setAssigning({ worksheetId: menu.id, currentCourseId: menu.courseId, curriculumId: menu.curriculumId })
-    setAssignAnimating(false)
-    setMenu(null)
+    dismissMenu()
   }
 
   function closeRenameModal() {
     setRenameAnimating(false)
     if (renameCloseTimer.current) clearTimeout(renameCloseTimer.current)
     renameCloseTimer.current = setTimeout(() => setRenaming(null), 200)
-  }
-
-  function closeAssignModal() {
-    setAssignAnimating(false)
-    if (assignCloseTimer.current) clearTimeout(assignCloseTimer.current)
-    assignCloseTimer.current = setTimeout(() => setAssigning(null), 200)
   }
 
   async function confirmRename() {
@@ -411,6 +413,27 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
     setLocalTitles(prev => ({ ...prev, [id]: trimmed }))
     closeRenameModal()
     await renameWorksheet(id, trimmed)
+  }
+
+  // ── Assign lifecycle ────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!assigning) return
+    const id = requestAnimationFrame(() => setAssignAnimating(true))
+    return () => cancelAnimationFrame(id)
+  }, [assigning])
+
+  function startAssign() {
+    if (!menu) return
+    setAssigning({ worksheetId: menu.id, currentCourseId: menu.courseId, curriculumId: menu.curriculumId })
+    setAssignAnimating(false)
+    dismissMenu()
+  }
+
+  function closeAssignModal() {
+    setAssignAnimating(false)
+    if (assignCloseTimer.current) clearTimeout(assignCloseTimer.current)
+    assignCloseTimer.current = setTimeout(() => setAssigning(null), 200)
   }
 
   async function handleAssign(courseId: string) {
@@ -426,12 +449,13 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
   async function handleDelete() {
     if (!menu) return
     const { id, courseId } = menu
-    setMenu(null)
+    dismissMenu()
     await deleteWorksheet(id, courseId)
   }
 
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+
   const getTitle = (ws: WorksheetDoc) => localTitles[ws.id] ?? ws.title
-  const getCourseId = (ws: WorksheetDoc) => localCourseIds[ws.id] ?? ws.courseId
   const getCourseLabel = (ws: WorksheetDoc) => {
     const overrideId = localCourseIds[ws.id]
     if (!overrideId) return ws.courseLabel
@@ -444,24 +468,26 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
       : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )
 
+  // ── Render ───────────────────────────────────────────────────────────────────
+
   return (
     <div className="px-8 py-7 animate-page-in">
       {/* Control header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white tracking-tight">Recent worksheets</h1>
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#F8FAFC' }}>Recent worksheets</h1>
         <div className="flex items-center gap-2.5">
           <button
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all"
-            style={{ color: '#A8B0BE', backgroundColor: '#1A1D24', border: '1px solid #2C2E33' }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4B5563' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#2C2E33' }}
+            style={{ color: '#94A3B8', backgroundColor: '#1A242C', border: '1px solid #25333E' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#06B6D4' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#25333E' }}
           >
             Owned by anyone
             <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <path d="M2.5 4l3 3 3-3" />
             </svg>
           </button>
-          <div style={{ width: 1, height: 18, backgroundColor: '#252830' }} />
+          <div style={{ width: 1, height: 18, backgroundColor: '#25333E' }} />
           <div className="flex items-center gap-0.5">
             <ToolBtn active={view === 'grid'} onClick={() => setView('grid')} title="Grid view">
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -492,7 +518,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
       </div>
 
       {sorted.length > 0 && (
-        <p className="text-xs mb-5" style={{ color: '#3D4350' }}>
+        <p className="text-xs mb-5" style={{ color: '#475569' }}>
           {sorted.length} {sorted.length === 1 ? 'worksheet' : 'worksheets'}
         </p>
       )}
@@ -507,25 +533,30 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
         </div>
       )}
 
-      {/* Grid view — items-stretch keeps all cells in a row at the same height */}
+      {/* Grid view */}
       {view === 'grid' && sorted.length > 0 && (
         <div className="grid gap-5 items-stretch" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
           {sorted.map((ws) => (
-            <GridCard key={ws.id} ws={{ ...ws, courseLabel: getCourseLabel(ws) }} displayTitle={getTitle(ws)} onMenu={openMenu} />
+            <GridCard
+              key={ws.id}
+              ws={{ ...ws, courseLabel: getCourseLabel(ws) }}
+              displayTitle={getTitle(ws)}
+              onMenu={openMenu}
+            />
           ))}
         </div>
       )}
 
       {/* List view */}
       {view === 'list' && sorted.length > 0 && (
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #252830' }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #25333E' }}>
           <div
             className="grid px-5 py-2.5 text-xs font-semibold uppercase tracking-widest"
             style={{
               gridTemplateColumns: '2.5rem 1fr 11rem 7rem 2rem',
-              backgroundColor: '#1C1F27',
-              borderBottom: '1px solid #252830',
-              color: '#3D4350',
+              backgroundColor: '#141B21',
+              borderBottom: '1px solid #25333E',
+              color: '#475569',
             }}
           >
             <span /><span>Name</span><span>Class</span><span>Modified</span><span />
@@ -538,37 +569,37 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
                   className="grid items-center px-5 py-3 transition-colors group"
                   style={{
                     gridTemplateColumns: '2.5rem 1fr 11rem 7rem 2rem',
-                    borderTop: idx === 0 ? 'none' : '1px solid #1A1D22',
-                    backgroundColor: '#16191F',
+                    borderTop: idx === 0 ? 'none' : '1px solid #1A2832',
+                    backgroundColor: '#1A242C',
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#1C1F27' }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#16191F' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#1E2E38' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#1A242C' }}
                 >
-                  <div className="rounded overflow-hidden flex-shrink-0" style={{ width: 28, height: 36, backgroundColor: '#181B22', border: '1px solid #252830' }}>
+                  <div className="rounded overflow-hidden flex-shrink-0" style={{ width: 28, height: 36, backgroundColor: '#141B21', border: '1px solid #25333E' }}>
                     <div className="w-full h-full flex flex-col" style={{ padding: '3px 3px 2px' }}>
-                      <div className="rounded-sm mb-0.5" style={{ height: 3, width: '65%', backgroundColor: '#323845' }} />
-                      <div style={{ height: 1, backgroundColor: '#21252E', marginBottom: 2 }} />
+                      <div className="rounded-sm mb-0.5" style={{ height: 3, width: '65%', backgroundColor: '#2B3040' }} />
+                      <div style={{ height: 1, backgroundColor: '#1A2030', marginBottom: 2 }} />
                       {[72, 58, 78, 62, 70].map((w, i) => (
-                        <div key={i} className="rounded-sm mb-0.5" style={{ height: 2, width: `${w}%`, backgroundColor: '#2B3040' }} />
+                        <div key={i} className="rounded-sm mb-0.5" style={{ height: 2, width: `${w}%`, backgroundColor: '#253040' }} />
                       ))}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1 min-w-0 pr-4">
                     <div className="flex items-center gap-2 min-w-0">
                       <WorksheetIcon color={accent} />
-                      <span className="text-sm font-medium truncate group-hover:text-[#A5F3FC] transition-colors" style={{ color: '#E8EAED' }}>
+                      <span className="text-sm font-medium truncate group-hover:text-[#A5F3FC] transition-colors" style={{ color: '#F8FAFC' }}>
                         {getTitle(ws)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 pl-0">
+                    <div className="flex items-center gap-1">
                       <SubjectChip subject={ws.subject} />
                       {ws.board && ws.qualification && (
                         <CurriculumChip board={ws.board} qualification={ws.qualification} />
                       )}
                     </div>
                   </div>
-                  <span className="text-xs truncate pr-4" style={{ color: '#6B7280' }}>{getCourseLabel(ws)}</span>
-                  <span className="text-xs" style={{ color: '#3D4350' }}>{formatDate(ws.createdAt)}</span>
+                  <span className="text-xs truncate pr-4" style={{ color: '#64748B' }}>{getCourseLabel(ws)}</span>
+                  <span className="text-xs" style={{ color: '#475569' }}>{formatDate(ws.createdAt)}</span>
                   <div className="flex justify-end">
                     <ThreeDotsBtn onMenu={(e) => openMenu(e, ws)} />
                   </div>
@@ -579,18 +610,31 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
         </div>
       )}
 
-      {/* Dropdown menu */}
+      {/* ── Dropdown menu — smart flip + enter/exit animation ── */}
       {menu && (
         <div
           ref={menuRef}
-          className="fixed z-50 rounded-xl overflow-hidden py-1.5 animate-dropdown"
+          className="fixed z-50 rounded-xl overflow-hidden py-1.5"
           style={{
-            top: menu.top,
+            /* Anchor right edge to trigger's right edge */
             right: menu.right,
-            backgroundColor: '#1C1F27',
-            border: '1px solid #303440',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
-            minWidth: 168,
+            /* Flip: open upward if not enough space below */
+            ...(menu.flipUp
+              ? { bottom: menu.bottom }
+              : { top: menu.top }),
+            backgroundColor: '#1A242C',
+            border: '1px solid #25333E',
+            boxShadow: '0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3)',
+            minWidth: 172,
+            /* Scale from the appropriate corner */
+            transformOrigin: menu.flipUp ? 'bottom right' : 'top right',
+            /* Enter/exit transition */
+            transition: 'opacity 150ms ease, transform 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+            opacity: menuAnimating ? 1 : 0,
+            transform: menuAnimating
+              ? 'translateY(0) scale(1)'
+              : (menu.flipUp ? 'translateY(4px) scale(0.96)' : 'translateY(-4px) scale(0.96)'),
+            pointerEvents: menuAnimating ? 'auto' : 'none',
           }}
         >
           <MenuItem
@@ -614,7 +658,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               </svg>
             }
           />
-          <div style={{ height: 1, backgroundColor: '#252830', margin: '4px 0' }} />
+          <div style={{ height: 1, backgroundColor: '#25333E', margin: '4px 0' }} />
           <MenuItem
             label="Delete"
             danger
@@ -628,7 +672,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
         </div>
       )}
 
-      {/* Rename modal */}
+      {/* ── Rename modal ── */}
       {renaming && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
@@ -651,7 +695,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               transform: renameAnimating ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.97)',
             }}
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Rename worksheet</h3>
+            <h3 className="text-sm font-semibold mb-4" style={{ color: '#F8FAFC' }}>Rename worksheet</h3>
             <input
               ref={renameInputRef}
               value={renameInput}
@@ -660,17 +704,17 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
                 if (e.key === 'Enter') confirmRename()
                 if (e.key === 'Escape') closeRenameModal()
               }}
-              className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none"
-              style={{ backgroundColor: '#0E1317', border: '1px solid #06B6D4' }}
+              className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+              style={{ backgroundColor: '#0E1317', border: '1px solid #06B6D4', color: '#F8FAFC' }}
               placeholder="Worksheet name"
             />
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={closeRenameModal}
                 className="px-4 py-2 rounded-lg text-sm transition-colors"
-                style={{ color: '#6B7280' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8' }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280' }}
+                style={{ color: '#64748B' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.backgroundColor = '#25333E' }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.backgroundColor = 'transparent' }}
               >
                 Cancel
               </button>
@@ -686,7 +730,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
         </div>
       )}
 
-      {/* Assign to class modal */}
+      {/* ── Assign to class modal ── */}
       {assigning && (() => {
         const matchingCourses = assigning.curriculumId
           ? courses.filter(c => c.curriculumId === assigning.curriculumId)
@@ -717,12 +761,9 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               <div className="px-5 py-4" style={{ borderBottom: '1px solid #25333E' }}>
                 <h3 className="text-sm font-semibold" style={{ color: '#F8FAFC' }}>Assign to class</h3>
                 <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
-                  {assigning.curriculumId
-                    ? 'Showing classes with matching curriculum'
-                    : 'All classes'}
+                  {assigning.curriculumId ? 'Showing classes with matching curriculum' : 'All classes'}
                 </p>
               </div>
-
               <div style={{ maxHeight: 280, overflowY: 'auto' }}>
                 {displayCourses.length === 0 ? (
                   <p className="px-5 py-6 text-sm" style={{ color: '#64748B' }}>No other classes available.</p>
@@ -760,7 +801,6 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
                   })
                 )}
               </div>
-
               <div className="px-5 py-3 flex justify-end" style={{ borderTop: '1px solid #25333E' }}>
                 <button
                   onClick={closeAssignModal}
