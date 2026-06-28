@@ -1,7 +1,9 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
-// Replace with live DB/analytics queries when available.
 
 const TOPIC_MASTERY = [
   { topic: 'Linear Equations',       mastery: 82, trend: 'up'     },
@@ -12,10 +14,15 @@ const TOPIC_MASTERY = [
   { topic: 'Simultaneous Equations', mastery: 69, trend: 'stable' },
 ]
 
-const SYSTEMIC_ALERT = {
-  worksheetTitle: 'Algebra Fundamentals',
-  questionNumber: 4,
+const ASSIGNMENT_REPORT = {
+  title: 'Algebra Fundamentals',
+  topic: 'Algebraic Isolation',
+  flaggedQuestion: 4,
   failureRate: 85,
+  completionRate: 78,
+  studentsCompleted: 18,
+  classSize: 23,
+  avgScore: 52,
   errorTag: 'Algebraic Isolation',
   detail:
     'Students are incorrectly applying inverse operations when rearranging equations — specifically, failing to apply the same operation to both sides consistently.',
@@ -63,9 +70,9 @@ function masteryColor(pct: number) {
 }
 
 function masteryLabel(pct: number) {
-  if (pct >= 75) return { text: 'Strong',    color: '#4ADE80' }
-  if (pct >= 50) return { text: 'Developing', color: '#FBBF24' }
-  return             { text: 'Needs work',  color: '#F87171' }
+  if (pct >= 75) return { text: 'Strong',      color: '#4ADE80' }
+  if (pct >= 50) return { text: 'Developing',  color: '#FBBF24' }
+  return             { text: 'Needs work',   color: '#F87171' }
 }
 
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
@@ -85,36 +92,79 @@ function SparkIcon() {
   )
 }
 
+function ArrowBtn({ onClick, disabled, direction }: { onClick: () => void; disabled: boolean; direction: 'left' | 'right' }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="w-6 h-6 rounded-md flex items-center justify-center transition-all"
+      style={{
+        backgroundColor: 'transparent',
+        color: disabled ? '#2A3540' : '#64748B',
+        border: '1px solid',
+        borderColor: disabled ? '#1A2832' : '#25333E',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+      }}
+      onMouseEnter={(e) => { if (!disabled) { e.currentTarget.style.backgroundColor = '#25333E'; e.currentTarget.style.color = '#94A3B8' } }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = disabled ? '#2A3540' : '#64748B' }}
+    >
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        {direction === 'left'
+          ? <path d="M6.5 2L3.5 5l3 3" />
+          : <path d="M3.5 2L6.5 5l-3 3" />}
+      </svg>
+    </button>
+  )
+}
+
+function SlideDots({ total, active }: { total: number; active: number }) {
+  return (
+    <div className="flex items-center gap-1">
+      {Array.from({ length: total }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-full transition-all duration-300"
+          style={{
+            height: 5,
+            width: i === active ? 14 : 5,
+            backgroundColor: i === active ? '#06B6D4' : '#25333E',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 function SectionCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div
       className={`rounded-xl overflow-hidden ${className}`}
-      style={{ backgroundColor: 'rgba(22,25,31,0.8)', border: '1px solid #252830' }}
+      style={{ backgroundColor: '#1A242C', border: '1px solid #25333E' }}
     >
       {children}
     </div>
   )
 }
 
-function CardHeader({ title, badge }: { title: string; badge?: string }) {
+function CardHeader({ title, badge, right }: { title: string; badge?: string; right?: React.ReactNode }) {
   return (
     <div
       className="flex items-center justify-between px-5 py-3.5"
-      style={{ backgroundColor: '#1C1F27', borderBottom: '1px solid #252830' }}
+      style={{ backgroundColor: '#141B21', borderBottom: '1px solid #25333E' }}
     >
       <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#6B7280' }}>
         {title}
       </h3>
-      {badge && (
+      {right ?? (badge && (
         <span
           className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-          style={{ backgroundColor: '#1A1D28', color: '#818CF8', border: '1px solid #2E3060' }}
+          style={{ backgroundColor: '#1A242C', color: '#64748B', border: '1px solid #25333E' }}
         >
           {badge}
         </span>
-      )}
+      ))}
     </div>
   )
 }
@@ -122,7 +172,7 @@ function CardHeader({ title, badge }: { title: string; badge?: string }) {
 function TopicMasteryCard() {
   return (
     <SectionCard>
-      <CardHeader title="Topic Mastery" badge="Mock data" />
+      <CardHeader title="Recently Assigned Topics" badge="Class performance" />
       <div className="px-5 py-4 flex flex-col gap-4">
         {TOPIC_MASTERY.map(({ topic, mastery, trend }) => {
           const color = masteryColor(mastery)
@@ -148,10 +198,9 @@ function TopicMasteryCard() {
                   </span>
                 </div>
               </div>
-              {/* Progress track */}
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#1E2126' }}>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#141B21' }}>
                 <div
-                  className="h-full rounded-full transition-all"
+                  className="h-full rounded-full"
                   style={{ width: `${mastery}%`, backgroundColor: color, opacity: 0.85 }}
                 />
               </div>
@@ -163,57 +212,107 @@ function TopicMasteryCard() {
   )
 }
 
-function SystemicAlertCard() {
+function LastAssignmentCarousel() {
+  const [slide, setSlide] = useState(0)
+  const r = ASSIGNMENT_REPORT
+
   return (
     <div
-      className="rounded-xl px-5 py-4"
-      style={{
-        backgroundColor: 'rgba(251,191,36,0.05)',
-        border: '1px solid rgba(251,191,36,0.18)',
-      }}
+      className="rounded-xl overflow-hidden"
+      style={{ border: '1px solid rgba(251,191,36,0.22)', backgroundColor: 'rgba(251,191,36,0.04)' }}
     >
-      {/* Alert header */}
-      <div className="flex items-center gap-2 mb-3">
-        <div
-          className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}
-        >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-5 py-3"
+        style={{ borderBottom: '1px solid rgba(251,191,36,0.14)', backgroundColor: 'rgba(251,191,36,0.07)' }}
+      >
+        <div className="flex items-center gap-2">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M6.5 1.5L12 11.5H1L6.5 1.5Z" stroke="#FBBF24" strokeWidth="1.3" strokeLinejoin="round"/>
             <path d="M6.5 5.5v3" stroke="#FBBF24" strokeWidth="1.3" strokeLinecap="round"/>
             <circle cx="6.5" cy="10" r="0.6" fill="#FBBF24"/>
           </svg>
+          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#FBBF24' }}>
+            Last Assignment Report
+          </span>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#FBBF24' }}>
-          Class Anomaly Detected
-        </span>
-        <span
-          className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full"
-          style={{ backgroundColor: 'rgba(251,191,36,0.1)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.2)' }}
-        >
-          {SYSTEMIC_ALERT.failureRate}% failure rate
-        </span>
+        <div className="flex items-center gap-2">
+          <SlideDots total={2} active={slide} />
+          <div className="flex items-center gap-1 ml-1">
+            <ArrowBtn direction="left"  disabled={slide === 0} onClick={() => setSlide(0)} />
+            <ArrowBtn direction="right" disabled={slide === 1} onClick={() => setSlide(1)} />
+          </div>
+        </div>
       </div>
 
-      {/* Alert body */}
-      <p className="text-sm leading-relaxed mb-3" style={{ color: '#C8CDD6' }}>
-        <span className="font-semibold text-white">{SYSTEMIC_ALERT.failureRate}%</span> of students
-        failed <span className="font-medium" style={{ color: '#FDE68A' }}>Question {SYSTEMIC_ALERT.questionNumber}</span> on{' '}
-        <span className="font-medium text-white">{SYSTEMIC_ALERT.worksheetTitle}</span>.{' '}
-        {SYSTEMIC_ALERT.detail}
-      </p>
-
-      {/* Tags */}
-      <div className="flex items-center gap-2">
-        <span
-          className="text-xs px-2.5 py-1 rounded-lg font-medium"
-          style={{ backgroundColor: 'rgba(251,191,36,0.08)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.15)' }}
+      {/* Slides */}
+      <div style={{ overflow: 'hidden' }}>
+        <div
+          style={{
+            display: 'flex',
+            transform: `translateX(-${slide * 100}%)`,
+            transition: 'transform 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          }}
         >
-          ⚠ {SYSTEMIC_ALERT.errorTag}
-        </span>
-        <span className="text-xs" style={{ color: '#4B5563' }}>
-          · {SYSTEMIC_ALERT.worksheetTitle}
-        </span>
+          {/* Slide 1 — General stats */}
+          <div style={{ flex: '0 0 100%', minWidth: 0 }} className="px-5 py-4">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <p className="text-sm font-semibold text-white mb-0.5">{r.title}</p>
+                <p className="text-xs" style={{ color: '#78716C' }}>Topic: {r.topic}</p>
+              </div>
+              <span
+                className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: 'rgba(251,191,36,0.1)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.2)' }}
+              >
+                {r.failureRate}% failure rate
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'Completed', value: `${r.completionRate}%`, sub: `${r.studentsCompleted}/${r.classSize} students` },
+                { label: 'Avg Score',  value: `${r.avgScore}%`,      sub: 'class average' },
+                { label: 'Flagged',    value: `Q${r.flaggedQuestion}`, sub: r.errorTag },
+              ].map(({ label, value, sub }) => (
+                <div
+                  key={label}
+                  className="rounded-lg px-3 py-2.5 flex flex-col gap-0.5"
+                  style={{ backgroundColor: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' }}
+                >
+                  <span className="text-[10px] uppercase tracking-wider" style={{ color: '#78716C' }}>{label}</span>
+                  <span className="text-base font-bold tabular-nums" style={{ color: '#FDE68A' }}>{value}</span>
+                  <span className="text-[10px] truncate" style={{ color: '#57534E' }}>{sub}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Slide 2 — Red Flag */}
+          <div style={{ flex: '0 0 100%', minWidth: 0 }} className="px-5 py-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#F87171' }}>
+                ⚑ Red Flag
+              </span>
+            </div>
+            <p className="text-sm leading-relaxed mb-3" style={{ color: '#C8CDD6' }}>
+              <span className="font-semibold text-white">{r.failureRate}%</span> of students
+              failed <span className="font-medium" style={{ color: '#FDE68A' }}>Question {r.flaggedQuestion}</span> on{' '}
+              <span className="font-medium text-white">{r.title}</span>.{' '}
+              {r.detail}
+            </p>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-xs px-2.5 py-1 rounded-lg font-medium"
+                style={{ backgroundColor: 'rgba(251,191,36,0.08)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.15)' }}
+              >
+                ⚠ {r.errorTag}
+              </span>
+              <span className="text-xs" style={{ color: '#44403C' }}>
+                · {r.title}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -233,13 +332,11 @@ function RemediationCard({
   return (
     <div
       className="rounded-xl overflow-hidden"
-      style={{ backgroundColor: '#16191F', border: '1px solid #252830' }}
+      style={{ backgroundColor: '#1A242C', border: '1px solid #25333E' }}
     >
-      {/* Left accent strip + content */}
       <div className="flex">
         <div className="w-0.5 flex-shrink-0" style={{ backgroundColor: accentColor, opacity: 0.6 }} />
         <div className="flex-1 px-4 py-4">
-          {/* Student / cluster label */}
           <div className="flex items-center gap-2 mb-2">
             {isIndividual ? (
               <div
@@ -263,26 +360,21 @@ function RemediationCard({
               <span className="text-sm font-semibold text-white">{card.label}</span>
               <span
                 className="ml-1.5 text-[11px] px-1.5 py-0.5 rounded-full"
-                style={{ backgroundColor: '#1A1D24', color: '#5A6070', border: '1px solid #252830' }}
+                style={{ backgroundColor: '#1A242C', color: '#4B5563', border: '1px solid #25333E' }}
               >
                 {card.topic}
               </span>
             </div>
             <div
               className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 0 5px ${accentColor}88`,
-              }}
+              style={{ backgroundColor: accentColor, boxShadow: `0 0 5px ${accentColor}88` }}
             />
           </div>
 
-          {/* Insight text */}
-          <p className="text-xs leading-relaxed mb-3" style={{ color: '#8B909A' }}>
+          <p className="text-xs leading-relaxed mb-3" style={{ color: '#94A3B8' }}>
             {card.insight}
           </p>
 
-          {/* CTA */}
           <Link
             href={`/workspace/new?course_id=${courseId}`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-85"
@@ -297,49 +389,78 @@ function RemediationCard({
   )
 }
 
+function SuggestionsCarousel({ courseId }: { courseId: string }) {
+  const [slide, setSlide] = useState(0)
+  const total = REMEDIATION_CARDS.length
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Section label + arrows */}
+      <div>
+        <div className="flex items-center justify-between mb-0.5">
+          <div className="flex items-center gap-1.5">
+            <SparkIcon />
+            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+              Smart Suggestions
+            </h3>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <SlideDots total={total} active={slide} />
+            <div className="flex items-center gap-1 ml-1">
+              <ArrowBtn direction="left"  disabled={slide === 0}         onClick={() => setSlide(s => Math.max(0, s - 1))} />
+              <ArrowBtn direction="right" disabled={slide === total - 1} onClick={() => setSlide(s => Math.min(total - 1, s + 1))} />
+            </div>
+          </div>
+        </div>
+        <p className="text-xs" style={{ color: '#3D4350' }}>Individual and cluster interventions</p>
+      </div>
+
+      {/* Carousel */}
+      <div style={{ overflow: 'hidden', borderRadius: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            transform: `translateX(-${slide * 100}%)`,
+            transition: 'transform 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          }}
+        >
+          {REMEDIATION_CARDS.map((card) => (
+            <div key={card.id} style={{ flex: '0 0 100%', minWidth: 0 }}>
+              <RemediationCard card={card} courseId={courseId} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-[11px] text-center px-2" style={{ color: '#2E3340' }}>
+        AI insights are generated from question-level performance data
+      </p>
+    </div>
+  )
+}
+
 // ── Main export ────────────────────────────────────────────────────────────────
 
 export function ClassReports({ courseId }: { courseId: string }) {
   return (
     <div className="flex gap-6 items-start">
 
-      {/* ── Left column: Class Diagnostics (2/3) ── */}
+      {/* ── Left column: Class Performance (2/3) ── */}
       <div className="flex flex-col gap-5" style={{ flex: '2 1 0%', minWidth: 0 }}>
-
-        {/* Section label */}
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#4B5563' }}>
-            Class Diagnostics
+            Class Performance
           </h3>
           <p className="text-xs" style={{ color: '#3D4350' }}>Aggregated across all students and question sets</p>
         </div>
 
         <TopicMasteryCard />
-        <SystemicAlertCard />
+        <LastAssignmentCarousel />
       </div>
 
-      {/* ── Right column: AI Action Feed (1/3) ── */}
-      <div className="flex flex-col gap-4" style={{ flex: '1 1 0%', minWidth: 0 }}>
-
-        {/* Section label */}
-        <div>
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <SparkIcon />
-            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4B5563' }}>
-              AI Action Feed
-            </h3>
-          </div>
-          <p className="text-xs" style={{ color: '#3D4350' }}>Individual and cluster interventions</p>
-        </div>
-
-        {REMEDIATION_CARDS.map((card) => (
-          <RemediationCard key={card.id} card={card} courseId={courseId} />
-        ))}
-
-        {/* Footer note */}
-        <p className="text-[11px] text-center px-2" style={{ color: '#2E3340' }}>
-          AI insights are generated from question-level performance data
-        </p>
+      {/* ── Right column: Smart Suggestions (1/3) ── */}
+      <div style={{ flex: '1 1 0%', minWidth: 0 }}>
+        <SuggestionsCarousel courseId={courseId} />
       </div>
 
     </div>
