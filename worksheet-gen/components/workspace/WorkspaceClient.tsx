@@ -97,6 +97,29 @@ export function WorkspaceClient({
     [questions, parameters]
   );
 
+  const handleRegenerate = useCallback(async (questionNumber: number) => {
+    setLoadingIds(new Set([questionNumber]));
+    const skillPayload = selectedSkills.map(s => ({ skill_name: s.skill_name, spec_reference: s.spec_reference }));
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...parameters, skills: skillPayload, count: 1, course_id: courseId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const [newQ] = data.questions as Question[];
+        if (newQ) {
+          setQuestions(prev => prev.map(q => q.number === questionNumber ? { ...newQ, number: questionNumber } : q));
+        }
+      }
+    } catch (err) {
+      console.error("Regenerate failed:", err);
+    } finally {
+      setLoadingIds(new Set());
+    }
+  }, [parameters, selectedSkills, courseId]);
+
   const handleFlag = useCallback(async (questionId: string) => {
     const reason = window.prompt('Why are you flagging this question?\n\nExamples: Inaccurate answer, Unclear wording, Wrong difficulty, Off-topic')
     if (!reason?.trim()) return
@@ -122,6 +145,7 @@ export function WorkspaceClient({
         loadingIds={loadingIds}
         isGenerating={isGenerating}
         onFlag={handleFlag}
+        onRegenerate={handleRegenerate}
       />
       <ChatPanel onSubmit={handleChatSubmit} />
     </>

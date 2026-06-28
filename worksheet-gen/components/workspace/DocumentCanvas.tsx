@@ -10,6 +10,7 @@ interface DocumentCanvasProps {
   loadingIds: Set<number>;
   isGenerating?: boolean;
   onFlag?: (questionId: string) => void;
+  onRegenerate?: (questionNumber: number) => void;
 }
 
 function QuestionSkeleton({ marks }: { marks: number }) {
@@ -46,10 +47,12 @@ function QuestionBlock({
   q,
   isLoading,
   onFlag,
+  onRegenerate,
 }: {
   q: Question;
   isLoading: boolean;
   onFlag?: (questionId: string) => void;
+  onRegenerate?: (questionNumber: number) => void;
 }) {
   if (isLoading) {
     return <QuestionSkeleton marks={q.marks} />;
@@ -145,12 +148,17 @@ function QuestionBlock({
 
       {/* Hover actions */}
       <div className="question-hover-actions absolute -bottom-2 left-0 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-        <button
-          className="text-xs font-medium transition-colors"
-          style={{ color: "#6B7280" }}
-        >
-          Regenerate
-        </button>
+        {onRegenerate && (
+          <button
+            onClick={() => onRegenerate(q.number)}
+            className="text-xs font-medium transition-colors"
+            style={{ color: "#6B7280" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#374151" }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6B7280" }}
+          >
+            Regenerate
+          </button>
+        )}
         {onFlag && q.id && (
           <button
             onClick={() => onFlag(q.id!)}
@@ -174,6 +182,7 @@ export function DocumentCanvas({
   loadingIds,
   isGenerating = false,
   onFlag,
+  onRegenerate,
 }: DocumentCanvasProps) {
   const headerMeta = `${parameters.syllabus} ${parameters.subject} · ${parameters.grade} · ${parameters.difficulty}`.toUpperCase();
 
@@ -230,6 +239,7 @@ export function DocumentCanvas({
                   q={q}
                   isLoading={loadingIds.has(q.number)}
                   onFlag={onFlag}
+                  onRegenerate={onRegenerate}
                 />
               ))}
         </div>
