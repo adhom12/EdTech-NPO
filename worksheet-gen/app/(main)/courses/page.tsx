@@ -98,15 +98,15 @@ function ClassCard({ c }: { c: ClassRow }) {
 
         {/* Stats row */}
         <div
-          className="grid grid-cols-3 divide-x px-0 py-0 flex-shrink-0"
-          style={{ borderBottom: '1px solid #1E2126', divideColor: '#1E2126' }}
+          className="grid grid-cols-3 flex-shrink-0"
+          style={{ borderBottom: '1px solid #1E2126' }}
         >
           {[
             { value: String(c.student_count), label: 'students' },
             { value: String(c.worksheet_count), label: 'question sets' },
             { value: formatRelative(c.latest_ws_date), label: 'last active' },
-          ].map(({ value, label }) => (
-            <div key={label} className="flex flex-col gap-0.5 px-5 py-4">
+          ].map(({ value, label }, i) => (
+            <div key={label} className="flex flex-col gap-0.5 px-5 py-4" style={i > 0 ? { borderLeft: '1px solid #1E2126' } : {}}>
               <span
                 className="text-lg font-bold tracking-tight"
                 style={{ color: '#E8EAED', lineHeight: 1.2 }}
