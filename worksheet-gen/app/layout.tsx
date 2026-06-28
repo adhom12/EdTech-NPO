@@ -9,7 +9,7 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "WorksheetGen — AI Worksheet Generator",
+  title: "EduHub — AI Worksheet Generator",
   description: "AI-native question set and worksheet generator for teachers.",
 };
 
@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${openSans.variable} h-full`}>
-      <body className="min-h-full bg-slate-50 text-slate-900 antialiased">
+      <body className="min-h-full antialiased" style={{ backgroundColor: '#121417', color: '#E8EAED' }}>
         {children}
       </body>
     </html>
