@@ -23,7 +23,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   } catch {}
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#0E1317" }}>
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#e7e5de" }}>
       <Sidebar recentWorksheets={recentWorksheets} />
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar />

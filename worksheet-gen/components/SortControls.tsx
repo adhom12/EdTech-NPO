@@ -23,18 +23,18 @@ export function SortControls({ count, currentSort }: SortControlsProps) {
     <div className="flex items-center justify-between mb-5">
       <h2
         className="text-xs font-semibold uppercase tracking-widest"
-        style={{ color: "#9AA0A6" }}
+        style={{ color: "#b0bfb4" }}
       >
         Question Sets &middot; {count}
       </h2>
       <select
         value={currentSort}
         onChange={(e) => handleChange(e.target.value)}
-        className="text-xs rounded-lg px-3 py-1.5 outline-none cursor-pointer"
+        className="text-xs rounded-lg px-3 py-1.5 outline-none cursor-pointer transition-all duration-200"
         style={{
-          backgroundColor: "#1E2024",
-          border: "1px solid #2C2E33",
-          color: "#9AA0A6",
+          backgroundColor: "#faf9f7",
+          border: "1px solid #e5e2d9",
+          color: "#6b7b70",
         }}
       >
         <option value="newest">Newest first</option>

@@ -19,15 +19,15 @@ function formatRelative(dateStr: string | null): string {
 
 function subjectAccent(subject: string): string {
   const s = (subject ?? '').toLowerCase()
-  if (s.includes('math')) return '#6366F1'
-  if (s.includes('physics')) return '#22D3EE'
-  if (s.includes('chem')) return '#10B981'
-  if (s.includes('bio')) return '#84CC16'
-  if (s.includes('english') || s.includes('lang')) return '#F59E0B'
-  if (s.includes('hist')) return '#EC4899'
-  if (s.includes('geo')) return '#14B8A6'
-  if (s.includes('comp') || s.includes('cs')) return '#3B82F6'
-  return '#8B5CF6'
+  if (s.includes('math')) return '#4F46E5'
+  if (s.includes('physics')) return '#0891B2'
+  if (s.includes('chem')) return '#059669'
+  if (s.includes('bio')) return '#65A30D'
+  if (s.includes('english') || s.includes('lang')) return '#D97706'
+  if (s.includes('hist')) return '#DB2777'
+  if (s.includes('geo')) return '#0D9488'
+  if (s.includes('comp') || s.includes('cs')) return '#2563EB'
+  return '#7C3AED'
 }
 
 type ClassRow = {
@@ -44,6 +44,9 @@ type ClassRow = {
   created_at: string
 }
 
+const BASE_SHADOW = '0 1px 3px rgba(71,87,77,0.08), 0 1px 2px rgba(71,87,77,0.04)'
+const HOVER_SHADOW = '0 8px 24px rgba(71,87,77,0.14), 0 2px 8px rgba(71,87,77,0.08)'
+
 function ClassCard({ c }: { c: ClassRow }) {
   const accent = subjectAccent(c.subject)
   const parts: string[] = []
@@ -58,17 +61,30 @@ function ClassCard({ c }: { c: ClassRow }) {
   return (
     <Link href={`/courses/${c.id}`} style={{ textDecoration: 'none' }}>
       <div
-        className="rounded-xl overflow-hidden transition-colors duration-150 group cursor-pointer flex flex-col h-full border border-[#25333E] hover:border-[#06B6D4]"
-        style={{ backgroundColor: '#1A242C' }}
+        className="rounded-xl overflow-hidden flex flex-col h-full group cursor-pointer transition-all duration-200 ease-in-out"
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(71,87,77,0.08)',
+          borderTop: `2px solid ${accent}`,
+          boxShadow: BASE_SHADOW,
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = HOVER_SHADOW
+          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = BASE_SHADOW
+          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'
+        }}
       >
         {/* Header */}
-        <div className="px-5 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid #1A2832' }}>
+        <div className="px-5 pt-5 pb-4 flex-shrink-0">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0"
               style={{
-                backgroundColor: `${accent}1A`,
-                border: `1px solid ${accent}40`,
+                backgroundColor: `${accent}14`,
+                border: `1px solid ${accent}28`,
                 color: accent,
               }}
             >
@@ -77,41 +93,32 @@ function ClassCard({ c }: { c: ClassRow }) {
             {isRecent && (
               <span
                 className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium"
-                style={{ backgroundColor: '#162A1F', color: '#4ADE80', border: '1px solid #1F3D2A' }}
+                style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}
               >
                 Active
               </span>
             )}
           </div>
-          <h3
-            className="font-semibold text-base leading-snug mb-1 transition-colors"
-            style={{ color: '#F8FAFC' }}
-          >
+          <h3 className="font-semibold text-base leading-snug mb-1" style={{ color: '#47574d' }}>
             {c.label}
           </h3>
-          <p className="text-xs" style={{ color: '#64748B' }}>
+          <p className="text-xs" style={{ color: '#8a9a8f' }}>
             {meta ? `${meta} · ` : ''}{c.subject}
           </p>
         </div>
 
         {/* Stats row */}
-        <div
-          className="grid grid-cols-3 flex-shrink-0"
-          style={{ borderBottom: '1px solid #1A2832' }}
-        >
+        <div className="grid grid-cols-3 flex-shrink-0" style={{ borderTop: '1px solid #f0ede6', borderBottom: '1px solid #f0ede6' }}>
           {[
-            { value: String(c.student_count), label: 'students' },
-            { value: String(c.worksheet_count), label: 'question sets' },
+            { value: String(c.student_count),    label: 'students' },
+            { value: String(c.worksheet_count),  label: 'question sets' },
             { value: formatRelative(c.latest_ws_date), label: 'last active' },
           ].map(({ value, label }, i) => (
-            <div key={label} className="flex flex-col gap-0.5 px-5 py-4" style={i > 0 ? { borderLeft: '1px solid #1A2832' } : {}}>
-              <span
-                className="text-lg font-bold tracking-tight"
-                style={{ color: '#F8FAFC', lineHeight: 1.2 }}
-              >
+            <div key={label} className="flex flex-col gap-0.5 px-4 py-3.5" style={i > 0 ? { borderLeft: '1px solid #f0ede6' } : {}}>
+              <span className="text-lg font-bold tracking-tight" style={{ color: '#47574d', lineHeight: 1.2 }}>
                 {value}
               </span>
-              <span className="text-xs" style={{ color: '#64748B' }}>{label}</span>
+              <span className="text-xs" style={{ color: '#b0bfb4' }}>{label}</span>
             </div>
           ))}
         </div>
@@ -120,41 +127,32 @@ function ClassCard({ c }: { c: ClassRow }) {
         <div className="px-5 py-4 flex-1">
           {c.latest_ws_title ? (
             <div>
-              <p className="text-xs mb-2" style={{ color: '#64748B' }}>Latest assignment</p>
+              <p className="text-xs mb-2" style={{ color: '#b0bfb4' }}>Latest assignment</p>
               <div className="flex items-center gap-3">
-                <div
-                  className="w-0.5 h-9 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: accent }}
-                />
+                <div className="w-0.5 h-9 rounded-full flex-shrink-0" style={{ backgroundColor: accent }} />
                 <div className="min-w-0">
-                  <p
-                    className="text-sm font-medium leading-tight truncate"
-                    style={{ color: '#F8FAFC' }}
-                  >
+                  <p className="text-sm font-medium leading-tight truncate" style={{ color: '#47574d' }}>
                     {c.latest_ws_title}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
+                  <p className="text-xs mt-0.5" style={{ color: '#b0bfb4' }}>
                     {formatRelative(c.latest_ws_date)}
                   </p>
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-sm" style={{ color: '#2E3340' }}>No assignments yet</p>
+            <p className="text-sm" style={{ color: '#c0cdc5' }}>No assignments yet</p>
           )}
         </div>
 
         {/* Footer CTA */}
-        <div
-          className="px-5 py-3 flex items-center justify-between flex-shrink-0"
-          style={{ borderTop: '1px solid #1A1D22' }}
-        >
-          <span className="text-xs" style={{ color: '#64748B' }}>
+        <div className="px-5 py-3 flex items-center justify-between flex-shrink-0" style={{ borderTop: '1px solid #f0ede6' }}>
+          <span className="text-xs" style={{ color: '#b0bfb4' }}>
             Created {formatRelative(c.created_at)}
           </span>
           <span
-            className="text-xs font-medium transition-colors group-hover:text-[#06B6D4]"
-            style={{ color: '#64748B' }}
+            className="text-xs font-medium transition-colors group-hover:text-[#e8753b]"
+            style={{ color: '#b0bfb4' }}
           >
             Open class →
           </span>
@@ -187,12 +185,12 @@ export default async function ClassesPage() {
   const classes = classRows as unknown as ClassRow[]
 
   return (
-    <div className="px-8 py-8 animate-page-in">
+    <div className="px-8 py-8 animate-page-in max-w-[1400px] mx-auto">
       {/* Page header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Classes</h1>
-          <p className="text-sm mt-1" style={{ color: '#64748B' }}>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#47574d' }}>Classes</h1>
+          <p className="text-sm mt-1" style={{ color: '#b0bfb4' }}>
             {classes.length} {classes.length === 1 ? 'class' : 'classes'}
           </p>
         </div>
@@ -207,10 +205,7 @@ export default async function ClassesPage() {
         {/* Add new class card */}
         <div
           className="rounded-xl flex items-center justify-center"
-          style={{
-            minHeight: 240,
-            border: '1.5px dashed #25333E',
-          }}
+          style={{ minHeight: 240, border: '1.5px dashed rgba(71,87,77,0.18)' }}
         >
           <AddCourseCard
             curricula={curricula as unknown as { id: string; board: string; qualification: string; syllabus_code: string }[]}
@@ -221,10 +216,10 @@ export default async function ClassesPage() {
       {classes.length === 0 && (
         <div
           className="mt-4 rounded-2xl p-14 flex flex-col items-center justify-center col-span-2"
-          style={{ backgroundColor: 'rgba(63,68,110,0.06)', border: '1px dashed rgba(77,82,138,0.22)' }}
+          style={{ backgroundColor: '#fdf0e9', border: '1px dashed rgba(232,117,59,0.3)' }}
         >
-          <p className="text-sm mb-2" style={{ color: '#94A3B8' }}>No classes yet.</p>
-          <p className="text-xs" style={{ color: '#64748B' }}>Create your first class to get started.</p>
+          <p className="text-sm mb-2" style={{ color: '#8a9a8f' }}>No classes yet.</p>
+          <p className="text-xs" style={{ color: '#b0bfb4' }}>Create your first class to get started.</p>
         </div>
       )}
     </div>

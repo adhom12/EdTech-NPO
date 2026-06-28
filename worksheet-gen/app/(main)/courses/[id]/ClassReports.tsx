@@ -64,30 +64,30 @@ const REMEDIATION_CARDS = [
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function masteryColor(pct: number) {
-  if (pct >= 75) return '#4ADE80'
-  if (pct >= 50) return '#FBBF24'
-  return '#F87171'
+  if (pct >= 75) return '#16a34a'
+  if (pct >= 50) return '#d97706'
+  return '#dc2626'
 }
 
 function masteryLabel(pct: number) {
-  if (pct >= 75) return { text: 'Strong',      color: '#4ADE80' }
-  if (pct >= 50) return { text: 'Developing',  color: '#FBBF24' }
-  return             { text: 'Needs work',   color: '#F87171' }
+  if (pct >= 75) return { text: 'Strong',     color: '#16a34a' }
+  if (pct >= 50) return { text: 'Developing', color: '#d97706' }
+  return             { text: 'Needs work',  color: '#dc2626' }
 }
 
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
   if (trend === 'up')
-    return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9l4-5 4 5" /></svg>
+    return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#16a34a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9l4-5 4 5" /></svg>
   if (trend === 'down')
-    return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#F87171" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3l4 5 4-5" /></svg>
-  return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#6B7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 6h8" /></svg>
+    return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3l4 5 4-5" /></svg>
+  return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#b0bfb4" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 6h8" /></svg>
 }
 
 function SparkIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-      <path d="M6.5 1v2M6.5 10v2M1 6.5h2M10 6.5h2M2.93 2.93l1.42 1.42M8.65 8.65l1.42 1.42M2.93 10.07l1.42-1.42M8.65 4.35l1.42-1.42" stroke="#A5B4FC" strokeWidth="1.3" strokeLinecap="round"/>
-      <circle cx="6.5" cy="6.5" r="1.8" fill="#818CF8" />
+      <path d="M6.5 1v2M6.5 10v2M1 6.5h2M10 6.5h2M2.93 2.93l1.42 1.42M8.65 8.65l1.42 1.42M2.93 10.07l1.42-1.42M8.65 4.35l1.42-1.42" stroke="#7C3AED" strokeWidth="1.3" strokeLinecap="round"/>
+      <circle cx="6.5" cy="6.5" r="1.8" fill="#7C3AED" />
     </svg>
   )
 }
@@ -97,16 +97,16 @@ function ArrowBtn({ onClick, disabled, direction }: { onClick: () => void; disab
     <button
       onClick={onClick}
       disabled={disabled}
-      className="w-6 h-6 rounded-md flex items-center justify-center transition-all"
+      className="w-6 h-6 rounded-md flex items-center justify-center transition-all duration-200"
       style={{
         backgroundColor: 'transparent',
-        color: disabled ? '#2A3540' : '#64748B',
+        color: disabled ? '#d5d2c8' : '#8a9a8f',
         border: '1px solid',
-        borderColor: disabled ? '#1A2832' : '#25333E',
+        borderColor: disabled ? '#ede9e0' : '#e5e2d9',
         cursor: disabled ? 'not-allowed' : 'pointer',
       }}
-      onMouseEnter={(e) => { if (!disabled) { e.currentTarget.style.backgroundColor = '#25333E'; e.currentTarget.style.color = '#94A3B8' } }}
-      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = disabled ? '#2A3540' : '#64748B' }}
+      onMouseEnter={(e) => { if (!disabled) { e.currentTarget.style.backgroundColor = '#f0ede6'; e.currentTarget.style.color = '#47574d' } }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = disabled ? '#d5d2c8' : '#8a9a8f' }}
     >
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         {direction === 'left'
@@ -127,7 +127,7 @@ function SlideDots({ total, active }: { total: number; active: number }) {
           style={{
             height: 5,
             width: i === active ? 14 : 5,
-            backgroundColor: i === active ? '#06B6D4' : '#25333E',
+            backgroundColor: i === active ? '#e8753b' : '#e5e2d9',
           }}
         />
       ))}
@@ -141,7 +141,11 @@ function SectionCard({ children, className = '' }: { children: React.ReactNode; 
   return (
     <div
       className={`rounded-xl overflow-hidden ${className}`}
-      style={{ backgroundColor: '#1A242C', border: '1px solid #25333E' }}
+      style={{
+        backgroundColor: '#ffffff',
+        border: '1px solid rgba(71,87,77,0.1)',
+        boxShadow: '0 1px 3px rgba(71,87,77,0.08), 0 1px 2px rgba(71,87,77,0.04)',
+      }}
     >
       {children}
     </div>
@@ -152,15 +156,15 @@ function CardHeader({ title, badge, right }: { title: string; badge?: string; ri
   return (
     <div
       className="flex items-center justify-between px-5 py-3.5"
-      style={{ backgroundColor: '#141B21', borderBottom: '1px solid #25333E' }}
+      style={{ backgroundColor: '#faf9f7', borderBottom: '1px solid #e5e2d9' }}
     >
-      <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#6B7280' }}>
+      <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#b0bfb4' }}>
         {title}
       </h3>
       {right ?? (badge && (
         <span
           className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-          style={{ backgroundColor: '#1A242C', color: '#64748B', border: '1px solid #25333E' }}
+          style={{ backgroundColor: '#f0ede6', color: '#8a9a8f', border: '1px solid #e5e2d9' }}
         >
           {badge}
         </span>
@@ -184,7 +188,7 @@ function TopicMasteryCard() {
                   <TrendIcon trend={trend as 'up' | 'down' | 'stable'} />
                   <span
                     className="text-sm font-medium"
-                    style={{ color: mastery < 50 ? '#FCA5A5' : '#C8CDD6' }}
+                    style={{ color: mastery < 50 ? '#dc2626' : '#47574d' }}
                   >
                     {topic}
                   </span>
@@ -198,10 +202,10 @@ function TopicMasteryCard() {
                   </span>
                 </div>
               </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#141B21' }}>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#f0ede6' }}>
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${mastery}%`, backgroundColor: color, opacity: 0.85 }}
+                  style={{ width: `${mastery}%`, backgroundColor: color, opacity: 0.75 }}
                 />
               </div>
             </div>
@@ -219,20 +223,24 @@ function LastAssignmentCarousel() {
   return (
     <div
       className="rounded-xl overflow-hidden"
-      style={{ border: '1px solid rgba(251,191,36,0.22)', backgroundColor: 'rgba(251,191,36,0.04)' }}
+      style={{
+        border: '1px solid rgba(217,119,6,0.25)',
+        backgroundColor: 'rgba(217,119,6,0.03)',
+        boxShadow: '0 1px 3px rgba(71,87,77,0.06)',
+      }}
     >
       {/* Header */}
       <div
         className="flex items-center justify-between px-5 py-3"
-        style={{ borderBottom: '1px solid rgba(251,191,36,0.14)', backgroundColor: 'rgba(251,191,36,0.07)' }}
+        style={{ borderBottom: '1px solid rgba(217,119,6,0.15)', backgroundColor: 'rgba(217,119,6,0.06)' }}
       >
         <div className="flex items-center gap-2">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M6.5 1.5L12 11.5H1L6.5 1.5Z" stroke="#FBBF24" strokeWidth="1.3" strokeLinejoin="round"/>
-            <path d="M6.5 5.5v3" stroke="#FBBF24" strokeWidth="1.3" strokeLinecap="round"/>
-            <circle cx="6.5" cy="10" r="0.6" fill="#FBBF24"/>
+            <path d="M6.5 1.5L12 11.5H1L6.5 1.5Z" stroke="#d97706" strokeWidth="1.3" strokeLinejoin="round"/>
+            <path d="M6.5 5.5v3" stroke="#d97706" strokeWidth="1.3" strokeLinecap="round"/>
+            <circle cx="6.5" cy="10" r="0.6" fill="#d97706"/>
           </svg>
-          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#FBBF24' }}>
+          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#d97706' }}>
             Last Assignment Report
           </span>
         </div>
@@ -254,34 +262,34 @@ function LastAssignmentCarousel() {
             transition: 'transform 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           }}
         >
-          {/* Slide 1 — General stats */}
+          {/* Slide 1 — Stats */}
           <div style={{ flex: '0 0 100%', minWidth: 0 }} className="px-5 py-4">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
-                <p className="text-sm font-semibold text-white mb-0.5">{r.title}</p>
-                <p className="text-xs" style={{ color: '#78716C' }}>Topic: {r.topic}</p>
+                <p className="text-sm font-semibold mb-0.5" style={{ color: '#47574d' }}>{r.title}</p>
+                <p className="text-xs" style={{ color: '#8a9a8f' }}>Topic: {r.topic}</p>
               </div>
               <span
                 className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
-                style={{ backgroundColor: 'rgba(251,191,36,0.1)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.2)' }}
+                style={{ backgroundColor: 'rgba(217,119,6,0.1)', color: '#d97706', border: '1px solid rgba(217,119,6,0.22)' }}
               >
                 {r.failureRate}% failure rate
               </span>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'Completed', value: `${r.completionRate}%`, sub: `${r.studentsCompleted}/${r.classSize} students` },
-                { label: 'Avg Score',  value: `${r.avgScore}%`,      sub: 'class average' },
-                { label: 'Flagged',    value: `Q${r.flaggedQuestion}`, sub: r.errorTag },
+                { label: 'Completed', value: `${r.completionRate}%`,     sub: `${r.studentsCompleted}/${r.classSize} students` },
+                { label: 'Avg Score', value: `${r.avgScore}%`,           sub: 'class average' },
+                { label: 'Flagged',   value: `Q${r.flaggedQuestion}`,    sub: r.errorTag },
               ].map(({ label, value, sub }) => (
                 <div
                   key={label}
                   className="rounded-lg px-3 py-2.5 flex flex-col gap-0.5"
-                  style={{ backgroundColor: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.12)' }}
+                  style={{ backgroundColor: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.15)' }}
                 >
-                  <span className="text-[10px] uppercase tracking-wider" style={{ color: '#78716C' }}>{label}</span>
-                  <span className="text-base font-bold tabular-nums" style={{ color: '#FDE68A' }}>{value}</span>
-                  <span className="text-[10px] truncate" style={{ color: '#57534E' }}>{sub}</span>
+                  <span className="text-[10px] uppercase tracking-wider" style={{ color: '#b0956a' }}>{label}</span>
+                  <span className="text-base font-bold tabular-nums" style={{ color: '#92400e' }}>{value}</span>
+                  <span className="text-[10px] truncate" style={{ color: '#c4a265' }}>{sub}</span>
                 </div>
               ))}
             </div>
@@ -290,24 +298,24 @@ function LastAssignmentCarousel() {
           {/* Slide 2 — Red Flag */}
           <div style={{ flex: '0 0 100%', minWidth: 0 }} className="px-5 py-4">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#F87171' }}>
+              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#dc2626' }}>
                 ⚑ Red Flag
               </span>
             </div>
-            <p className="text-sm leading-relaxed mb-3" style={{ color: '#C8CDD6' }}>
-              <span className="font-semibold text-white">{r.failureRate}%</span> of students
-              failed <span className="font-medium" style={{ color: '#FDE68A' }}>Question {r.flaggedQuestion}</span> on{' '}
-              <span className="font-medium text-white">{r.title}</span>.{' '}
+            <p className="text-sm leading-relaxed mb-3" style={{ color: '#6b7b70' }}>
+              <span className="font-semibold" style={{ color: '#47574d' }}>{r.failureRate}%</span> of students
+              failed <span className="font-medium" style={{ color: '#d97706' }}>Question {r.flaggedQuestion}</span> on{' '}
+              <span className="font-medium" style={{ color: '#47574d' }}>{r.title}</span>.{' '}
               {r.detail}
             </p>
             <div className="flex items-center gap-2">
               <span
                 className="text-xs px-2.5 py-1 rounded-lg font-medium"
-                style={{ backgroundColor: 'rgba(251,191,36,0.08)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.15)' }}
+                style={{ backgroundColor: 'rgba(217,119,6,0.08)', color: '#d97706', border: '1px solid rgba(217,119,6,0.18)' }}
               >
                 ⚠ {r.errorTag}
               </span>
-              <span className="text-xs" style={{ color: '#44403C' }}>
+              <span className="text-xs" style={{ color: '#b0bfb4' }}>
                 · {r.title}
               </span>
             </div>
@@ -326,59 +334,63 @@ function RemediationCard({
   courseId: string
 }) {
   const isHigh = card.severity === 'high'
-  const accentColor = isHigh ? '#F87171' : '#FBBF24'
+  const accentColor = isHigh ? '#dc2626' : '#d97706'
   const isIndividual = card.type === 'individual'
 
   return (
     <div
       className="rounded-xl overflow-hidden"
-      style={{ backgroundColor: '#1A242C', border: '1px solid #25333E' }}
+      style={{
+        backgroundColor: '#ffffff',
+        border: '1px solid rgba(71,87,77,0.08)',
+        boxShadow: '0 1px 3px rgba(71,87,77,0.06)',
+      }}
     >
       <div className="flex">
-        <div className="w-0.5 flex-shrink-0" style={{ backgroundColor: accentColor, opacity: 0.6 }} />
+        <div className="w-0.5 flex-shrink-0" style={{ backgroundColor: accentColor, opacity: 0.7 }} />
         <div className="flex-1 px-4 py-4">
           <div className="flex items-center gap-2 mb-2">
             {isIndividual ? (
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                style={{ backgroundColor: '#1E2240', color: '#818CF8', border: '1px solid #2E3060' }}
+                style={{ backgroundColor: '#f0ede6', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.2)' }}
               >
                 {card.label.charAt(0)}
               </div>
             ) : (
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ backgroundColor: '#1E2A1A', border: '1px solid #2A3D25' }}
+                style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}
               >
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#4ADE80" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#16a34a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="5" cy="4.5" r="2" /><circle cx="9" cy="5" r="1.5" />
                   <path d="M1 11c0-2.2 1.8-4 4-4s4 1.8 4 4" /><path d="M9 7c1.7 0 3 1.3 3 3" />
                 </svg>
               </div>
             )}
             <div className="min-w-0">
-              <span className="text-sm font-semibold text-white">{card.label}</span>
+              <span className="text-sm font-semibold" style={{ color: '#47574d' }}>{card.label}</span>
               <span
                 className="ml-1.5 text-[11px] px-1.5 py-0.5 rounded-full"
-                style={{ backgroundColor: '#1A242C', color: '#4B5563', border: '1px solid #25333E' }}
+                style={{ backgroundColor: '#f0ede6', color: '#8a9a8f', border: '1px solid #e5e2d9' }}
               >
                 {card.topic}
               </span>
             </div>
             <div
               className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ backgroundColor: accentColor, boxShadow: `0 0 5px ${accentColor}88` }}
+              style={{ backgroundColor: accentColor, boxShadow: `0 0 5px ${accentColor}66` }}
             />
           </div>
 
-          <p className="text-xs leading-relaxed mb-3" style={{ color: '#94A3B8' }}>
+          <p className="text-xs leading-relaxed mb-3" style={{ color: '#8a9a8f' }}>
             {card.insight}
           </p>
 
           <Link
             href={`/workspace/new?course_id=${courseId}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-85"
-            style={{ backgroundColor: '#1E2240', color: '#A5B4FC', border: '1px solid #2E3060' }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:opacity-85"
+            style={{ backgroundColor: 'rgba(124,58,237,0.08)', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.2)' }}
           >
             <SparkIcon />
             {card.action}
@@ -395,12 +407,11 @@ function SuggestionsCarousel({ courseId }: { courseId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Section label + arrows */}
       <div>
         <div className="flex items-center justify-between mb-0.5">
           <div className="flex items-center gap-1.5">
             <SparkIcon />
-            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+            <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#b0bfb4' }}>
               Smart Suggestions
             </h3>
           </div>
@@ -412,10 +423,9 @@ function SuggestionsCarousel({ courseId }: { courseId: string }) {
             </div>
           </div>
         </div>
-        <p className="text-xs" style={{ color: '#3D4350' }}>Individual and cluster interventions</p>
+        <p className="text-xs" style={{ color: '#c0cdc5' }}>Individual and cluster interventions</p>
       </div>
 
-      {/* Carousel */}
       <div style={{ overflow: 'hidden', borderRadius: 12 }}>
         <div
           style={{
@@ -432,7 +442,7 @@ function SuggestionsCarousel({ courseId }: { courseId: string }) {
         </div>
       </div>
 
-      <p className="text-[11px] text-center px-2" style={{ color: '#2E3340' }}>
+      <p className="text-[11px] text-center px-2" style={{ color: '#c0cdc5' }}>
         AI insights are generated from question-level performance data
       </p>
     </div>
@@ -448,10 +458,10 @@ export function ClassReports({ courseId }: { courseId: string }) {
       {/* ── Left column: Class Performance (2/3) ── */}
       <div className="flex flex-col gap-5" style={{ flex: '2 1 0%', minWidth: 0 }}>
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#4B5563' }}>
+          <h3 className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#b0bfb4' }}>
             Class Performance
           </h3>
-          <p className="text-xs" style={{ color: '#3D4350' }}>Aggregated across all students and question sets</p>
+          <p className="text-xs" style={{ color: '#c0cdc5' }}>Aggregated across all students and question sets</p>
         </div>
 
         <TopicMasteryCard />

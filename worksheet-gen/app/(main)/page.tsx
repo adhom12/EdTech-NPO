@@ -55,7 +55,7 @@ export default async function Dashboard() {
   if (dbError) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-sm font-mono" style={{ color: '#F87171' }}>
+        <p className="text-sm font-mono" style={{ color: '#dc2626' }}>
           DB error: {dbError}
         </p>
       </div>
@@ -63,22 +63,19 @@ export default async function Dashboard() {
   }
 
   return (
-    <div className="px-8 py-8 animate-page-in">
+    <div className="px-8 py-8 animate-page-in max-w-[1400px] mx-auto">
       {/* Greeting */}
-      <h1 className="text-2xl font-bold text-white tracking-tight mb-8">
+      <h1 className="text-2xl font-bold tracking-tight mb-8" style={{ color: '#47574d' }}>
         Good morning, Teacher
       </h1>
 
       {/* ── Tier 1: Active Courses ── */}
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2
-            className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: '#6B7280' }}
-          >
+          <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#b0bfb4' }}>
             Active Classes
           </h2>
-          <span className="text-xs" style={{ color: '#4B5563' }}>
+          <span className="text-xs" style={{ color: '#c0cdc5' }}>
             {courses.length} {courses.length === 1 ? 'course' : 'courses'}
           </span>
         </div>
@@ -112,10 +109,7 @@ export default async function Dashboard() {
       {/* ── Tier 2: Recent Worksheets ── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2
-            className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: '#6B7280' }}
-          >
+          <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#b0bfb4' }}>
             Recent Worksheets
           </h2>
         </div>
@@ -124,27 +118,30 @@ export default async function Dashboard() {
           <div
             className="rounded-xl px-6 py-10 flex flex-col items-center justify-center"
             style={{
-              backgroundColor: 'rgba(63,68,110,0.07)',
-              border: '1px dashed rgba(77,82,138,0.25)',
+              backgroundColor: '#fdf0e9',
+              border: '1px dashed rgba(232,117,59,0.3)',
             }}
           >
-            <p className="text-sm" style={{ color: '#6B7280' }}>
+            <p className="text-sm" style={{ color: '#b0bfb4' }}>
               No worksheets yet — create one from a course page.
             </p>
           </div>
         ) : (
           <div
             className="rounded-xl overflow-hidden"
-            style={{ border: '1px solid #25333E' }}
+            style={{
+              border: '1px solid rgba(71,87,77,0.1)',
+              boxShadow: '0 1px 3px rgba(71,87,77,0.08), 0 1px 2px rgba(71,87,77,0.04)',
+            }}
           >
             {/* Table header */}
             <div
               className="grid px-5 py-3 text-xs font-semibold uppercase tracking-widest"
               style={{
                 gridTemplateColumns: '1fr 10rem 6rem',
-                backgroundColor: '#1A242C',
-                borderBottom: '1px solid #25333E',
-                color: '#64748B',
+                backgroundColor: '#faf9f7',
+                borderBottom: '1px solid #e5e2d9',
+                color: '#b0bfb4',
               }}
             >
               <span>Title</span>
@@ -156,21 +153,23 @@ export default async function Dashboard() {
               <Link
                 key={ws.id as string}
                 href={`/workspace/${ws.id as string}`}
-                className="grid items-center px-5 py-3.5 transition-colors hover:bg-[#1E2E38]"
+                className="grid items-center px-5 py-3.5 transition-all duration-200 ease-in-out"
                 style={{
                   gridTemplateColumns: '1fr 10rem 6rem',
-                  borderTop: idx === 0 ? 'none' : '1px solid #1A2832',
-                  backgroundColor: '#1A242C',
+                  borderTop: idx === 0 ? 'none' : '1px solid #f0ede6',
+                  backgroundColor: '#ffffff',
                   textDecoration: 'none',
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#f5f3ef' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#ffffff' }}
               >
-                <span className="text-sm font-medium text-white truncate pr-4">
+                <span className="text-sm font-medium truncate pr-4" style={{ color: '#47574d' }}>
                   {ws.title as string}
                 </span>
-                <span className="text-xs truncate" style={{ color: '#94A3B8' }}>
+                <span className="text-xs truncate" style={{ color: '#8a9a8f' }}>
                   {ws.course_label as string}
                 </span>
-                <span className="text-xs tabular-nums" style={{ color: '#4B5563' }}>
+                <span className="text-xs tabular-nums" style={{ color: '#b0bfb4' }}>
                   {formatRelative(ws.created_at as string)}
                 </span>
               </Link>

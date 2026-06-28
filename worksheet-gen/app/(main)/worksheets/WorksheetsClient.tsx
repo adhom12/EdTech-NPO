@@ -30,11 +30,8 @@ type MenuState = {
   courseId: string
   curriculumId: string | null
   title: string
-  /** px from top of viewport when opening downward */
   top: number
-  /** px from bottom of viewport when flipping upward */
   bottom: number
-  /** px from right edge of viewport — aligns right edge of menu with trigger */
   right: number
   flipUp: boolean
 }
@@ -45,8 +42,10 @@ type AssignState = {
   curriculumId: string | null
 }
 
-// Estimated dropdown height for flip calculation (3 items + divider + padding)
 const MENU_HEIGHT_EST = 140
+
+const BASE_SHADOW = '0 1px 3px rgba(71,87,77,0.08), 0 1px 2px rgba(71,87,77,0.04)'
+const HOVER_SHADOW = '0 8px 24px rgba(71,87,77,0.14), 0 2px 8px rgba(71,87,77,0.08)'
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-GB', {
@@ -70,14 +69,14 @@ function abbreviateBoard(board: string): string {
 
 function subjectAccent(subject: string): string {
   const s = (subject ?? '').toLowerCase()
-  if (s.includes('math')) return '#6366F1'
-  if (s.includes('physics')) return '#22D3EE'
-  if (s.includes('chem')) return '#10B981'
-  if (s.includes('bio')) return '#84CC16'
-  if (s.includes('english') || s.includes('lang')) return '#F59E0B'
-  if (s.includes('hist')) return '#EC4899'
-  if (s.includes('comp') || s.includes('cs')) return '#3B82F6'
-  return '#8B5CF6'
+  if (s.includes('math')) return '#4F46E5'
+  if (s.includes('physics')) return '#0891B2'
+  if (s.includes('chem')) return '#059669'
+  if (s.includes('bio')) return '#65A30D'
+  if (s.includes('english') || s.includes('lang')) return '#D97706'
+  if (s.includes('hist')) return '#DB2777'
+  if (s.includes('comp') || s.includes('cs')) return '#2563EB'
+  return '#7C3AED'
 }
 
 const EXAM_QS = [
@@ -92,43 +91,43 @@ function DocThumbnail({ subject }: { subject: string }) {
   return (
     <div
       className="relative w-full flex-shrink-0"
-      style={{ paddingBottom: '62%', backgroundColor: '#141B21', borderBottom: '1px solid #25333E' }}
+      style={{ paddingBottom: '62%', backgroundColor: '#f5f3ef', borderBottom: '1px solid #e5e2d9' }}
     >
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute top-0 left-0 right-0"
           style={{
             height: 32,
-            background: `linear-gradient(90deg, ${accent}2A 0%, transparent 75%)`,
-            borderBottom: `1px solid ${accent}1A`,
+            background: `linear-gradient(90deg, ${accent}18 0%, transparent 75%)`,
+            borderBottom: `1px solid ${accent}20`,
           }}
         />
         <div className="absolute inset-0 px-5 pt-10 pb-4 flex flex-col">
           <div className="mb-3">
-            <div className="h-2 rounded-sm mb-1.5" style={{ width: '58%', backgroundColor: '#2B3040' }} />
-            <div className="h-1.5 rounded-sm"    style={{ width: '37%', backgroundColor: '#222835' }} />
+            <div className="h-2 rounded-sm mb-1.5" style={{ width: '58%', backgroundColor: '#dddad3' }} />
+            <div className="h-1.5 rounded-sm" style={{ width: '37%', backgroundColor: '#e5e2d9' }} />
           </div>
-          <div className="mb-3" style={{ height: 1, backgroundColor: '#1A2030' }} />
+          <div className="mb-3" style={{ height: 1, backgroundColor: '#e5e2d9' }} />
           {EXAM_QS.map(({ n, marks, lines, answers }) => (
             <div key={n} className="mb-3.5">
               <div className="flex items-start gap-1.5 mb-1.5">
-                <span className="flex-shrink-0 font-bold" style={{ fontSize: 7, color: accent + 'BB', lineHeight: 1, marginTop: 2 }}>
+                <span className="flex-shrink-0 font-bold" style={{ fontSize: 7, color: accent + '99', lineHeight: 1, marginTop: 2 }}>
                   {n}.
                 </span>
                 <div className="flex flex-col gap-1 flex-1 min-w-0">
                   {lines.map((w, i) => (
-                    <div key={i} className="h-1.5 rounded-sm" style={{ width: `${w}%`, backgroundColor: i === 0 ? '#283040' : '#222A38' }} />
+                    <div key={i} className="h-1.5 rounded-sm" style={{ width: `${w}%`, backgroundColor: i === 0 ? '#d5d2cb' : '#dddad5' }} />
                   ))}
                 </div>
                 <div
                   className="flex-shrink-0 flex items-center justify-center rounded"
-                  style={{ width: 20, height: 14, border: `0.75px solid ${accent}45`, backgroundColor: `${accent}10` }}
+                  style={{ width: 20, height: 14, border: `0.75px solid ${accent}35`, backgroundColor: `${accent}0C` }}
                 >
-                  <span style={{ fontSize: 6, color: accent + 'AA', fontWeight: 700 }}>{marks}m</span>
+                  <span style={{ fontSize: 6, color: accent + '99', fontWeight: 700 }}>{marks}m</span>
                 </div>
               </div>
               {Array.from({ length: answers }).map((_, i) => (
-                <div key={i} style={{ height: 1, borderBottom: '1px dashed #252A38', marginLeft: 14, marginBottom: 6 }} />
+                <div key={i} style={{ height: 1, borderBottom: '1px dashed #dddad5', marginLeft: 14, marginBottom: 6 }} />
               ))}
             </div>
           ))}
@@ -143,7 +142,7 @@ function SubjectChip({ subject }: { subject: string }) {
   return (
     <span
       className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0"
-      style={{ backgroundColor: `${accent}18`, color: accent, border: `1px solid ${accent}30` }}
+      style={{ backgroundColor: `${accent}12`, color: accent, border: `1px solid ${accent}28` }}
     >
       {subject}
     </span>
@@ -154,7 +153,7 @@ function CurriculumChip({ board, qualification }: { board: string; qualification
   return (
     <span
       className="inline-flex items-center text-xs px-2 py-0.5 rounded-full flex-shrink-0"
-      style={{ backgroundColor: '#1A242C', color: '#64748B', border: '1px solid #25333E' }}
+      style={{ backgroundColor: '#f0ede6', color: '#8a9a8f', border: '1px solid #e5e2d9' }}
     >
       {abbreviateBoard(board)} {qualification}
     </span>
@@ -174,10 +173,10 @@ function ThreeDotsBtn({ onMenu }: { onMenu: (e: React.MouseEvent<HTMLButtonEleme
   return (
     <button
       title="More options"
-      className="p-1.5 rounded-md flex-shrink-0 transition-all"
-      style={{ color: '#3D4450', backgroundColor: 'transparent' }}
-      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#25333E'; e.currentTarget.style.color = '#F8FAFC' }}
-      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#3D4450' }}
+      className="p-1.5 rounded-md flex-shrink-0 transition-all duration-200"
+      style={{ color: '#c0cdc5', backgroundColor: 'transparent' }}
+      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0ede6'; e.currentTarget.style.color = '#6b7b70' }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#c0cdc5' }}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMenu(e) }}
     >
       <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
@@ -203,19 +202,19 @@ function MenuItem({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-left"
+      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-left transition-colors"
       style={{
-        color: disabled ? '#3D4450' : danger ? '#F87171' : '#94A3B8',
+        color: disabled ? '#c0cdc5' : danger ? '#dc2626' : '#6b7b70',
         backgroundColor: 'transparent',
         cursor: disabled ? 'not-allowed' : 'pointer',
       }}
-      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = '#25333E' }}
+      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = '#f0ede6' }}
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
     >
       {icon}
       <span className="flex-1">{label}</span>
       {chevron && (
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ color: '#4B5563', flexShrink: 0 }}>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ color: '#c0cdc5', flexShrink: 0 }}>
           <path d="M3.5 2l3 3-3 3" />
         </svg>
       )}
@@ -234,15 +233,27 @@ function GridCard({
   return (
     <Link href={`/workspace/${ws.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
       <div
-        className="rounded-xl overflow-hidden flex flex-col h-full group transition-colors duration-150 border border-[#25333E] hover:border-[#06B6D4]"
-        style={{ backgroundColor: '#1A242C' }}
+        className="rounded-xl overflow-hidden flex flex-col h-full group transition-all duration-200 ease-in-out"
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(71,87,77,0.08)',
+          boxShadow: BASE_SHADOW,
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = HOVER_SHADOW
+          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = BASE_SHADOW
+          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'
+        }}
       >
         <DocThumbnail subject={ws.subject} />
         <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1 min-w-0">
           <p
-            className="text-[15px] font-semibold leading-snug mb-2.5 group-hover:text-[#A5F3FC] transition-colors"
+            className="text-[15px] font-semibold leading-snug mb-2.5 transition-colors group-hover:text-[#e8753b]"
             style={{
-              color: '#F8FAFC',
+              color: '#47574d',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
@@ -257,14 +268,13 @@ function GridCard({
               <CurriculumChip board={ws.board} qualification={ws.qualification} />
             )}
           </div>
-          {/* Footer: class on its own row, last edited below */}
           <div className="flex items-end justify-between gap-2 mt-3">
             <div className="flex flex-col gap-0.5 min-w-0">
               <div className="flex items-center gap-1.5">
                 <WorksheetIcon color={accent} />
-                <span className="text-xs truncate" style={{ color: '#64748B' }}>{ws.courseLabel}</span>
+                <span className="text-xs truncate" style={{ color: '#8a9a8f' }}>{ws.courseLabel}</span>
               </div>
-              <span className="text-xs" style={{ color: '#334155' }}>
+              <span className="text-xs" style={{ color: '#c0cdc5' }}>
                 Last edited {formatDateLong(ws.createdAt)}
               </span>
             </div>
@@ -288,15 +298,15 @@ function ToolBtn({
     <button
       onClick={onClick}
       title={title}
-      className="flex items-center justify-center rounded-md transition-all"
+      className="flex items-center justify-center rounded-md transition-all duration-200"
       style={{
         padding: '6px',
-        backgroundColor: active ? '#1A242C' : 'transparent',
-        border: active ? '1px solid #25333E' : '1px solid transparent',
-        color: active ? '#06B6D4' : '#64748B',
+        backgroundColor: active ? '#faf9f7' : 'transparent',
+        border: active ? '1px solid #e5e2d9' : '1px solid transparent',
+        color: active ? '#47574d' : '#b0bfb4',
       }}
-      onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = '#1A242C' }}
-      onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}
+      onMouseEnter={(e) => { if (!active) { e.currentTarget.style.backgroundColor = '#f0ede6'; e.currentTarget.style.color = '#6b7b70' } }}
+      onMouseLeave={(e) => { if (!active) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#b0bfb4' } }}
     >
       {children}
     </button>
@@ -307,39 +317,33 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [sort, setSort] = useState<'newest' | 'az'>('newest')
 
-  // Menu: two-phase state for enter+exit animation
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [menuAnimating, setMenuAnimating] = useState(false)
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  // Rename modal
   const [renaming, setRenaming] = useState<{ id: string; title: string } | null>(null)
   const [renameAnimating, setRenameAnimating] = useState(false)
   const [renameInput, setRenameInput] = useState('')
   const renameInputRef = useRef<HTMLInputElement>(null)
   const renameCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Assign modal
   const [assigning, setAssigning] = useState<AssignState | null>(null)
   const [assignAnimating, setAssignAnimating] = useState(false)
   const [assignPending, setAssignPending] = useState(false)
   const assignCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Optimistic overrides
   const [localTitles, setLocalTitles] = useState<Record<string, string>>({})
   const [localCourseIds, setLocalCourseIds] = useState<Record<string, string>>({})
 
-  // ── Menu lifecycle ──────────────────────────────────────────────────────────
-
-  // Trigger enter animation one frame after the menu mounts
+  // Menu enter animation
   useEffect(() => {
     if (!menu) return
     const id = requestAnimationFrame(() => setMenuAnimating(true))
     return () => cancelAnimationFrame(id)
   }, [menu])
 
-  // Close on outside click — animated
+  // Outside click to close menu
   useEffect(() => {
     if (!menu) return
     function onOutside(e: MouseEvent) {
@@ -356,7 +360,6 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
   }
 
   function dismissMenu() {
-    // Immediate close (used when an action takes over the screen)
     if (menuCloseTimer.current) clearTimeout(menuCloseTimer.current)
     setMenuAnimating(false)
     setMenu(null)
@@ -380,8 +383,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
     })
   }
 
-  // ── Rename lifecycle ────────────────────────────────────────────────────────
-
+  // Rename lifecycle
   useEffect(() => {
     if (!renaming) return
     const id = requestAnimationFrame(() => {
@@ -415,8 +417,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
     await renameWorksheet(id, trimmed)
   }
 
-  // ── Assign lifecycle ────────────────────────────────────────────────────────
-
+  // Assign lifecycle
   useEffect(() => {
     if (!assigning) return
     const id = requestAnimationFrame(() => setAssignAnimating(true))
@@ -453,8 +454,6 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
     await deleteWorksheet(id, courseId)
   }
 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
-
   const getTitle = (ws: WorksheetDoc) => localTitles[ws.id] ?? ws.title
   const getCourseLabel = (ws: WorksheetDoc) => {
     const overrideId = localCourseIds[ws.id]
@@ -468,26 +467,24 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
       : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )
 
-  // ── Render ───────────────────────────────────────────────────────────────────
-
   return (
-    <div className="px-8 py-7 animate-page-in">
+    <div className="px-8 py-7 animate-page-in max-w-[1400px] mx-auto">
       {/* Control header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#F8FAFC' }}>Recent worksheets</h1>
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#47574d' }}>Recent worksheets</h1>
         <div className="flex items-center gap-2.5">
           <button
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all"
-            style={{ color: '#94A3B8', backgroundColor: '#1A242C', border: '1px solid #25333E' }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#06B6D4' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#25333E' }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200"
+            style={{ color: '#8a9a8f', backgroundColor: '#faf9f7', border: '1px solid #e5e2d9' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#e8753b' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e2d9' }}
           >
             Owned by anyone
             <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <path d="M2.5 4l3 3 3-3" />
             </svg>
           </button>
-          <div style={{ width: 1, height: 18, backgroundColor: '#25333E' }} />
+          <div style={{ width: 1, height: 18, backgroundColor: '#e5e2d9' }} />
           <div className="flex items-center gap-0.5">
             <ToolBtn active={view === 'grid'} onClick={() => setView('grid')} title="Grid view">
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -518,7 +515,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
       </div>
 
       {sorted.length > 0 && (
-        <p className="text-xs mb-5" style={{ color: '#475569' }}>
+        <p className="text-xs mb-5" style={{ color: '#b0bfb4' }}>
           {sorted.length} {sorted.length === 1 ? 'worksheet' : 'worksheets'}
         </p>
       )}
@@ -526,10 +523,10 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
       {sorted.length === 0 && (
         <div
           className="rounded-2xl p-16 flex flex-col items-center justify-center"
-          style={{ backgroundColor: 'rgba(6,182,212,0.04)', border: '1px dashed rgba(6,182,212,0.18)' }}
+          style={{ backgroundColor: '#fdf0e9', border: '1px dashed rgba(232,117,59,0.3)' }}
         >
-          <p className="text-sm mb-1" style={{ color: '#94A3B8' }}>No worksheets yet.</p>
-          <p className="text-xs" style={{ color: '#4B5563' }}>Open a class and create your first question set.</p>
+          <p className="text-sm mb-1" style={{ color: '#8a9a8f' }}>No worksheets yet.</p>
+          <p className="text-xs" style={{ color: '#b0bfb4' }}>Open a class and create your first question set.</p>
         </div>
       )}
 
@@ -549,14 +546,17 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
 
       {/* List view */}
       {view === 'list' && sorted.length > 0 && (
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #25333E' }}>
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ border: '1px solid rgba(71,87,77,0.1)', boxShadow: BASE_SHADOW }}
+        >
           <div
             className="grid px-5 py-2.5 text-xs font-semibold uppercase tracking-widest"
             style={{
               gridTemplateColumns: '2.5rem 1fr 11rem 7rem 2rem',
-              backgroundColor: '#141B21',
-              borderBottom: '1px solid #25333E',
-              color: '#475569',
+              backgroundColor: '#faf9f7',
+              borderBottom: '1px solid #e5e2d9',
+              color: '#b0bfb4',
             }}
           >
             <span /><span>Name</span><span>Class</span><span>Modified</span><span />
@@ -566,28 +566,28 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
             return (
               <Link key={ws.id} href={`/workspace/${ws.id}`} style={{ textDecoration: 'none', display: 'block' }}>
                 <div
-                  className="grid items-center px-5 py-3 transition-colors group"
+                  className="grid items-center px-5 py-3 transition-all duration-200 group"
                   style={{
                     gridTemplateColumns: '2.5rem 1fr 11rem 7rem 2rem',
-                    borderTop: idx === 0 ? 'none' : '1px solid #1A2832',
-                    backgroundColor: '#1A242C',
+                    borderTop: idx === 0 ? 'none' : '1px solid #f0ede6',
+                    backgroundColor: '#ffffff',
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#1E2E38' }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#1A242C' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#f5f3ef' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#ffffff' }}
                 >
-                  <div className="rounded overflow-hidden flex-shrink-0" style={{ width: 28, height: 36, backgroundColor: '#141B21', border: '1px solid #25333E' }}>
+                  <div className="rounded overflow-hidden flex-shrink-0" style={{ width: 28, height: 36, backgroundColor: '#f0ede6', border: '1px solid #e5e2d9' }}>
                     <div className="w-full h-full flex flex-col" style={{ padding: '3px 3px 2px' }}>
-                      <div className="rounded-sm mb-0.5" style={{ height: 3, width: '65%', backgroundColor: '#2B3040' }} />
-                      <div style={{ height: 1, backgroundColor: '#1A2030', marginBottom: 2 }} />
+                      <div className="rounded-sm mb-0.5" style={{ height: 3, width: '65%', backgroundColor: '#dddad3' }} />
+                      <div style={{ height: 1, backgroundColor: '#e5e2d9', marginBottom: 2 }} />
                       {[72, 58, 78, 62, 70].map((w, i) => (
-                        <div key={i} className="rounded-sm mb-0.5" style={{ height: 2, width: `${w}%`, backgroundColor: '#253040' }} />
+                        <div key={i} className="rounded-sm mb-0.5" style={{ height: 2, width: `${w}%`, backgroundColor: '#dddad3' }} />
                       ))}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1 min-w-0 pr-4">
                     <div className="flex items-center gap-2 min-w-0">
                       <WorksheetIcon color={accent} />
-                      <span className="text-sm font-medium truncate group-hover:text-[#A5F3FC] transition-colors" style={{ color: '#F8FAFC' }}>
+                      <span className="text-sm font-medium truncate group-hover:text-[#e8753b] transition-colors" style={{ color: '#47574d' }}>
                         {getTitle(ws)}
                       </span>
                     </div>
@@ -598,8 +598,8 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
                       )}
                     </div>
                   </div>
-                  <span className="text-xs truncate pr-4" style={{ color: '#64748B' }}>{getCourseLabel(ws)}</span>
-                  <span className="text-xs" style={{ color: '#475569' }}>{formatDate(ws.createdAt)}</span>
+                  <span className="text-xs truncate pr-4" style={{ color: '#8a9a8f' }}>{getCourseLabel(ws)}</span>
+                  <span className="text-xs" style={{ color: '#b0bfb4' }}>{formatDate(ws.createdAt)}</span>
                   <div className="flex justify-end">
                     <ThreeDotsBtn onMenu={(e) => openMenu(e, ws)} />
                   </div>
@@ -610,25 +610,19 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
         </div>
       )}
 
-      {/* ── Dropdown menu — smart flip + enter/exit animation ── */}
+      {/* ── Dropdown menu ── */}
       {menu && (
         <div
           ref={menuRef}
           className="fixed z-50 rounded-xl overflow-hidden py-1.5"
           style={{
-            /* Anchor right edge to trigger's right edge */
             right: menu.right,
-            /* Flip: open upward if not enough space below */
-            ...(menu.flipUp
-              ? { bottom: menu.bottom }
-              : { top: menu.top }),
-            backgroundColor: '#1A242C',
-            border: '1px solid #25333E',
-            boxShadow: '0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3)',
+            ...(menu.flipUp ? { bottom: menu.bottom } : { top: menu.top }),
+            backgroundColor: '#ffffff',
+            border: '1px solid rgba(71,87,77,0.1)',
+            boxShadow: '0 8px 20px rgba(71,87,77,0.12), 0 2px 6px rgba(71,87,77,0.06)',
             minWidth: 172,
-            /* Scale from the appropriate corner */
             transformOrigin: menu.flipUp ? 'bottom right' : 'top right',
-            /* Enter/exit transition */
             transition: 'opacity 150ms ease, transform 150ms cubic-bezier(0.16, 1, 0.3, 1)',
             opacity: menuAnimating ? 1 : 0,
             transform: menuAnimating
@@ -658,7 +652,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               </svg>
             }
           />
-          <div style={{ height: 1, backgroundColor: '#25333E', margin: '4px 0' }} />
+          <div style={{ height: 1, backgroundColor: '#f0ede6', margin: '4px 0' }} />
           <MenuItem
             label="Delete"
             danger
@@ -677,7 +671,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{
-            backgroundColor: `rgba(0,0,0,${renameAnimating ? 0.55 : 0})`,
+            backgroundColor: `rgba(71,87,77,${renameAnimating ? 0.3 : 0})`,
             transition: 'background-color 200ms ease',
             pointerEvents: renameAnimating ? 'auto' : 'none',
           }}
@@ -687,15 +681,15 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
             className="rounded-2xl p-6 w-full"
             style={{
               maxWidth: 360,
-              backgroundColor: '#1A242C',
-              border: '1px solid #25333E',
-              boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(71,87,77,0.08)',
+              boxShadow: '0 24px 64px rgba(71,87,77,0.2), 0 8px 24px rgba(71,87,77,0.1)',
               transition: 'opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
               opacity: renameAnimating ? 1 : 0,
               transform: renameAnimating ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.97)',
             }}
           >
-            <h3 className="text-sm font-semibold mb-4" style={{ color: '#F8FAFC' }}>Rename worksheet</h3>
+            <h3 className="text-sm font-semibold mb-4" style={{ color: '#47574d' }}>Rename worksheet</h3>
             <input
               ref={renameInputRef}
               value={renameInput}
@@ -704,24 +698,26 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
                 if (e.key === 'Enter') confirmRename()
                 if (e.key === 'Escape') closeRenameModal()
               }}
-              className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-              style={{ backgroundColor: '#0E1317', border: '1px solid #06B6D4', color: '#F8FAFC' }}
+              className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all duration-200"
+              style={{ backgroundColor: '#f5f3ef', border: '1px solid #e8753b', color: '#47574d' }}
               placeholder="Worksheet name"
             />
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={closeRenameModal}
-                className="px-4 py-2 rounded-lg text-sm transition-colors"
-                style={{ color: '#64748B' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.backgroundColor = '#25333E' }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.backgroundColor = 'transparent' }}
+                className="px-4 py-2 rounded-lg text-sm transition-all duration-200"
+                style={{ color: '#8a9a8f' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#6b7b70'; e.currentTarget.style.backgroundColor = '#f0ede6' }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#8a9a8f'; e.currentTarget.style.backgroundColor = 'transparent' }}
               >
                 Cancel
               </button>
               <button
                 onClick={confirmRename}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#06B6D4' }}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-200 hover:opacity-90"
+                style={{ backgroundColor: '#e8753b' }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#d4622a' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#e8753b' }}
               >
                 Save
               </button>
@@ -740,7 +736,7 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
           <div
             className="fixed inset-0 z-50 flex items-center justify-center"
             style={{
-              backgroundColor: `rgba(0,0,0,${assignAnimating ? 0.55 : 0})`,
+              backgroundColor: `rgba(71,87,77,${assignAnimating ? 0.3 : 0})`,
               transition: 'background-color 200ms ease',
               pointerEvents: assignAnimating ? 'auto' : 'none',
             }}
@@ -750,23 +746,23 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               className="rounded-2xl w-full overflow-hidden"
               style={{
                 maxWidth: 400,
-                backgroundColor: '#1A242C',
-                border: '1px solid #25333E',
-                boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+                backgroundColor: '#ffffff',
+                border: '1px solid rgba(71,87,77,0.08)',
+                boxShadow: '0 24px 64px rgba(71,87,77,0.2), 0 8px 24px rgba(71,87,77,0.1)',
                 transition: 'opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
                 opacity: assignAnimating ? 1 : 0,
                 transform: assignAnimating ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.97)',
               }}
             >
-              <div className="px-5 py-4" style={{ borderBottom: '1px solid #25333E' }}>
-                <h3 className="text-sm font-semibold" style={{ color: '#F8FAFC' }}>Assign to class</h3>
-                <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
+              <div className="px-5 py-4" style={{ borderBottom: '1px solid #f0ede6' }}>
+                <h3 className="text-sm font-semibold" style={{ color: '#47574d' }}>Assign to class</h3>
+                <p className="text-xs mt-0.5" style={{ color: '#b0bfb4' }}>
                   {assigning.curriculumId ? 'Showing classes with matching curriculum' : 'All classes'}
                 </p>
               </div>
               <div style={{ maxHeight: 280, overflowY: 'auto' }}>
                 {displayCourses.length === 0 ? (
-                  <p className="px-5 py-6 text-sm" style={{ color: '#64748B' }}>No other classes available.</p>
+                  <p className="px-5 py-6 text-sm" style={{ color: '#b0bfb4' }}>No other classes available.</p>
                 ) : (
                   displayCourses.map((course) => {
                     const isCurrent = course.id === assigning.currentCourseId
@@ -774,25 +770,25 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
                       <button
                         key={course.id}
                         onClick={() => { if (!isCurrent) handleAssign(course.id) }}
-                        className="w-full flex items-center justify-between gap-3 px-5 py-3.5 text-left transition-colors"
+                        className="w-full flex items-center justify-between gap-3 px-5 py-3.5 text-left transition-all duration-200"
                         style={{
                           backgroundColor: 'transparent',
-                          borderBottom: '1px solid #1A2832',
+                          borderBottom: '1px solid #f5f3ef',
                           cursor: isCurrent ? 'default' : 'pointer',
                         }}
-                        onMouseEnter={(e) => { if (!isCurrent) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E2E38' }}
+                        onMouseEnter={(e) => { if (!isCurrent) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#f5f3ef' }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent' }}
                       >
                         <div className="flex flex-col gap-0.5 min-w-0">
-                          <span className="text-sm font-medium truncate" style={{ color: isCurrent ? '#06B6D4' : '#F8FAFC' }}>
+                          <span className="text-sm font-medium truncate" style={{ color: isCurrent ? '#e8753b' : '#47574d' }}>
                             {course.label}
                           </span>
-                          <span className="text-xs" style={{ color: '#64748B' }}>
+                          <span className="text-xs" style={{ color: '#8a9a8f' }}>
                             {course.subject}{course.board ? ` · ${abbreviateBoard(course.board)} ${course.qualification}` : ''}
                           </span>
                         </div>
                         {isCurrent && (
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#06B6D4', flexShrink: 0 }}>
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#e8753b', flexShrink: 0 }}>
                             <path d="M2 7l4 4 6-6" />
                           </svg>
                         )}
@@ -801,12 +797,12 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
                   })
                 )}
               </div>
-              <div className="px-5 py-3 flex justify-end" style={{ borderTop: '1px solid #25333E' }}>
+              <div className="px-5 py-3 flex justify-end" style={{ borderTop: '1px solid #f0ede6' }}>
                 <button
                   onClick={closeAssignModal}
-                  className="px-4 py-2 rounded-lg text-sm transition-colors"
-                  style={{ color: '#94A3B8' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#25333E' }}
+                  className="px-4 py-2 rounded-lg text-sm transition-all duration-200"
+                  style={{ color: '#8a9a8f' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0ede6' }}
                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                 >
                   Cancel

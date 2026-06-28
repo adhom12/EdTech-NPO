@@ -11,15 +11,15 @@ body {
 }
 
 body {
-  background-color: #0E1317;
-  color: #F8FAFC;
+  background-color: #e7e5de;
+  color: #47574d;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ── Button press feedback (global) ── */
 @layer base {
   button:not([disabled]) {
-    transition: transform 80ms ease;
+    transition: transform 80ms ease, box-shadow 200ms ease;
   }
   button:not([disabled]):active {
     transform: scale(0.97);
@@ -88,21 +88,29 @@ body {
 }
 .skeleton-bar {
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
-  background-color: #E5E7EB;
+  background-color: #d5d2c8;
   border-radius: 4px;
   display: block;
 }
 
+/* ── Card elevation — base + hover ── */
+.card-surface {
+  box-shadow: 0 1px 3px rgba(71,87,77,0.08), 0 1px 2px rgba(71,87,77,0.04);
+  transition: transform 200ms ease-in-out, box-shadow 200ms ease-in-out;
+}
+.card-surface:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(71,87,77,0.14), 0 2px 8px rgba(71,87,77,0.08);
+}
+
 /* ── Print layout ── */
 @media print {
-  /* Strip chrome */
   .workspace-header,
   .params-panel,
   .chat-panel {
     display: none !important;
   }
 
-  /* Reset layout containers so canvas fills the page */
   body {
     background: white !important;
     color: #1f2937 !important;
@@ -114,7 +122,6 @@ body {
     height: auto !important;
   }
 
-  /* Canvas wrapper: remove dark bg, let paper breathe */
   .document-canvas-wrapper {
     width: 100% !important;
     overflow: visible !important;
@@ -122,7 +129,6 @@ body {
     height: auto !important;
   }
 
-  /* Paper card: strip shadow and dark-mode margin */
   .print-paper {
     max-width: none !important;
     margin: 0 !important;
@@ -131,18 +137,15 @@ body {
     border-radius: 0 !important;
   }
 
-  /* Keep each question on one page where possible */
   .question-block {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
-  /* Hide on-hover action buttons */
   .question-hover-actions {
     display: none !important;
   }
 
-  /* Skeleton bars should never appear in print */
   .skeleton-bar {
     display: none !important;
   }
