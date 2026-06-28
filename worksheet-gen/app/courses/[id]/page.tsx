@@ -420,88 +420,142 @@ export default async function CourseDetailPage({
 
         {/* ── Students tab ── */}
         {activeTab === 'students' && (
-          <section>
-            <h2
-              className="text-xs font-semibold uppercase tracking-widest mb-5"
-              style={{ color: '#6B7280' }}
-            >
-              Class Roster
-              <span className="ml-2 font-normal normal-case tracking-normal" style={{ color: '#4B5563' }}>
-                {studentRows.length} {studentRows.length === 1 ? 'student' : 'students'}
-              </span>
-            </h2>
+          <div className="max-w-2xl">
 
+            {/* Roster table */}
             <div
-              className="rounded-xl overflow-hidden mb-4"
-              style={{ border: '1px solid #252830' }}
+              className="rounded-xl overflow-hidden mb-5"
+              style={{
+                border: '1px solid #252830',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.25)',
+              }}
             >
+              {/* Table header */}
+              <div
+                className="grid px-5 py-3"
+                style={{
+                  gridTemplateColumns: '1fr auto auto',
+                  backgroundColor: '#1C1F27',
+                  borderBottom: '1px solid #252830',
+                }}
+              >
+                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#6B7280' }}>
+                  Student Name
+                </span>
+                <span
+                  className="text-xs font-semibold uppercase tracking-widest w-32 text-left"
+                  style={{ color: '#6B7280' }}
+                >
+                  Student ID
+                </span>
+                <span className="w-16" />
+              </div>
+
+              {/* Rows */}
               {studentRows.length === 0 ? (
-                <p className="px-5 py-5 text-sm" style={{ color: '#5A6070', backgroundColor: '#16191F' }}>
+                <p className="px-5 py-6 text-sm" style={{ color: '#5A6070', backgroundColor: '#16191F' }}>
                   No students added yet.
                 </p>
               ) : (
-                <div>
-                  {studentRows.map((s, idx) => {
-                    const removeAction = removeStudent.bind(null, s.id as string, id)
-                    return (
-                      <div
-                        key={s.id as string}
-                        className="flex items-center justify-between px-5 py-3.5"
-                        style={{
-                          borderTop: idx === 0 ? 'none' : '1px solid #1E2126',
-                          backgroundColor: '#16191F',
-                        }}
+                studentRows.map((s, idx) => {
+                  const removeAction = removeStudent.bind(null, s.id as string, id)
+                  return (
+                    <div
+                      key={s.id as string}
+                      className="grid items-center px-5 py-3.5"
+                      style={{
+                        gridTemplateColumns: '1fr auto auto',
+                        borderTop: idx === 0 ? 'none' : '1px solid #1E2126',
+                        backgroundColor: '#16191F',
+                      }}
+                    >
+                      <span className="text-sm font-medium text-white">
+                        {s.student_name as string}
+                      </span>
+                      <span
+                        className="text-xs font-mono w-32 text-left"
+                        style={{ color: '#6B7280' }}
                       >
-                        <div>
-                          <span className="text-sm text-white">{s.student_name as string}</span>
-                          {s.student_identifier && (
-                            <span className="ml-2 text-xs font-mono" style={{ color: '#A8B0BE' }}>
-                              {s.student_identifier as string}
-                            </span>
-                          )}
-                        </div>
+                        {s.student_identifier ? (s.student_identifier as string) : '—'}
+                      </span>
+                      <div className="w-16 flex justify-end">
                         <form action={removeAction}>
                           <button
                             type="submit"
-                            className="text-xs transition-colors hover:text-red-400"
-                            style={{ color: '#4B5563' }}
+                            className="text-xs font-medium transition-colors hover:text-red-300"
+                            style={{ color: '#E05C5C' }}
                           >
                             Remove
                           </button>
                         </form>
                       </div>
-                    )
-                  })}
+                    </div>
+                  )
+                })
+              )}
+
+              {/* Footer count */}
+              {studentRows.length > 0 && (
+                <div
+                  className="px-5 py-2.5"
+                  style={{ backgroundColor: '#1C1F27', borderTop: '1px solid #252830' }}
+                >
+                  <span className="text-xs" style={{ color: '#4B5563' }}>
+                    {studentRows.length} {studentRows.length === 1 ? 'student' : 'students'} enrolled
+                  </span>
                 </div>
               )}
             </div>
 
-            <form action={addStudent} className="flex gap-2">
-              <input type="hidden" name="course_id" value={id} />
-              <input
-                type="text"
-                name="student_name"
-                placeholder="Student name"
-                required
-                className="flex-1 px-3 py-2 rounded-lg text-sm focus:outline-none"
-                style={{ backgroundColor: '#16191F', border: '1px solid #252830', color: '#E8EAED' }}
-              />
-              <input
-                type="text"
-                name="student_identifier"
-                placeholder="ID (optional)"
-                className="w-28 px-3 py-2 rounded-lg text-sm focus:outline-none"
-                style={{ backgroundColor: '#16191F', border: '1px solid #252830', color: '#E8EAED' }}
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#4D528A' }}
-              >
-                Add
-              </button>
-            </form>
-          </section>
+            {/* Quick Add Student form card */}
+            <div
+              className="rounded-xl px-5 py-5"
+              style={{
+                backgroundColor: '#16191F',
+                border: '1px solid #252830',
+              }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#6B7280' }}>
+                Quick Add Student
+              </p>
+              <form action={addStudent} className="flex items-center gap-3">
+                <input type="hidden" name="course_id" value={id} />
+                <input
+                  type="text"
+                  name="student_name"
+                  placeholder="Full name"
+                  required
+                  className="px-3 py-2 rounded-lg text-sm focus:outline-none"
+                  style={{
+                    width: 220,
+                    backgroundColor: '#0F1115',
+                    border: '1px solid #2C2F38',
+                    color: '#E8EAED',
+                  }}
+                />
+                <input
+                  type="text"
+                  name="student_identifier"
+                  placeholder="Student ID (optional)"
+                  className="px-3 py-2 rounded-lg text-sm focus:outline-none"
+                  style={{
+                    width: 180,
+                    backgroundColor: '#0F1115',
+                    border: '1px solid #2C2F38',
+                    color: '#E8EAED',
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-85 flex-shrink-0"
+                  style={{ backgroundColor: '#4D528A' }}
+                >
+                  Add
+                </button>
+              </form>
+            </div>
+
+          </div>
         )}
 
         {/* ── Reports tab ── */}
