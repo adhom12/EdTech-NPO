@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { renameWorksheet, deleteWorksheet } from '@/app/actions/worksheets'
+import { renameWorksheet, deleteWorksheet, assignWorksheetToCourse } from '@/app/actions/worksheets'
 
 export type WorksheetDoc = {
   id: string
@@ -10,17 +10,34 @@ export type WorksheetDoc = {
   courseId: string
   courseLabel: string
   subject: string
+  curriculumId: string | null
   board: string | null
   qualification: string | null
   createdAt: string
 }
 
+export type CourseOption = {
+  id: string
+  label: string
+  subject: string
+  curriculumId: string | null
+  board: string | null
+  qualification: string | null
+}
+
 type MenuState = {
   id: string
   courseId: string
+  curriculumId: string | null
   title: string
   top: number
   right: number
+}
+
+type AssignState = {
+  worksheetId: string
+  currentCourseId: string
+  curriculumId: string | null
 }
 
 function formatDate(dateStr: string): string {
@@ -37,6 +54,14 @@ function formatDateLong(dateStr: string): string {
     month: 'long',
     year: 'numeric',
   })
+}
+
+function abbreviateBoard(board: string): string {
+  const b = board.trim()
+  if (b.toLowerCase().includes('cambridge assessment international')) return 'CIE'
+  if (b.toLowerCase().includes('cambridge assessment')) return 'Cambridge'
+  if (b.toLowerCase().includes('oxford cambridge')) return 'OCR'
+  return b
 }
 
 function subjectAccent(subject: string): string {
@@ -146,7 +171,7 @@ function CurriculumChip({ board, qualification }: { board: string; qualification
       className="inline-flex items-center text-xs px-2 py-0.5 rounded-full flex-shrink-0"
       style={{ backgroundColor: '#1A1D24', color: '#5A6070', border: '1px solid #252830' }}
     >
-      {board} {qualification}
+      {abbreviateBoard(board)} {qualification}
     </span>
   )
 }
@@ -180,13 +205,14 @@ function ThreeDotsBtn({ onMenu }: { onMenu: (e: React.MouseEvent<HTMLButtonEleme
 }
 
 function MenuItem({
-  label, onClick, danger = false, disabled = false, icon,
+  label, onClick, danger = false, disabled = false, icon, chevron = false,
 }: {
   label: string
   onClick: () => void
   danger?: boolean
   disabled?: boolean
   icon: React.ReactNode
+  chevron?: boolean
 }) {
   return (
     <button
@@ -202,7 +228,12 @@ function MenuItem({
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
     >
       {icon}
-      {label}
+      <span className="flex-1">{label}</span>
+      {chevron && (
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ color: '#4B5563', flexShrink: 0 }}>
+          <path d="M3.5 2l3 3-3 3" />
+        </svg>
+      )}
     </button>
   )
 }
@@ -216,15 +247,18 @@ function GridCard({
 }) {
   const accent = subjectAccent(ws.subject)
   return (
-    <Link href={`/workspace/${ws.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+    /* height:100% fills the grid cell so every card in a row matches the tallest */
+    <Link href={`/workspace/${ws.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
       <div
-        className="rounded-xl overflow-hidden flex flex-col group transition-colors duration-150 border border-[#252830] hover:border-[#5254A3]"
+        className="rounded-xl overflow-hidden flex flex-col h-full group transition-colors duration-150 border border-[#252830] hover:border-[#06B6D4]"
         style={{ backgroundColor: '#16191F' }}
       >
         <DocThumbnail subject={ws.subject} />
-        <div className="px-4 pt-3.5 pb-4 flex flex-col gap-2.5 min-w-0">
+
+        {/* Content area: flex-1 so all cards match the tallest, pushing footer to bottom */}
+        <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1 min-w-0">
           <p
-            className="text-[15px] font-semibold leading-snug group-hover:text-[#C4C8FF] transition-colors"
+            className="text-[15px] font-semibold leading-snug mb-2.5 group-hover:text-[#A5F3FC] transition-colors"
             style={{
               color: '#E8EAED',
               display: '-webkit-box',
@@ -235,18 +269,22 @@ function GridCard({
           >
             {displayTitle}
           </p>
-          <div className="flex items-center gap-1.5 flex-wrap">
+
+          <div className="flex items-center gap-1.5 flex-wrap mb-auto">
             <SubjectChip subject={ws.subject} />
             {ws.board && ws.qualification && (
               <CurriculumChip board={ws.board} qualification={ws.qualification} />
             )}
           </div>
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <WorksheetIcon color={accent} />
-              <span className="text-xs leading-relaxed" style={{ color: '#5A6070' }}>
-                {ws.courseLabel}
-                <span style={{ color: '#2E3340' }}> · </span>
+
+          {/* Footer: class label on its own row, last edited below it */}
+          <div className="flex items-end justify-between gap-2 mt-3">
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <WorksheetIcon color={accent} />
+                <span className="text-xs truncate" style={{ color: '#5A6070' }}>{ws.courseLabel}</span>
+              </div>
+              <span className="text-xs pl-0" style={{ color: '#2E3340' }}>
                 Last edited {formatDateLong(ws.createdAt)}
               </span>
             </div>
@@ -275,7 +313,7 @@ function ToolBtn({
         padding: '6px',
         backgroundColor: active ? '#1C1F28' : 'transparent',
         border: active ? '1px solid #303440' : '1px solid transparent',
-        color: active ? '#7C7FF5' : '#6B7280',
+        color: active ? '#06B6D4' : '#6B7280',
       }}
       onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = '#1A1D24' }}
       onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}
@@ -285,7 +323,7 @@ function ToolBtn({
   )
 }
 
-export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] }) {
+export function WorksheetsClient({ worksheets, courses }: { worksheets: WorksheetDoc[]; courses: CourseOption[] }) {
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [sort, setSort] = useState<'newest' | 'az'>('newest')
   const [menu, setMenu] = useState<MenuState | null>(null)
@@ -293,6 +331,11 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
   const [renameAnimating, setRenameAnimating] = useState(false)
   const [renameInput, setRenameInput] = useState('')
   const [localTitles, setLocalTitles] = useState<Record<string, string>>({})
+  const [localCourseIds, setLocalCourseIds] = useState<Record<string, string>>({})
+  const [assigning, setAssigning] = useState<AssignState | null>(null)
+  const [assignAnimating, setAssignAnimating] = useState(false)
+  const [assignPending, setAssignPending] = useState(false)
+  const assignCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const renameInputRef = useRef<HTMLInputElement>(null)
   const renameCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -306,7 +349,6 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
     return () => document.removeEventListener('mousedown', onClickOutside)
   }, [menu])
 
-  // Trigger rename modal enter animation one frame after mount
   useEffect(() => {
     if (!renaming) return
     const id = requestAnimationFrame(() => {
@@ -316,11 +358,18 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
     return () => cancelAnimationFrame(id)
   }, [renaming])
 
+  useEffect(() => {
+    if (!assigning) return
+    const id = requestAnimationFrame(() => setAssignAnimating(true))
+    return () => cancelAnimationFrame(id)
+  }, [assigning])
+
   function openMenu(e: React.MouseEvent<HTMLButtonElement>, ws: WorksheetDoc) {
     const rect = e.currentTarget.getBoundingClientRect()
     setMenu({
       id: ws.id,
-      courseId: ws.courseId,
+      courseId: localCourseIds[ws.id] ?? ws.courseId,
+      curriculumId: ws.curriculumId,
       title: localTitles[ws.id] ?? ws.title,
       top: rect.bottom + 4,
       right: window.innerWidth - rect.right,
@@ -335,10 +384,23 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
     setMenu(null)
   }
 
+  function startAssign() {
+    if (!menu) return
+    setAssigning({ worksheetId: menu.id, currentCourseId: menu.courseId, curriculumId: menu.curriculumId })
+    setAssignAnimating(false)
+    setMenu(null)
+  }
+
   function closeRenameModal() {
     setRenameAnimating(false)
     if (renameCloseTimer.current) clearTimeout(renameCloseTimer.current)
     renameCloseTimer.current = setTimeout(() => setRenaming(null), 200)
+  }
+
+  function closeAssignModal() {
+    setAssignAnimating(false)
+    if (assignCloseTimer.current) clearTimeout(assignCloseTimer.current)
+    assignCloseTimer.current = setTimeout(() => setAssigning(null), 200)
   }
 
   async function confirmRename() {
@@ -351,6 +413,16 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
     await renameWorksheet(id, trimmed)
   }
 
+  async function handleAssign(courseId: string) {
+    if (!assigning || assignPending) return
+    const { worksheetId } = assigning
+    setAssignPending(true)
+    setLocalCourseIds(prev => ({ ...prev, [worksheetId]: courseId }))
+    closeAssignModal()
+    await assignWorksheetToCourse(worksheetId, courseId)
+    setAssignPending(false)
+  }
+
   async function handleDelete() {
     if (!menu) return
     const { id, courseId } = menu
@@ -359,6 +431,12 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
   }
 
   const getTitle = (ws: WorksheetDoc) => localTitles[ws.id] ?? ws.title
+  const getCourseId = (ws: WorksheetDoc) => localCourseIds[ws.id] ?? ws.courseId
+  const getCourseLabel = (ws: WorksheetDoc) => {
+    const overrideId = localCourseIds[ws.id]
+    if (!overrideId) return ws.courseLabel
+    return courses.find(c => c.id === overrideId)?.label ?? ws.courseLabel
+  }
 
   const sorted = [...worksheets].sort((a, b) =>
     sort === 'az'
@@ -422,18 +500,18 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
       {sorted.length === 0 && (
         <div
           className="rounded-2xl p-16 flex flex-col items-center justify-center"
-          style={{ backgroundColor: 'rgba(63,68,110,0.06)', border: '1px dashed rgba(77,82,138,0.22)' }}
+          style={{ backgroundColor: 'rgba(6,182,212,0.04)', border: '1px dashed rgba(6,182,212,0.18)' }}
         >
-          <p className="text-sm mb-1" style={{ color: '#A8B0BE' }}>No worksheets yet.</p>
+          <p className="text-sm mb-1" style={{ color: '#94A3B8' }}>No worksheets yet.</p>
           <p className="text-xs" style={{ color: '#4B5563' }}>Open a class and create your first question set.</p>
         </div>
       )}
 
-      {/* Grid view */}
+      {/* Grid view — items-stretch keeps all cells in a row at the same height */}
       {view === 'grid' && sorted.length > 0 && (
-        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+        <div className="grid gap-5 items-stretch" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
           {sorted.map((ws) => (
-            <GridCard key={ws.id} ws={ws} displayTitle={getTitle(ws)} onMenu={openMenu} />
+            <GridCard key={ws.id} ws={{ ...ws, courseLabel: getCourseLabel(ws) }} displayTitle={getTitle(ws)} onMenu={openMenu} />
           ))}
         </div>
       )}
@@ -478,7 +556,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
                   <div className="flex flex-col gap-1 min-w-0 pr-4">
                     <div className="flex items-center gap-2 min-w-0">
                       <WorksheetIcon color={accent} />
-                      <span className="text-sm font-medium truncate group-hover:text-[#C4C8FF] transition-colors" style={{ color: '#E8EAED' }}>
+                      <span className="text-sm font-medium truncate group-hover:text-[#A5F3FC] transition-colors" style={{ color: '#E8EAED' }}>
                         {getTitle(ws)}
                       </span>
                     </div>
@@ -489,7 +567,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
                       )}
                     </div>
                   </div>
-                  <span className="text-xs truncate pr-4" style={{ color: '#6B7280' }}>{ws.courseLabel}</span>
+                  <span className="text-xs truncate pr-4" style={{ color: '#6B7280' }}>{getCourseLabel(ws)}</span>
                   <span className="text-xs" style={{ color: '#3D4350' }}>{formatDate(ws.createdAt)}</span>
                   <div className="flex justify-end">
                     <ThreeDotsBtn onMenu={(e) => openMenu(e, ws)} />
@@ -526,8 +604,8 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
           />
           <MenuItem
             label="Assign to class"
-            disabled
-            onClick={() => {}}
+            onClick={startAssign}
+            chevron
             icon={
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="1" y="3" width="12" height="9" rx="1.5" />
@@ -565,8 +643,8 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
             className="rounded-2xl p-6 w-full"
             style={{
               maxWidth: 360,
-              backgroundColor: '#1C1F27',
-              border: '1px solid #303440',
+              backgroundColor: '#1A242C',
+              border: '1px solid #25333E',
               boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
               transition: 'opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
               opacity: renameAnimating ? 1 : 0,
@@ -583,7 +661,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
                 if (e.key === 'Escape') closeRenameModal()
               }}
               className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none"
-              style={{ backgroundColor: '#14161D', border: '1px solid #7C7FF5' }}
+              style={{ backgroundColor: '#0E1317', border: '1px solid #06B6D4' }}
               placeholder="Worksheet name"
             />
             <div className="flex justify-end gap-2 mt-4">
@@ -591,7 +669,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
                 onClick={closeRenameModal}
                 className="px-4 py-2 rounded-lg text-sm transition-colors"
                 style={{ color: '#6B7280' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#A8B0BE' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8' }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280' }}
               >
                 Cancel
@@ -599,7 +677,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
               <button
                 onClick={confirmRename}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#4D528A' }}
+                style={{ backgroundColor: '#06B6D4' }}
               >
                 Save
               </button>
@@ -607,6 +685,97 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
           </div>
         </div>
       )}
+
+      {/* Assign to class modal */}
+      {assigning && (() => {
+        const matchingCourses = assigning.curriculumId
+          ? courses.filter(c => c.curriculumId === assigning.curriculumId)
+          : courses
+        const displayCourses = matchingCourses.length > 0 ? matchingCourses : courses
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{
+              backgroundColor: `rgba(0,0,0,${assignAnimating ? 0.55 : 0})`,
+              transition: 'background-color 200ms ease',
+              pointerEvents: assignAnimating ? 'auto' : 'none',
+            }}
+            onMouseDown={(e) => { if (e.target === e.currentTarget) closeAssignModal() }}
+          >
+            <div
+              className="rounded-2xl w-full overflow-hidden"
+              style={{
+                maxWidth: 400,
+                backgroundColor: '#1A242C',
+                border: '1px solid #25333E',
+                boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+                transition: 'opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+                opacity: assignAnimating ? 1 : 0,
+                transform: assignAnimating ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.97)',
+              }}
+            >
+              <div className="px-5 py-4" style={{ borderBottom: '1px solid #25333E' }}>
+                <h3 className="text-sm font-semibold" style={{ color: '#F8FAFC' }}>Assign to class</h3>
+                <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
+                  {assigning.curriculumId
+                    ? 'Showing classes with matching curriculum'
+                    : 'All classes'}
+                </p>
+              </div>
+
+              <div style={{ maxHeight: 280, overflowY: 'auto' }}>
+                {displayCourses.length === 0 ? (
+                  <p className="px-5 py-6 text-sm" style={{ color: '#64748B' }}>No other classes available.</p>
+                ) : (
+                  displayCourses.map((course) => {
+                    const isCurrent = course.id === assigning.currentCourseId
+                    return (
+                      <button
+                        key={course.id}
+                        onClick={() => { if (!isCurrent) handleAssign(course.id) }}
+                        className="w-full flex items-center justify-between gap-3 px-5 py-3.5 text-left transition-colors"
+                        style={{
+                          backgroundColor: 'transparent',
+                          borderBottom: '1px solid #1A2832',
+                          cursor: isCurrent ? 'default' : 'pointer',
+                        }}
+                        onMouseEnter={(e) => { if (!isCurrent) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E2E38' }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent' }}
+                      >
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-sm font-medium truncate" style={{ color: isCurrent ? '#06B6D4' : '#F8FAFC' }}>
+                            {course.label}
+                          </span>
+                          <span className="text-xs" style={{ color: '#64748B' }}>
+                            {course.subject}{course.board ? ` · ${abbreviateBoard(course.board)} ${course.qualification}` : ''}
+                          </span>
+                        </div>
+                        {isCurrent && (
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#06B6D4', flexShrink: 0 }}>
+                            <path d="M2 7l4 4 6-6" />
+                          </svg>
+                        )}
+                      </button>
+                    )
+                  })
+                )}
+              </div>
+
+              <div className="px-5 py-3 flex justify-end" style={{ borderTop: '1px solid #25333E' }}>
+                <button
+                  onClick={closeAssignModal}
+                  className="px-4 py-2 rounded-lg text-sm transition-colors"
+                  style={{ color: '#94A3B8' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#25333E' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

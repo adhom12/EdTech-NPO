@@ -37,3 +37,14 @@ export async function renameWorksheet(id: string, title: string) {
     return { error: String(err) }
   }
 }
+
+export async function assignWorksheetToCourse(worksheetId: string, newCourseId: string) {
+  try {
+    const sql = await getDb()
+    await sql`UPDATE worksheets SET course_id = ${newCourseId} WHERE id = ${worksheetId}`
+    revalidatePath('/worksheets')
+    revalidatePath('/')
+  } catch (err) {
+    return { error: String(err) }
+  }
+}
