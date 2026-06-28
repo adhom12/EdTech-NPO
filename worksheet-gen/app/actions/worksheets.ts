@@ -26,3 +26,14 @@ export async function deleteWorksheet(id: string, courseId: string) {
     return { error: String(err) }
   }
 }
+
+export async function renameWorksheet(id: string, title: string) {
+  try {
+    const sql = await getDb()
+    await sql`UPDATE worksheets SET title = ${title} WHERE id = ${id}`
+    revalidatePath('/')
+    revalidatePath('/worksheets')
+  } catch (err) {
+    return { error: String(err) }
+  }
+}
