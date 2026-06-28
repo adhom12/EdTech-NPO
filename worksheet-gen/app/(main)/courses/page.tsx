@@ -215,7 +215,7 @@ export default async function ClassesPage() {
           }}
         >
           <AddCourseCard
-            curricula={curricula as { id: string; board: string; qualification: string; syllabus_code: string }[]}
+            curricula={curricula as unknown as { id: string; board: string; qualification: string; syllabus_code: string }[]}
           />
         </div>
       </div>
