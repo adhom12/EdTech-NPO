@@ -44,9 +44,6 @@ type ClassRow = {
   created_at: string
 }
 
-const BASE_SHADOW = '0 1px 3px rgba(71,87,77,0.08), 0 1px 2px rgba(71,87,77,0.04)'
-const HOVER_SHADOW = '0 8px 24px rgba(71,87,77,0.14), 0 2px 8px rgba(71,87,77,0.08)'
-
 function ClassCard({ c }: { c: ClassRow }) {
   const accent = subjectAccent(c.subject)
   const parts: string[] = []
@@ -61,20 +58,11 @@ function ClassCard({ c }: { c: ClassRow }) {
   return (
     <Link href={`/courses/${c.id}`} style={{ textDecoration: 'none' }}>
       <div
-        className="rounded-xl overflow-hidden flex flex-col h-full group cursor-pointer transition-all duration-200 ease-in-out"
+        className="rounded-xl overflow-hidden flex flex-col h-full group cursor-pointer card-surface"
         style={{
           backgroundColor: '#ffffff',
           border: '1px solid rgba(71,87,77,0.08)',
           borderTop: `2px solid ${accent}`,
-          boxShadow: BASE_SHADOW,
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow = HOVER_SHADOW
-          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow = BASE_SHADOW
-          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'
         }}
       >
         {/* Header */}

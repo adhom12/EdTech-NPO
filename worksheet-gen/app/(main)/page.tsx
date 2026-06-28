@@ -153,15 +153,12 @@ export default async function Dashboard() {
               <Link
                 key={ws.id as string}
                 href={`/workspace/${ws.id as string}`}
-                className="grid items-center px-5 py-3.5 transition-all duration-200 ease-in-out"
+                className="grid items-center px-5 py-3.5 bg-white hover:bg-[#f5f3ef] transition-colors duration-200"
                 style={{
                   gridTemplateColumns: '1fr 10rem 6rem',
                   borderTop: idx === 0 ? 'none' : '1px solid #f0ede6',
-                  backgroundColor: '#ffffff',
                   textDecoration: 'none',
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#f5f3ef' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#ffffff' }}
               >
                 <span className="text-sm font-medium truncate pr-4" style={{ color: '#47574d' }}>
                   {ws.title as string}
