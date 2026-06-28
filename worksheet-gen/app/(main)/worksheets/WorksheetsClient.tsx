@@ -22,6 +22,14 @@ function formatDate(dateStr: string): string {
   })
 }
 
+function formatDateLong(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 function subjectAccent(subject: string): string {
   const s = (subject ?? '').toLowerCase()
   if (s.includes('math')) return '#6366F1'
@@ -47,62 +55,61 @@ function DocThumbnail({ subject }: { subject: string }) {
   return (
     <div
       className="relative w-full flex-shrink-0"
-      style={{ paddingBottom: '133%', backgroundColor: '#181B22', borderBottom: '1px solid #252830' }}
+      style={{ paddingBottom: '115%', backgroundColor: '#181B22', borderBottom: '1px solid #252830' }}
     >
       <div className="absolute inset-0 overflow-hidden">
         {/* Accent header strip */}
         <div
           className="absolute top-0 left-0 right-0"
           style={{
-            height: 24,
+            height: 32,
             background: `linear-gradient(90deg, ${accent}2A 0%, transparent 75%)`,
             borderBottom: `1px solid ${accent}1A`,
           }}
         />
 
         {/* Paper content */}
-        <div className="absolute inset-0 px-3 pt-7 pb-2 flex flex-col">
+        <div className="absolute inset-0 px-5 pt-10 pb-4 flex flex-col">
           {/* Doc header block */}
-          <div className="mb-2">
-            <div className="h-1.5 rounded-sm mb-1" style={{ width: '58%', backgroundColor: '#323845' }} />
-            <div className="h-1 rounded-sm"    style={{ width: '37%', backgroundColor: '#262B38' }} />
+          <div className="mb-3">
+            <div className="h-2 rounded-sm mb-1.5" style={{ width: '58%', backgroundColor: '#323845' }} />
+            <div className="h-1.5 rounded-sm"    style={{ width: '37%', backgroundColor: '#262B38' }} />
           </div>
 
           {/* Divider */}
-          <div className="mb-2.5" style={{ height: 1, backgroundColor: '#21252E' }} />
+          <div className="mb-3" style={{ height: 1, backgroundColor: '#21252E' }} />
 
           {/* Question rows */}
           {EXAM_QS.map(({ n, marks, lines, answers }) => (
-            <div key={n} className="mb-2">
+            <div key={n} className="mb-3.5">
               {/* Number + text lines + marks box */}
-              <div className="flex items-start gap-1 mb-1">
+              <div className="flex items-start gap-1.5 mb-1.5">
                 <span
                   className="flex-shrink-0 font-bold"
-                  style={{ fontSize: 5.5, color: accent + 'BB', lineHeight: 1, marginTop: 1 }}
+                  style={{ fontSize: 7, color: accent + 'BB', lineHeight: 1, marginTop: 2 }}
                 >
                   {n}.
                 </span>
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                <div className="flex flex-col gap-1 flex-1 min-w-0">
                   {lines.map((w, i) => (
                     <div
                       key={i}
-                      className="h-1 rounded-sm"
+                      className="h-1.5 rounded-sm"
                       style={{ width: `${w}%`, backgroundColor: i === 0 ? '#2B3040' : '#252A38' }}
                     />
                   ))}
                 </div>
                 {/* Marks box */}
                 <div
-                  className="flex-shrink-0 flex items-center justify-center rounded-sm"
+                  className="flex-shrink-0 flex items-center justify-center rounded"
                   style={{
-                    width: 13,
-                    height: 11,
-                    marginTop: 0,
-                    border: `0.5px solid ${accent}45`,
+                    width: 20,
+                    height: 14,
+                    border: `0.75px solid ${accent}45`,
                     backgroundColor: `${accent}10`,
                   }}
                 >
-                  <span style={{ fontSize: 4, color: accent + 'AA', fontWeight: 700 }}>
+                  <span style={{ fontSize: 6, color: accent + 'AA', fontWeight: 700 }}>
                     {marks}m
                   </span>
                 </div>
@@ -114,9 +121,9 @@ function DocThumbnail({ subject }: { subject: string }) {
                   key={i}
                   style={{
                     height: 1,
-                    borderBottom: '0.5px dashed #2A2D35',
-                    marginLeft: 10,
-                    marginBottom: 4,
+                    borderBottom: '1px dashed #2A2D38',
+                    marginLeft: 14,
+                    marginBottom: 6,
                   }}
                 />
               ))}
@@ -132,7 +139,7 @@ function SubjectChip({ subject }: { subject: string }) {
   const accent = subjectAccent(subject)
   return (
     <span
-      className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0"
+      className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0"
       style={{
         backgroundColor: `${accent}18`,
         color: accent,
@@ -147,12 +154,11 @@ function SubjectChip({ subject }: { subject: string }) {
 function CurriculumChip({ board, qualification }: { board: string; qualification: string }) {
   return (
     <span
-      className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 truncate"
+      className="inline-flex items-center text-xs px-2 py-0.5 rounded-full flex-shrink-0"
       style={{
         backgroundColor: '#1A1D24',
         color: '#5A6070',
         border: '1px solid #252830',
-        maxWidth: 100,
       }}
     >
       {board} {qualification}
@@ -199,35 +205,45 @@ function GridCard({ ws }: { ws: WorksheetDoc }) {
   return (
     <Link href={`/workspace/${ws.id}`} style={{ textDecoration: 'none', display: 'block' }}>
       <div
-        className="rounded-lg overflow-hidden flex flex-col group transition-colors duration-150 border border-[#252830] hover:border-[#5254A3]"
+        className="rounded-xl overflow-hidden flex flex-col group transition-colors duration-150 border border-[#252830] hover:border-[#5254A3]"
         style={{ backgroundColor: '#16191F' }}
       >
         <DocThumbnail subject={ws.subject} />
 
         {/* Footer */}
-        <div className="px-3 pt-2.5 pb-2.5 flex flex-col gap-1.5 min-w-0">
-          {/* Title */}
+        <div className="px-4 pt-3.5 pb-4 flex flex-col gap-2.5 min-w-0">
+          {/* Title — allow two lines, no hard truncate */}
           <p
-            className="text-sm font-semibold truncate group-hover:text-[#C4C8FF] transition-colors"
-            style={{ color: '#E8EAED', lineHeight: 1.3 }}
+            className="text-[15px] font-semibold leading-snug group-hover:text-[#C4C8FF] transition-colors"
+            style={{
+              color: '#E8EAED',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
           >
             {ws.title}
           </p>
 
-          {/* Chips */}
-          <div className="flex items-center gap-1 flex-wrap">
+          {/* Topic / curriculum chips */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <SubjectChip subject={ws.subject} />
             {ws.board && ws.qualification && (
               <CurriculumChip board={ws.board} qualification={ws.qualification} />
             )}
           </div>
 
-          {/* Class + date row */}
-          <div className="flex items-center gap-1.5">
-            <WorksheetIcon color={accent} />
-            <span className="text-xs truncate flex-1" style={{ color: '#4B5563' }}>
-              {ws.courseLabel} · {formatDate(ws.createdAt)}
-            </span>
+          {/* Class + date row — full text, no truncation */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <WorksheetIcon color={accent} />
+              <span className="text-xs leading-relaxed" style={{ color: '#5A6070' }}>
+                {ws.courseLabel}
+                <span style={{ color: '#2E3340' }}> · </span>
+                Last edited {formatDateLong(ws.createdAt)}
+              </span>
+            </div>
             <ThreeDotsBtn id={ws.id} />
           </div>
         </div>
@@ -350,7 +366,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
 
       {/* ── Grid view ── */}
       {view === 'grid' && sorted.length > 0 && (
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
           {sorted.map((ws) => <GridCard key={ws.id} ws={ws} />)}
         </div>
       )}
