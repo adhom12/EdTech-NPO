@@ -238,63 +238,99 @@ export default async function CourseDetailPage({
 
               {/* Activity stream */}
               <section className="mb-8">
-                <h2
-                  className="text-xs font-semibold uppercase tracking-widest mb-3"
-                  style={{ color: '#6B7280' }}
-                >
-                  Activity Stream
-                </h2>
                 <div
                   className="rounded-xl overflow-hidden"
-                  style={{ border: '1px solid #252830' }}
+                  style={{
+                    border: '1px solid #252830',
+                    boxShadow: '0 2px 16px rgba(0,0,0,0.25)',
+                  }}
                 >
-                  {eventRows.length === 0 ? (
-                    <p
-                      className="px-5 py-5 text-sm"
-                      style={{ color: '#5A6070', backgroundColor: '#16191F' }}
+                  {/* Header */}
+                  <div
+                    className="flex items-center justify-between px-5 py-3.5"
+                    style={{
+                      backgroundColor: '#1C1F27',
+                      borderBottom: '1px solid #252830',
+                    }}
+                  >
+                    <h2
+                      className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color: '#6B7280' }}
                     >
-                      No activity yet — generate a question set to get started.
-                    </p>
-                  ) : (
-                    eventRows.map((ev, idx) => {
-                      let payload: Record<string, unknown> = {}
-                      try { payload = ev.payload as Record<string, unknown> } catch {}
-                      const isGenerated = ev.event_type === 'worksheet_generated'
-                      return (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between px-5 py-3.5"
-                          style={{
-                            borderTop: idx === 0 ? 'none' : '1px solid #1E2126',
-                            backgroundColor: '#16191F',
-                          }}
-                        >
-                          <div className="flex items-center gap-3">
+                      Activity Stream
+                    </h2>
+                    {eventRows.length > 0 && (
+                      <span className="text-xs tabular-nums" style={{ color: '#4B5563' }}>
+                        {eventRows.length} event{eventRows.length !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Scrollable rows */}
+                  <div className="relative">
+                    <div
+                      style={{
+                        maxHeight: 320,
+                        overflowY: 'auto',
+                        backgroundColor: '#16191F',
+                      }}
+                    >
+                      {eventRows.length === 0 ? (
+                        <p className="px-5 py-6 text-sm" style={{ color: '#5A6070' }}>
+                          No activity yet — generate a question set to get started.
+                        </p>
+                      ) : (
+                        eventRows.map((ev, idx) => {
+                          let payload: Record<string, unknown> = {}
+                          try { payload = ev.payload as Record<string, unknown> } catch {}
+                          const isGenerated = ev.event_type === 'worksheet_generated'
+                          return (
                             <div
-                              className="rounded-full flex-shrink-0"
+                              key={idx}
+                              className="flex items-center justify-between px-5 py-4"
                               style={{
-                                width: 7,
-                                height: 7,
-                                backgroundColor: isGenerated ? '#6366F1' : '#F28B82',
-                                boxShadow: isGenerated
-                                  ? '0 0 7px rgba(99,102,241,0.55)'
-                                  : '0 0 7px rgba(242,139,130,0.55)',
+                                borderTop: idx === 0 ? 'none' : '1px solid #1E2126',
                               }}
-                            />
-                            <span className="text-sm text-white">
-                              {formatEventLabel(ev.event_type as string, payload)}
-                            </span>
-                          </div>
-                          <span
-                            className="text-xs flex-shrink-0 ml-4"
-                            style={{ color: '#8B909A' }}
-                          >
-                            {formatRelative(ev.created_at as string)}
-                          </span>
-                        </div>
-                      )
-                    })
-                  )}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className="rounded-full flex-shrink-0"
+                                  style={{
+                                    width: 7,
+                                    height: 7,
+                                    backgroundColor: isGenerated ? '#6366F1' : '#F28B82',
+                                    boxShadow: isGenerated
+                                      ? '0 0 7px rgba(99,102,241,0.55)'
+                                      : '0 0 7px rgba(242,139,130,0.55)',
+                                  }}
+                                />
+                                <span className="text-sm text-white">
+                                  {formatEventLabel(ev.event_type as string, payload)}
+                                </span>
+                              </div>
+                              <span
+                                className="text-xs flex-shrink-0 ml-4"
+                                style={{ color: '#8B909A' }}
+                              >
+                                {formatRelative(ev.created_at as string)}
+                              </span>
+                            </div>
+                          )
+                        })
+                      )}
+                    </div>
+
+                    {/* Bottom fade — visible when content likely overflows */}
+                    {eventRows.length > 5 && (
+                      <div
+                        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                        style={{
+                          height: 52,
+                          background: 'linear-gradient(to bottom, transparent, #16191F)',
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
               </section>
 
