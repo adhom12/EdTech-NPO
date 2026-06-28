@@ -38,17 +38,6 @@ const NAV = [
       </svg>
     ),
   },
-  {
-    label: "Reports",
-    href: "/reports",
-    exact: false,
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 13V8m4 5V5m4 8V3" />
-        <path d="M1 13.5h14" />
-      </svg>
-    ),
-  },
 ];
 
 export function Sidebar() {

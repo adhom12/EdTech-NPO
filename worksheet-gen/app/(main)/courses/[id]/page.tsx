@@ -4,6 +4,7 @@ import { WorksheetCard, type Worksheet } from '@/components/WorksheetCard'
 import { SortControls } from '@/components/SortControls'
 import { getDb } from '@/lib/aurora/client'
 import { addStudent, removeStudent } from '@/app/actions/students'
+import { ClassReports } from './ClassReports'
 
 function formatRelative(dateStr: string): string {
   const ms = Date.now() - new Date(dateStr).getTime()
@@ -334,9 +335,7 @@ export default async function CourseDetailPage({
 
       {/* ── Reports tab ── */}
       {activeTab === 'reports' && (
-        <div className="rounded-2xl p-12 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(63,68,110,0.07)', border: '1px dashed rgba(77,82,138,0.28)' }}>
-          <p className="text-sm" style={{ color: '#A8B0BE' }}>Reports coming soon.</p>
-        </div>
+        <ClassReports courseId={id} />
       )}
 
     </div>
