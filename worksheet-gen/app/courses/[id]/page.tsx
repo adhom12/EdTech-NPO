@@ -420,7 +420,7 @@ export default async function CourseDetailPage({
 
         {/* ── Students tab ── */}
         {activeTab === 'students' && (
-          <div className="max-w-2xl">
+          <div>
 
             {/* Roster table */}
             <div
