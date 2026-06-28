@@ -9,31 +9,6 @@ export function TopBar() {
         borderBottom: "1px solid #1A1D22",
       }}
     >
-      {/* Search */}
-      <div className="flex-1 relative" style={{ maxWidth: 440 }}>
-        <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-          style={{ color: "#6B7280" }}
-          width="15" height="15" viewBox="0 0 15 15"
-          fill="none" stroke="currentColor" strokeWidth="1.5"
-        >
-          <circle cx="6.5" cy="6.5" r="4.5" />
-          <path d="m10 10 3 3" strokeLinecap="round" />
-        </svg>
-        <input
-          type="search"
-          placeholder="Search worksheets...  ⌘K"
-          className="w-full pl-9 pr-4 py-2 rounded-lg text-sm focus:outline-none transition-colors"
-          style={{
-            backgroundColor: "#16191F",
-            border: "1px solid #252830",
-            color: "#E8EAED",
-          }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "#4D528A")}
-          onBlur={(e) => (e.currentTarget.style.borderColor = "#252830")}
-        />
-      </div>
-
       {/* Right */}
       <div className="ml-auto flex items-center gap-2">
         <button

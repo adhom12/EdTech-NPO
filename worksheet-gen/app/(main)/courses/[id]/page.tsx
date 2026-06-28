@@ -139,35 +139,6 @@ export default async function CourseDetailPage({
   return (
     <div className="max-w-[1200px] mx-auto px-8 py-8">
 
-      {/* ── Hero banner ── */}
-      <div
-        className="rounded-2xl px-8 py-8 mb-6"
-        style={{
-          background: 'radial-gradient(ellipse at 0% 0%, rgba(77,82,138,0.18) 0%, transparent 55%), linear-gradient(155deg, #1D1A2E 0%, #181B24 50%, #141619 100%)',
-          border: '1px solid rgba(77,82,138,0.22)',
-          boxShadow: '0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(77,82,138,0.18)',
-        }}
-      >
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-4 text-sm">
-              <Link href="/courses" className="transition-colors hover:text-white" style={{ color: '#A8B0BE' }}>
-                Classes
-              </Link>
-              <span style={{ color: '#4B5563' }}>/</span>
-              <span className="text-white">{course.label as string}</span>
-            </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-2">
-              {course.label as string}
-            </h1>
-            <p className="text-sm" style={{ color: '#A8B0BE' }}>
-              {syllabusLabel} · {course.subject as string}
-            </p>
-          </div>
-          <CreateButton />
-        </div>
-      </div>
-
       {/* ── Tab navigation ── */}
       <div className="flex gap-7 mb-8 text-sm" style={{ borderBottom: '1px solid #252830' }}>
         {(['overview', 'students', 'reports'] as const).map((t) => (
@@ -191,6 +162,37 @@ export default async function CourseDetailPage({
           </Link>
         ))}
       </div>
+
+      {/* ── Hero banner — overview only ── */}
+      {activeTab === 'overview' && (
+        <div
+          className="rounded-2xl px-8 py-8 mb-6"
+          style={{
+            background: 'radial-gradient(ellipse at 0% 0%, rgba(77,82,138,0.18) 0%, transparent 55%), linear-gradient(155deg, #1D1A2E 0%, #181B24 50%, #141619 100%)',
+            border: '1px solid rgba(77,82,138,0.22)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(77,82,138,0.18)',
+          }}
+        >
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-4 text-sm">
+                <Link href="/courses" className="transition-colors hover:text-white" style={{ color: '#A8B0BE' }}>
+                  Classes
+                </Link>
+                <span style={{ color: '#4B5563' }}>/</span>
+                <span className="text-white">{course.label as string}</span>
+              </div>
+              <h1 className="text-3xl font-bold text-white tracking-tight mb-2">
+                {course.label as string}
+              </h1>
+              <p className="text-sm" style={{ color: '#A8B0BE' }}>
+                {syllabusLabel} · {course.subject as string}
+              </p>
+            </div>
+            <CreateButton />
+          </div>
+        </div>
+      )}
 
       {/* ── Overview tab ── */}
       {activeTab === 'overview' && (
