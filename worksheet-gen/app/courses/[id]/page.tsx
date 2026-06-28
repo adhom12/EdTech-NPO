@@ -430,25 +430,22 @@ export default async function CourseDetailPage({
                 boxShadow: '0 2px 16px rgba(0,0,0,0.25)',
               }}
             >
-              {/* Table header */}
+              {/* Table header — 3 explicit columns shared with every data row */}
               <div
                 className="grid px-5 py-3"
                 style={{
-                  gridTemplateColumns: '1fr auto auto',
+                  gridTemplateColumns: '1fr 9rem 5rem',
                   backgroundColor: '#1C1F27',
                   borderBottom: '1px solid #252830',
                 }}
               >
-                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#6B7280' }}>
+                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9AA0AC' }}>
                   Student Name
                 </span>
-                <span
-                  className="text-xs font-semibold uppercase tracking-widest w-32 text-left"
-                  style={{ color: '#6B7280' }}
-                >
+                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9AA0AC' }}>
                   Student ID
                 </span>
-                <span className="w-16" />
+                <span />
               </div>
 
               {/* Rows */}
@@ -462,9 +459,9 @@ export default async function CourseDetailPage({
                   return (
                     <div
                       key={s.id as string}
-                      className="grid items-center px-5 py-3.5"
+                      className="grid items-center px-5 py-4"
                       style={{
-                        gridTemplateColumns: '1fr auto auto',
+                        gridTemplateColumns: '1fr 9rem 5rem',
                         borderTop: idx === 0 ? 'none' : '1px solid #1E2126',
                         backgroundColor: '#16191F',
                       }}
@@ -472,13 +469,10 @@ export default async function CourseDetailPage({
                       <span className="text-sm font-medium text-white">
                         {s.student_name as string}
                       </span>
-                      <span
-                        className="text-xs font-mono w-32 text-left"
-                        style={{ color: '#6B7280' }}
-                      >
+                      <span className="text-xs font-mono" style={{ color: '#7A8090' }}>
                         {s.student_identifier ? (s.student_identifier as string) : '—'}
                       </span>
-                      <div className="w-16 flex justify-end">
+                      <div className="flex justify-end">
                         <form action={removeAction}>
                           <button
                             type="submit"
@@ -500,7 +494,7 @@ export default async function CourseDetailPage({
                   className="px-5 py-2.5"
                   style={{ backgroundColor: '#1C1F27', borderTop: '1px solid #252830' }}
                 >
-                  <span className="text-xs" style={{ color: '#4B5563' }}>
+                  <span className="text-xs" style={{ color: '#8B909A' }}>
                     {studentRows.length} {studentRows.length === 1 ? 'student' : 'students'} enrolled
                   </span>
                 </div>
@@ -515,7 +509,7 @@ export default async function CourseDetailPage({
                 border: '1px solid #252830',
               }}
             >
-              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#6B7280' }}>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#9AA0AC' }}>
                 Quick Add Student
               </p>
               <form action={addStudent} className="flex items-center gap-3">
@@ -525,9 +519,8 @@ export default async function CourseDetailPage({
                   name="student_name"
                   placeholder="Full name"
                   required
-                  className="px-3 py-2 rounded-lg text-sm focus:outline-none"
+                  className="flex-1 min-w-0 px-3 py-2.5 rounded-lg text-sm focus:outline-none placeholder:text-[#5A6070]"
                   style={{
-                    width: 220,
                     backgroundColor: '#0F1115',
                     border: '1px solid #2C2F38',
                     color: '#E8EAED',
@@ -537,9 +530,10 @@ export default async function CourseDetailPage({
                   type="text"
                   name="student_identifier"
                   placeholder="Student ID (optional)"
-                  className="px-3 py-2 rounded-lg text-sm focus:outline-none"
+                  className="px-3 py-2.5 rounded-lg text-sm focus:outline-none placeholder:text-[#5A6070]"
                   style={{
-                    width: 180,
+                    width: 176,
+                    flexShrink: 0,
                     backgroundColor: '#0F1115',
                     border: '1px solid #2C2F38',
                     color: '#E8EAED',
@@ -547,7 +541,7 @@ export default async function CourseDetailPage({
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-85 flex-shrink-0"
+                  className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-85 flex-shrink-0"
                   style={{ backgroundColor: '#4D528A' }}
                 >
                   Add
