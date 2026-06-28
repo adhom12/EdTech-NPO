@@ -56,7 +56,7 @@ function QuestionBlock({
   }
 
   return (
-    <div className="question-block group relative mb-10">
+    <div className="question-block group relative mb-10 pb-6">
       {/* Question header */}
       <div className="flex items-baseline justify-between mb-3">
         <span
