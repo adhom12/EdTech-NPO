@@ -58,10 +58,8 @@ function ClassCard({ c }: { c: ClassRow }) {
   return (
     <Link href={`/courses/${c.id}`} style={{ textDecoration: 'none' }}>
       <div
-        className="rounded-xl overflow-hidden transition-all duration-150 group cursor-pointer flex flex-col h-full"
-        style={{ backgroundColor: '#16191F', border: '1px solid #252830' }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#4D528A' }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#252830' }}
+        className="rounded-xl overflow-hidden transition-colors duration-150 group cursor-pointer flex flex-col h-full border border-[#252830] hover:border-[#4D528A]"
+        style={{ backgroundColor: '#16191F' }}
       >
         {/* Header */}
         <div className="px-5 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid #1E2126' }}>
