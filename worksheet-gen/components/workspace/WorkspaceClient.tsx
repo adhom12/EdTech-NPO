@@ -22,12 +22,20 @@ export function WorkspaceClient({
   worksheetTitle,
   curriculumId,
   courseId,
+  initialSubject,
+  initialSyllabus,
 }: {
   worksheetTitle: string;
   curriculumId: string | null;
   courseId: string | null;
+  initialSubject?: string | null;
+  initialSyllabus?: string | null;
 }) {
-  const [parameters, setParameters] = useState<Record<string, string>>(DEFAULT_PARAMETERS);
+  const [parameters, setParameters] = useState<Record<string, string>>({
+    ...DEFAULT_PARAMETERS,
+    ...(initialSyllabus ? { syllabus: initialSyllabus } : {}),
+    ...(initialSubject ? { subject: initialSubject } : {}),
+  });
   const [selectedSkills, setSelectedSkills] = useState<SkillRow[]>([]);
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS);
   const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
