@@ -296,9 +296,9 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
     <div className="px-8 py-7">
       {/* ── Control header ── */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[15px] font-semibold" style={{ color: '#E8EAED', letterSpacing: '-0.01em' }}>
+        <h1 className="text-2xl font-bold text-white tracking-tight">
           Recent worksheets
-        </h2>
+        </h1>
 
         <div className="flex items-center gap-2.5">
           <button
