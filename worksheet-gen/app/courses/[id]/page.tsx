@@ -236,10 +236,8 @@ export default async function CourseDetailPage({
                       <form action={removeAction}>
                         <button
                           type="submit"
-                          className="text-xs transition-colors"
+                          className="text-xs transition-colors hover:text-red-400"
                           style={{ color: '#4B5563' }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#F87171' }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#4B5563' }}
                         >
                           Remove
                         </button>
