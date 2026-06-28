@@ -9,6 +9,8 @@ export type WorksheetDoc = {
   courseId: string
   courseLabel: string
   subject: string
+  board: string | null
+  qualification: string | null
   createdAt: string
 }
 
@@ -32,13 +34,13 @@ function subjectAccent(subject: string): string {
   return '#8B5CF6'
 }
 
-// Fixed skeleton rows: [q-number, line widths for question text]
-const Q_SKELETONS = [
-  { n: '1.', w1: 78, w2: 62 },
-  { n: '2.', w1: 82, w2: 68 },
-  { n: '3.', w1: 71, w2: 55 },
-  { n: '4.', w1: 76, w2: 60 },
-]
+// Fixed exam-paper skeleton rows
+const EXAM_QS = [
+  { n: '1', marks: 2, lines: [76, 60], answers: 1 },
+  { n: '2', marks: 3, lines: [82, 68], answers: 2 },
+  { n: '3', marks: 1, lines: [70],     answers: 1 },
+  { n: '4', marks: 4, lines: [78, 58], answers: 2 },
+] as const
 
 function DocThumbnail({ subject }: { subject: string }) {
   const accent = subjectAccent(subject)
@@ -52,32 +54,72 @@ function DocThumbnail({ subject }: { subject: string }) {
         <div
           className="absolute top-0 left-0 right-0"
           style={{
-            height: 26,
-            background: `linear-gradient(90deg, ${accent}28 0%, transparent 80%)`,
-            borderBottom: `1px solid ${accent}18`,
+            height: 24,
+            background: `linear-gradient(90deg, ${accent}2A 0%, transparent 75%)`,
+            borderBottom: `1px solid ${accent}1A`,
           }}
         />
 
-        {/* Doc content skeleton */}
-        <div className="absolute inset-0 px-4 pt-8 pb-3 flex flex-col gap-0">
-          {/* Title block */}
-          <div className="mb-3.5">
-            <div className="h-2 rounded-sm mb-1.5" style={{ width: '63%', backgroundColor: '#333845' }} />
-            <div className="h-1.5 rounded-sm" style={{ width: '40%', backgroundColor: '#272C38' }} />
+        {/* Paper content */}
+        <div className="absolute inset-0 px-3 pt-7 pb-2 flex flex-col">
+          {/* Doc header block */}
+          <div className="mb-2">
+            <div className="h-1.5 rounded-sm mb-1" style={{ width: '58%', backgroundColor: '#323845' }} />
+            <div className="h-1 rounded-sm"    style={{ width: '37%', backgroundColor: '#262B38' }} />
           </div>
-          {/* Divider */}
-          <div className="mb-3" style={{ height: 1, backgroundColor: '#232730' }} />
 
-          {/* Questions */}
-          {Q_SKELETONS.map(({ n, w1, w2 }) => (
-            <div key={n} className="mb-3.5">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="font-bold flex-shrink-0" style={{ fontSize: 5.5, color: accent + 'BB', lineHeight: 1 }}>{n}</span>
-                <div className="h-1.5 rounded-sm" style={{ width: `${w1}%`, backgroundColor: '#2B3040' }} />
+          {/* Divider */}
+          <div className="mb-2.5" style={{ height: 1, backgroundColor: '#21252E' }} />
+
+          {/* Question rows */}
+          {EXAM_QS.map(({ n, marks, lines, answers }) => (
+            <div key={n} className="mb-2">
+              {/* Number + text lines + marks box */}
+              <div className="flex items-start gap-1 mb-1">
+                <span
+                  className="flex-shrink-0 font-bold"
+                  style={{ fontSize: 5.5, color: accent + 'BB', lineHeight: 1, marginTop: 1 }}
+                >
+                  {n}.
+                </span>
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  {lines.map((w, i) => (
+                    <div
+                      key={i}
+                      className="h-1 rounded-sm"
+                      style={{ width: `${w}%`, backgroundColor: i === 0 ? '#2B3040' : '#252A38' }}
+                    />
+                  ))}
+                </div>
+                {/* Marks box */}
+                <div
+                  className="flex-shrink-0 flex items-center justify-center rounded-sm"
+                  style={{
+                    width: 13,
+                    height: 11,
+                    marginTop: 0,
+                    border: `0.5px solid ${accent}45`,
+                    backgroundColor: `${accent}10`,
+                  }}
+                >
+                  <span style={{ fontSize: 4, color: accent + 'AA', fontWeight: 700 }}>
+                    {marks}m
+                  </span>
+                </div>
               </div>
-              <div className="h-1.5 rounded-sm ml-3.5 mb-2.5" style={{ width: `${w2}%`, backgroundColor: '#252A35' }} />
-              {/* Answer line */}
-              <div className="ml-3.5" style={{ height: 1, borderBottom: '1px dashed #27292F' }} />
+
+              {/* Answer lines */}
+              {Array.from({ length: answers }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    height: 1,
+                    borderBottom: '0.5px dashed #2A2D35',
+                    marginLeft: 10,
+                    marginBottom: 4,
+                  }}
+                />
+              ))}
             </div>
           ))}
         </div>
@@ -86,24 +128,62 @@ function DocThumbnail({ subject }: { subject: string }) {
   )
 }
 
+function SubjectChip({ subject }: { subject: string }) {
+  const accent = subjectAccent(subject)
+  return (
+    <span
+      className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0"
+      style={{
+        backgroundColor: `${accent}18`,
+        color: accent,
+        border: `1px solid ${accent}30`,
+      }}
+    >
+      {subject}
+    </span>
+  )
+}
+
+function CurriculumChip({ board, qualification }: { board: string; qualification: string }) {
+  return (
+    <span
+      className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 truncate"
+      style={{
+        backgroundColor: '#1A1D24',
+        color: '#5A6070',
+        border: '1px solid #252830',
+        maxWidth: 100,
+      }}
+    >
+      {board} {qualification}
+    </span>
+  )
+}
+
+function WorksheetIcon({ color }: { color: string }) {
+  return (
+    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style={{ color, flexShrink: 0 }}>
+      <rect x="1.5" y="0.5" width="9" height="11" rx="1" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M3.5 3.5h5M3.5 5.5h5M3.5 7.5h3" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function ThreeDotsBtn({ id }: { id: string }) {
   return (
     <button
       title="More options"
       className="p-1.5 rounded-md flex-shrink-0 transition-all"
-      style={{ color: '#4B5563', backgroundColor: 'transparent' }}
+      style={{ color: '#3D4350', backgroundColor: 'transparent' }}
       onMouseEnter={(e) => {
         e.currentTarget.style.backgroundColor = '#252830'
         e.currentTarget.style.color = '#E8EAED'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.backgroundColor = 'transparent'
-        e.currentTarget.style.color = '#4B5563'
+        e.currentTarget.style.color = '#3D4350'
       }}
-      onClick={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-      }}
+      onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
     >
       <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
         <circle cx="6.5" cy="2.2" r="1.1" />
@@ -114,39 +194,39 @@ function ThreeDotsBtn({ id }: { id: string }) {
   )
 }
 
-function WorksheetIcon({ color }: { color: string }) {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ color, flexShrink: 0 }}>
-      <rect x="1.5" y="0.5" width="9" height="11" rx="1" stroke="currentColor" strokeWidth="1.1" />
-      <path d="M3.5 3.5h5M3.5 5.5h5M3.5 7.5h3" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function GridCard({ ws }: { ws: WorksheetDoc }) {
   const accent = subjectAccent(ws.subject)
   return (
     <Link href={`/workspace/${ws.id}`} style={{ textDecoration: 'none', display: 'block' }}>
       <div
-        className="rounded-lg overflow-hidden flex flex-col group transition-all duration-150"
-        style={{ backgroundColor: '#16191F', border: '1px solid #252830' }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#5254A3' }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#252830' }}
+        className="rounded-lg overflow-hidden flex flex-col group transition-colors duration-150 border border-[#252830] hover:border-[#5254A3]"
+        style={{ backgroundColor: '#16191F' }}
       >
         <DocThumbnail subject={ws.subject} />
 
         {/* Footer */}
-        <div className="px-3 pt-2.5 pb-2 min-w-0">
+        <div className="px-3 pt-2.5 pb-2.5 flex flex-col gap-1.5 min-w-0">
+          {/* Title */}
           <p
-            className="text-sm font-medium truncate mb-1.5 group-hover:text-[#C4C8FF] transition-colors"
+            className="text-sm font-semibold truncate group-hover:text-[#C4C8FF] transition-colors"
             style={{ color: '#E8EAED', lineHeight: 1.3 }}
           >
             {ws.title}
           </p>
+
+          {/* Chips */}
+          <div className="flex items-center gap-1 flex-wrap">
+            <SubjectChip subject={ws.subject} />
+            {ws.board && ws.qualification && (
+              <CurriculumChip board={ws.board} qualification={ws.qualification} />
+            )}
+          </div>
+
+          {/* Class + date row */}
           <div className="flex items-center gap-1.5">
             <WorksheetIcon color={accent} />
-            <span className="text-xs truncate flex-1" style={{ color: '#5A6070' }}>
-              {formatDate(ws.createdAt)}
+            <span className="text-xs truncate flex-1" style={{ color: '#4B5563' }}>
+              {ws.courseLabel} · {formatDate(ws.createdAt)}
             </span>
             <ThreeDotsBtn id={ws.id} />
           </div>
@@ -178,12 +258,8 @@ function ToolBtn({
         border: active ? '1px solid #303440' : '1px solid transparent',
         color: active ? '#7C7FF5' : '#6B7280',
       }}
-      onMouseEnter={(e) => {
-        if (!active) e.currentTarget.style.backgroundColor = '#1A1D24'
-      }}
-      onMouseLeave={(e) => {
-        if (!active) e.currentTarget.style.backgroundColor = 'transparent'
-      }}
+      onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = '#1A1D24' }}
+      onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}
     >
       {children}
     </button>
@@ -209,7 +285,6 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
         </h2>
 
         <div className="flex items-center gap-2.5">
-          {/* Ownership dropdown */}
           <button
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all"
             style={{ color: '#A8B0BE', backgroundColor: '#1A1D24', border: '1px solid #2C2E33' }}
@@ -222,10 +297,8 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
             </svg>
           </button>
 
-          {/* Separator */}
           <div style={{ width: 1, height: 18, backgroundColor: '#252830' }} />
 
-          {/* View toggle */}
           <div className="flex items-center gap-0.5">
             <ToolBtn active={view === 'grid'} onClick={() => setView('grid')} title="Grid view">
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -245,16 +318,10 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
             </ToolBtn>
           </div>
 
-          {/* A-Z sort */}
-          <ToolBtn
-            active={sort === 'az'}
-            onClick={() => setSort(sort === 'az' ? 'newest' : 'az')}
-            title="Sort A–Z"
-          >
+          <ToolBtn active={sort === 'az'} onClick={() => setSort(sort === 'az' ? 'newest' : 'az')} title="Sort A–Z">
             <span className="text-[11px] font-bold px-0.5" style={{ letterSpacing: '0.03em' }}>A–Z</span>
           </ToolBtn>
 
-          {/* Folder (future) */}
           <ToolBtn active={false} title="Folders (coming soon)">
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M1 4a1 1 0 0 1 1-1h3.5l1.5 1.5H13a1 1 0 0 1 1 1v6.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4z" />
@@ -263,14 +330,14 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
         </div>
       </div>
 
-      {/* ── Count ── */}
+      {/* Count */}
       {sorted.length > 0 && (
         <p className="text-xs mb-5" style={{ color: '#3D4350' }}>
           {sorted.length} {sorted.length === 1 ? 'worksheet' : 'worksheets'}
         </p>
       )}
 
-      {/* ── Empty state ── */}
+      {/* Empty state */}
       {sorted.length === 0 && (
         <div
           className="rounded-2xl p-16 flex flex-col items-center justify-center"
@@ -284,9 +351,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
       {/* ── Grid view ── */}
       {view === 'grid' && sorted.length > 0 && (
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {sorted.map((ws) => (
-            <GridCard key={ws.id} ws={ws} />
-          ))}
+          {sorted.map((ws) => <GridCard key={ws.id} ws={ws} />)}
         </div>
       )}
 
@@ -325,27 +390,30 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
                   onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#16191F' }}
                 >
                   {/* Mini thumbnail */}
-                  <div
-                    className="rounded overflow-hidden flex-shrink-0"
-                    style={{ width: 28, height: 36, backgroundColor: '#181B22', border: '1px solid #252830' }}
-                  >
-                    <div className="w-full h-full p-1 flex flex-col gap-0.5">
-                      <div className="rounded-sm" style={{ height: 3, width: '70%', backgroundColor: '#333845' }} />
-                      {[68, 80, 58, 74, 62].map((w, i) => (
-                        <div key={i} className="rounded-sm" style={{ height: 2, width: `${w}%`, backgroundColor: '#2B3040' }} />
+                  <div className="rounded overflow-hidden flex-shrink-0" style={{ width: 28, height: 36, backgroundColor: '#181B22', border: '1px solid #252830' }}>
+                    <div className="w-full h-full flex flex-col" style={{ padding: '3px 3px 2px' }}>
+                      <div className="rounded-sm mb-0.5" style={{ height: 3, width: '65%', backgroundColor: '#323845' }} />
+                      <div style={{ height: 1, backgroundColor: '#21252E', marginBottom: 2 }} />
+                      {[72, 58, 78, 62, 70].map((w, i) => (
+                        <div key={i} className="rounded-sm mb-0.5" style={{ height: 2, width: `${w}%`, backgroundColor: '#2B3040' }} />
                       ))}
                     </div>
                   </div>
 
-                  {/* Name */}
-                  <div className="flex items-center gap-2.5 min-w-0 pr-4">
-                    <WorksheetIcon color={accent} />
-                    <span
-                      className="text-sm font-medium truncate group-hover:text-[#C4C8FF] transition-colors"
-                      style={{ color: '#E8EAED' }}
-                    >
-                      {ws.title}
-                    </span>
+                  {/* Name + chips */}
+                  <div className="flex flex-col gap-1 min-w-0 pr-4">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <WorksheetIcon color={accent} />
+                      <span className="text-sm font-medium truncate group-hover:text-[#C4C8FF] transition-colors" style={{ color: '#E8EAED' }}>
+                        {ws.title}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 pl-0">
+                      <SubjectChip subject={ws.subject} />
+                      {ws.board && ws.qualification && (
+                        <CurriculumChip board={ws.board} qualification={ws.qualification} />
+                      )}
+                    </div>
                   </div>
 
                   {/* Class */}

@@ -11,11 +11,14 @@ export default async function WorksheetsPage() {
       w.id,
       w.title,
       w.created_at,
-      c.id   AS course_id,
+      c.id    AS course_id,
       c.label AS course_label,
-      c.subject
+      c.subject,
+      cu.board,
+      cu.qualification
     FROM worksheets w
     JOIN courses c ON w.course_id = c.id
+    LEFT JOIN curricula cu ON c.curriculum_id = cu.id
     WHERE c.teacher_id = ${DEV_TEACHER_ID}
     ORDER BY w.created_at DESC
   `
@@ -26,6 +29,8 @@ export default async function WorksheetsPage() {
     courseId: r.course_id as string,
     courseLabel: r.course_label as string,
     subject: r.subject as string,
+    board: (r.board as string) ?? null,
+    qualification: (r.qualification as string) ?? null,
     createdAt: r.created_at as string,
   }))
 
