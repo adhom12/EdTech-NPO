@@ -367,7 +367,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
   )
 
   return (
-    <div className="px-8 py-7">
+    <div className="px-8 py-7 animate-page-in">
       {/* Control header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-white tracking-tight">Recent worksheets</h1>

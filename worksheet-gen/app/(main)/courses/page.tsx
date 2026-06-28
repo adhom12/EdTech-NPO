@@ -187,7 +187,7 @@ export default async function ClassesPage() {
   const classes = classRows as unknown as ClassRow[]
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-8 py-8 animate-page-in">
       {/* Page header */}
       <div className="flex items-center justify-between mb-8">
         <div>

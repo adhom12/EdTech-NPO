@@ -63,7 +63,7 @@ export default async function Dashboard() {
   }
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-8 py-8 animate-page-in">
       {/* Greeting */}
       <h1 className="text-2xl font-bold text-white tracking-tight mb-8">
         Good morning, Teacher

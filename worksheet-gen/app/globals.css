@@ -26,6 +26,24 @@ body {
   }
 }
 
+/* ── Tab panel content swap ── */
+@keyframes tab-content-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-tab-content {
+  animation: tab-content-enter 200ms ease forwards;
+}
+
+/* ── Page enter on navigation ── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-page-in {
+  animation: page-enter 240ms ease forwards;
+}
+
 /* ── Dropdown / popover enter ── */
 @keyframes dropdown-enter {
   from { opacity: 0; transform: translateY(-5px) scale(0.97); }
