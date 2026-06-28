@@ -15,58 +15,26 @@ interface AddCourseCardProps {
 }
 
 const SUBJECTS = [
-  'Art & Design',
-  'Biology',
-  'Business Studies',
-  'Chemistry',
-  'Computer Science',
-  'Design & Technology',
-  'Drama',
-  'Economics',
-  'English Language',
-  'English Literature',
-  'French',
-  'Further Mathematics',
-  'Geography',
-  'German',
-  'History',
-  'Mathematics',
-  'Media Studies',
-  'Music',
-  'Physical Education',
-  'Physics',
-  'Psychology',
-  'Religious Studies',
-  'Sociology',
-  'Spanish',
+  'Art & Design', 'Biology', 'Business Studies', 'Chemistry',
+  'Computer Science', 'Design & Technology', 'Drama', 'Economics',
+  'English Language', 'English Literature', 'French', 'Further Mathematics',
+  'Geography', 'German', 'History', 'Mathematics', 'Media Studies',
+  'Music', 'Physical Education', 'Physics', 'Psychology',
+  'Religious Studies', 'Sociology', 'Spanish',
 ]
 
 const LABEL_STYLE = { color: '#D1D5DB' }
-
-const FIELD_BASE: React.CSSProperties = {
-  backgroundColor: '#121417',
-  border: '1px solid #2C2E33',
-}
+const FIELD_BASE: React.CSSProperties = { backgroundColor: '#121417', border: '1px solid #2C2E33' }
 
 const CHEVRON = (
-  <svg
-    width="11" height="11" viewBox="0 0 11 11"
-    fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
-    style={{ flexShrink: 0 }}
-  >
+  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
     <path d="M2 4l3.5 3.5L9 4" />
   </svg>
 )
 
 // ─── Subject combobox ────────────────────────────────────────────────────────
 
-function SubjectCombobox({
-  selected,
-  onSelect,
-}: {
-  selected: string
-  onSelect: (s: string) => void
-}) {
+function SubjectCombobox({ selected, onSelect }: { selected: string; onSelect: (s: string) => void }) {
   const [query, setQuery] = useState(selected)
   const [open, setOpen] = useState(false)
   const [hi, setHi] = useState(0)
@@ -78,11 +46,7 @@ function SubjectCombobox({
     (s) => !query || s.toLowerCase().includes(query.toLowerCase())
   )
 
-  function pick(subject: string) {
-    setQuery(subject)
-    setOpen(false)
-    onSelect(subject)
-  }
+  function pick(subject: string) { setQuery(subject); setOpen(false); onSelect(subject) }
 
   function handleKey(e: React.KeyboardEvent) {
     if (!open) {
@@ -115,7 +79,7 @@ function SubjectCombobox({
           onKeyDown={handleKey}
           placeholder="Search subjects…"
           autoComplete="off"
-          className="flex-1 bg-transparent text-sm text-white outline-none"
+          className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#3D4350]"
           style={{ caretColor: '#7C7FF5' }}
         />
         <span style={{ color: '#3D4350', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>
@@ -127,7 +91,7 @@ function SubjectCombobox({
       {open && filtered.length > 0 && (
         <div
           ref={listRef}
-          className="absolute z-20 w-full mt-1 rounded-xl overflow-auto py-1.5"
+          className="absolute z-20 w-full mt-1 rounded-xl overflow-auto py-1.5 animate-dropdown"
           style={{ maxHeight: 196, backgroundColor: '#181B22', border: '1px solid #303440', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
         >
           {filtered.map((s, i) => (
@@ -146,7 +110,7 @@ function SubjectCombobox({
       )}
       {open && filtered.length === 0 && (
         <div
-          className="absolute z-20 w-full mt-1 rounded-xl px-4 py-3 text-sm"
+          className="absolute z-20 w-full mt-1 rounded-xl px-4 py-3 text-sm animate-dropdown"
           style={{ backgroundColor: '#181B22', border: '1px solid #303440', color: '#4B5563' }}
         >
           No matching subjects
@@ -173,10 +137,7 @@ function CurriculumDropdown({ curricula }: { curricula: Curriculum[] }) {
     return () => document.removeEventListener('mousedown', onOutside)
   }, [open])
 
-  function pick(c: Curriculum) {
-    setSelected(c)
-    setOpen(false)
-  }
+  function pick(c: Curriculum) { setSelected(c); setOpen(false) }
 
   function handleKey(e: React.KeyboardEvent) {
     if (!open) {
@@ -189,24 +150,17 @@ function CurriculumDropdown({ curricula }: { curricula: Curriculum[] }) {
     else if (e.key === 'Escape') setOpen(false)
   }
 
-  const label = selected
-    ? `${selected.board} ${selected.qualification} (${selected.syllabus_code})`
-    : 'Select curriculum…'
+  const label = selected ? `${selected.board} ${selected.qualification} (${selected.syllabus_code})` : 'Select curriculum…'
 
   return (
     <div ref={containerRef} className="relative">
       <input type="hidden" name="curriculum_id" value={selected?.id ?? ''} />
-
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         onKeyDown={handleKey}
         className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm"
-        style={{
-          ...FIELD_BASE,
-          borderColor: open ? '#4D528A' : '#2C2E33',
-          color: selected ? '#E8EAED' : '#3D4350',
-        }}
+        style={{ ...FIELD_BASE, borderColor: open ? '#4D528A' : '#2C2E33', color: selected ? '#E8EAED' : '#3D4350' }}
       >
         <span className="truncate">{label}</span>
         <span style={{ color: '#3D4350', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms', flexShrink: 0 }}>
@@ -216,11 +170,11 @@ function CurriculumDropdown({ curricula }: { curricula: Curriculum[] }) {
 
       {open && (
         <div
-          className="absolute z-20 w-full mt-1 rounded-xl overflow-hidden py-1.5"
+          className="absolute z-20 w-full mt-1 rounded-xl overflow-hidden py-1.5 animate-dropdown"
           style={{ backgroundColor: '#181B22', border: '1px solid #303440', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
         >
           {curricula.map((c, i) => {
-            const isSelected = selected?.id === c.id
+            const isSel = selected?.id === c.id
             const isHi = i === hi
             return (
               <button
@@ -229,13 +183,10 @@ function CurriculumDropdown({ curricula }: { curricula: Curriculum[] }) {
                 onClick={() => pick(c)}
                 onMouseEnter={() => setHi(i)}
                 className="w-full text-left px-4 py-2.5 text-sm flex items-center justify-between gap-2"
-                style={{
-                  color: isSelected ? '#C4C8FF' : isHi ? '#E8EAED' : '#9AA0A6',
-                  backgroundColor: isHi ? '#252830' : 'transparent',
-                }}
+                style={{ color: isSel ? '#C4C8FF' : isHi ? '#E8EAED' : '#9AA0A6', backgroundColor: isHi ? '#252830' : 'transparent' }}
               >
                 <span>{c.board} {c.qualification} ({c.syllabus_code})</span>
-                {isSelected && (
+                {isSel && (
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#7C7FF5' }}>
                     <path d="M2 6.5l3.5 3.5 5.5-6" />
                   </svg>
@@ -252,21 +203,43 @@ function CurriculumDropdown({ curricula }: { curricula: Curriculum[] }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export function AddCourseCard({ curricula }: AddCourseCardProps) {
-  const [open, setOpen] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [selectedSubject, setSelectedSubject] = useState('')
   const overlayRef = useRef<HTMLDivElement>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  function openModal() { setError(null); setSelectedSubject(''); setOpen(true) }
-  function closeModal() { setOpen(false); setSelectedSubject(''); setError(null) }
+  // Trigger enter animation one frame after mount
+  useEffect(() => {
+    if (!isVisible) return
+    const id = requestAnimationFrame(() => setIsAnimating(true))
+    return () => cancelAnimationFrame(id)
+  }, [isVisible])
+
+  function openModal() {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    setError(null)
+    setSelectedSubject('')
+    setIsVisible(true)
+  }
+
+  function closeModal() {
+    setIsAnimating(false)
+    setError(null)
+    closeTimer.current = setTimeout(() => {
+      setIsVisible(false)
+      setSelectedSubject('')
+    }, 220)
+  }
 
   useEffect(() => {
-    if (!open) return
+    if (!isVisible) return
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') closeModal() }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [open])
+  }, [isVisible])
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -298,24 +271,32 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
         </div>
       </button>
 
-      {/* Modal */}
-      {open && (
+      {/* Modal — always unmounts cleanly after exit animation */}
+      {isVisible && (
         <div
           ref={overlayRef}
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+          style={{
+            backgroundColor: `rgba(0,0,0,${isAnimating ? 0.6 : 0})`,
+            transition: 'background-color 220ms ease',
+            pointerEvents: isAnimating ? 'auto' : 'none',
+          }}
           onClick={(e) => { if (e.target === overlayRef.current) closeModal() }}
         >
           <div
             className="w-full max-w-md rounded-2xl p-6"
-            style={{ backgroundColor: '#1E2024', border: '1px solid #2C2E33', boxShadow: '0 24px 64px rgba(0,0,0,0.6)' }}
+            style={{
+              backgroundColor: '#1E2024',
+              border: '1px solid #2C2E33',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+              transition: 'opacity 220ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1)',
+              opacity: isAnimating ? 1 : 0,
+              transform: isAnimating ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.97)',
+            }}
           >
             <h2 className="text-base font-semibold text-white mb-6">New class</h2>
 
-            {/* key forces SubjectCombobox + CurriculumDropdown to remount on open */}
-            <form key={String(open)} onSubmit={handleSubmit} className="flex flex-col gap-5">
-
-              {/* Class name */}
+            <form key={String(isVisible)} onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-semibold" style={LABEL_STYLE}>Class name</label>
                 <input
@@ -330,24 +311,20 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
                 />
               </div>
 
-              {/* Subject */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-semibold" style={LABEL_STYLE}>Subject</label>
                 <SubjectCombobox selected={selectedSubject} onSelect={setSelectedSubject} />
               </div>
 
-              {/* Curriculum */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-semibold" style={LABEL_STYLE}>Curriculum</label>
                 <CurriculumDropdown curricula={curricula} />
               </div>
 
-              {/* Error */}
               {error && (
                 <p className="text-xs -mt-1" style={{ color: '#F87171' }}>{error}</p>
               )}
 
-              {/* Footer */}
               <div className="flex gap-3 justify-end pt-1">
                 <button
                   type="button"

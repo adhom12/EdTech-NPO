@@ -290,10 +290,12 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
   const [sort, setSort] = useState<'newest' | 'az'>('newest')
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [renaming, setRenaming] = useState<{ id: string; title: string } | null>(null)
+  const [renameAnimating, setRenameAnimating] = useState(false)
   const [renameInput, setRenameInput] = useState('')
   const [localTitles, setLocalTitles] = useState<Record<string, string>>({})
   const menuRef = useRef<HTMLDivElement>(null)
   const renameInputRef = useRef<HTMLInputElement>(null)
+  const renameCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!menu) return
@@ -304,8 +306,14 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
     return () => document.removeEventListener('mousedown', onClickOutside)
   }, [menu])
 
+  // Trigger rename modal enter animation one frame after mount
   useEffect(() => {
-    if (renaming) renameInputRef.current?.select()
+    if (!renaming) return
+    const id = requestAnimationFrame(() => {
+      setRenameAnimating(true)
+      renameInputRef.current?.select()
+    })
+    return () => cancelAnimationFrame(id)
   }, [renaming])
 
   function openMenu(e: React.MouseEvent<HTMLButtonElement>, ws: WorksheetDoc) {
@@ -322,17 +330,25 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
   function startRename() {
     if (!menu) return
     setRenameInput(menu.title)
+    setRenameAnimating(false)
     setRenaming({ id: menu.id, title: menu.title })
     setMenu(null)
+  }
+
+  function closeRenameModal() {
+    setRenameAnimating(false)
+    if (renameCloseTimer.current) clearTimeout(renameCloseTimer.current)
+    renameCloseTimer.current = setTimeout(() => setRenaming(null), 200)
   }
 
   async function confirmRename() {
     if (!renaming) return
     const trimmed = renameInput.trim()
-    if (!trimmed || trimmed === renaming.title) { setRenaming(null); return }
-    setLocalTitles(prev => ({ ...prev, [renaming.id]: trimmed }))
-    setRenaming(null)
-    await renameWorksheet(renaming.id, trimmed)
+    const { id } = renaming
+    if (!trimmed || trimmed === renaming.title) { closeRenameModal(); return }
+    setLocalTitles(prev => ({ ...prev, [id]: trimmed }))
+    closeRenameModal()
+    await renameWorksheet(id, trimmed)
   }
 
   async function handleDelete() {
@@ -489,7 +505,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
       {menu && (
         <div
           ref={menuRef}
-          className="fixed z-50 rounded-xl overflow-hidden py-1.5"
+          className="fixed z-50 rounded-xl overflow-hidden py-1.5 animate-dropdown"
           style={{
             top: menu.top,
             right: menu.right,
@@ -538,12 +554,24 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
       {renaming && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
-          onMouseDown={(e) => { if (e.target === e.currentTarget) setRenaming(null) }}
+          style={{
+            backgroundColor: `rgba(0,0,0,${renameAnimating ? 0.55 : 0})`,
+            transition: 'background-color 200ms ease',
+            pointerEvents: renameAnimating ? 'auto' : 'none',
+          }}
+          onMouseDown={(e) => { if (e.target === e.currentTarget) closeRenameModal() }}
         >
           <div
             className="rounded-2xl p-6 w-full"
-            style={{ maxWidth: 360, backgroundColor: '#1C1F27', border: '1px solid #303440', boxShadow: '0 16px 48px rgba(0,0,0,0.5)' }}
+            style={{
+              maxWidth: 360,
+              backgroundColor: '#1C1F27',
+              border: '1px solid #303440',
+              boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+              transition: 'opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+              opacity: renameAnimating ? 1 : 0,
+              transform: renameAnimating ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.97)',
+            }}
           >
             <h3 className="text-sm font-semibold text-white mb-4">Rename worksheet</h3>
             <input
@@ -552,7 +580,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
               onChange={(e) => setRenameInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') confirmRename()
-                if (e.key === 'Escape') setRenaming(null)
+                if (e.key === 'Escape') closeRenameModal()
               }}
               className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none"
               style={{ backgroundColor: '#14161D', border: '1px solid #7C7FF5' }}
@@ -560,7 +588,7 @@ export function WorksheetsClient({ worksheets }: { worksheets: WorksheetDoc[] })
             />
             <div className="flex justify-end gap-2 mt-4">
               <button
-                onClick={() => setRenaming(null)}
+                onClick={closeRenameModal}
                 className="px-4 py-2 rounded-lg text-sm transition-colors"
                 style={{ color: '#6B7280' }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = '#A8B0BE' }}
