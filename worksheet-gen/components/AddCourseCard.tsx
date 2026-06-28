@@ -23,8 +23,8 @@ const SUBJECTS = [
   'Religious Studies', 'Sociology', 'Spanish',
 ]
 
-const LABEL_STYLE = { color: '#D1D5DB' }
-const FIELD_BASE: React.CSSProperties = { backgroundColor: '#121417', border: '1px solid #2C2E33' }
+const LABEL_STYLE = { color: '#94A3B8' }
+const FIELD_BASE: React.CSSProperties = { backgroundColor: '#0E1317', border: '1px solid #25333E' }
 
 const CHEVRON = (
   <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
@@ -68,7 +68,7 @@ function SubjectCombobox({ selected, onSelect }: { selected: string; onSelect: (
     <div className="relative">
       <div
         className="flex items-center rounded-lg px-3 py-2 gap-2"
-        style={{ ...FIELD_BASE, borderColor: open ? '#4D528A' : '#2C2E33' }}
+        style={{ ...FIELD_BASE, borderColor: open ? '#06B6D4' : '#25333E' }}
       >
         <input
           type="text"
@@ -80,7 +80,7 @@ function SubjectCombobox({ selected, onSelect }: { selected: string; onSelect: (
           placeholder="Search subjects…"
           autoComplete="off"
           className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#3D4350]"
-          style={{ caretColor: '#7C7FF5' }}
+          style={{ caretColor: '#06B6D4' }}
         />
         <span style={{ color: '#3D4350', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>
           {CHEVRON}
@@ -92,7 +92,7 @@ function SubjectCombobox({ selected, onSelect }: { selected: string; onSelect: (
         <div
           ref={listRef}
           className="absolute z-20 w-full mt-1 rounded-xl overflow-auto py-1.5 animate-dropdown"
-          style={{ maxHeight: 196, backgroundColor: '#181B22', border: '1px solid #303440', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+          style={{ maxHeight: 196, backgroundColor: '#1A242C', border: '1px solid #25333E', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
         >
           {filtered.map((s, i) => (
             <button
@@ -101,7 +101,7 @@ function SubjectCombobox({ selected, onSelect }: { selected: string; onSelect: (
               onMouseDown={() => pick(s)}
               onMouseEnter={() => setHi(i)}
               className="w-full text-left px-4 py-2 text-sm"
-              style={{ color: i === hi ? '#E8EAED' : '#9AA0A6', backgroundColor: i === hi ? '#252830' : 'transparent' }}
+              style={{ color: i === hi ? '#F8FAFC' : '#94A3B8', backgroundColor: i === hi ? '#25333E' : 'transparent' }}
             >
               {s}
             </button>
@@ -111,7 +111,7 @@ function SubjectCombobox({ selected, onSelect }: { selected: string; onSelect: (
       {open && filtered.length === 0 && (
         <div
           className="absolute z-20 w-full mt-1 rounded-xl px-4 py-3 text-sm animate-dropdown"
-          style={{ backgroundColor: '#181B22', border: '1px solid #303440', color: '#4B5563' }}
+          style={{ backgroundColor: '#1A242C', border: '1px solid #25333E', color: '#4B5563' }}
         >
           No matching subjects
         </div>
@@ -160,7 +160,7 @@ function CurriculumDropdown({ curricula }: { curricula: Curriculum[] }) {
         onClick={() => setOpen((o) => !o)}
         onKeyDown={handleKey}
         className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm"
-        style={{ ...FIELD_BASE, borderColor: open ? '#4D528A' : '#2C2E33', color: selected ? '#E8EAED' : '#3D4350' }}
+        style={{ ...FIELD_BASE, borderColor: open ? '#06B6D4' : '#25333E', color: selected ? '#F8FAFC' : '#4B5563' }}
       >
         <span className="truncate">{label}</span>
         <span style={{ color: '#3D4350', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms', flexShrink: 0 }}>
@@ -183,11 +183,11 @@ function CurriculumDropdown({ curricula }: { curricula: Curriculum[] }) {
                 onClick={() => pick(c)}
                 onMouseEnter={() => setHi(i)}
                 className="w-full text-left px-4 py-2.5 text-sm flex items-center justify-between gap-2"
-                style={{ color: isSel ? '#C4C8FF' : isHi ? '#E8EAED' : '#9AA0A6', backgroundColor: isHi ? '#252830' : 'transparent' }}
+                style={{ color: isSel ? '#A5F3FC' : isHi ? '#F8FAFC' : '#94A3B8', backgroundColor: isHi ? '#25333E' : 'transparent' }}
               >
                 <span>{c.board} {c.qualification} ({c.syllabus_code})</span>
                 {isSel && (
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#7C7FF5' }}>
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#06B6D4' }}>
                     <path d="M2 6.5l3.5 3.5 5.5-6" />
                   </svg>
                 )}
@@ -259,11 +259,11 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
       <button
         onClick={openModal}
         className="rounded-xl p-5 w-full text-left transition-all duration-150"
-        style={{ border: '1px dashed #2C2E33', backgroundColor: 'transparent' }}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#4D528A')}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#2C2E33')}
+        style={{ border: '1px dashed #25333E', backgroundColor: 'transparent' }}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#06B6D4')}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#25333E')}
       >
-        <div className="flex items-center gap-2" style={{ color: '#9AA0A6' }}>
+        <div className="flex items-center gap-2" style={{ color: '#94A3B8' }}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M7 2v10M2 7h10" />
           </svg>
@@ -286,8 +286,8 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
           <div
             className="w-full max-w-md rounded-2xl p-6"
             style={{
-              backgroundColor: '#1E2024',
-              border: '1px solid #2C2E33',
+              backgroundColor: '#1A242C',
+              border: '1px solid #25333E',
               boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
               transition: 'opacity 220ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1)',
               opacity: isAnimating ? 1 : 0,
@@ -306,8 +306,8 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
                   placeholder="e.g. Year 10 Foundation Maths"
                   className="w-full px-3 py-2 rounded-lg text-sm text-white focus:outline-none placeholder:text-[#3D4350]"
                   style={FIELD_BASE}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#4D528A')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#2C2E33')}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = '#06B6D4')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '#25333E')}
                 />
               </div>
 
@@ -331,7 +331,7 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
                   onClick={closeModal}
                   className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   style={{ color: '#6B7280' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = '#A8B0BE'; e.currentTarget.style.backgroundColor = '#252830' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.backgroundColor = '#25333E' }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.backgroundColor = 'transparent' }}
                 >
                   Cancel
@@ -340,9 +340,9 @@ export function AddCourseCard({ curricula }: AddCourseCardProps) {
                   type="submit"
                   disabled={isPending}
                   className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-                  style={{ backgroundColor: '#4D528A' }}
-                  onMouseEnter={(e) => { if (!isPending) e.currentTarget.style.backgroundColor = '#5A5FA0' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#4D528A' }}
+                  style={{ backgroundColor: '#06B6D4' }}
+                  onMouseEnter={(e) => { if (!isPending) e.currentTarget.style.backgroundColor = '#0891B2' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#06B6D4' }}
                 >
                   {isPending ? 'Creating…' : 'Create class'}
                 </button>

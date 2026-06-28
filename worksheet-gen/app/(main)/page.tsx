@@ -84,7 +84,7 @@ export default async function Dashboard() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {courses.map((course) => (
+          {courses.map((course, idx) => (
             <CourseCard
               key={course.id as string}
               id={course.id as string}
@@ -93,6 +93,7 @@ export default async function Dashboard() {
               board={(course.board as string) ?? ''}
               qualification={(course.qualification as string) ?? ''}
               worksheetCount={(course.worksheet_count as number) ?? 0}
+              index={idx}
             />
           ))}
           <AddCourseCard
@@ -134,16 +135,16 @@ export default async function Dashboard() {
         ) : (
           <div
             className="rounded-xl overflow-hidden"
-            style={{ border: '1px solid #252830' }}
+            style={{ border: '1px solid #25333E' }}
           >
             {/* Table header */}
             <div
               className="grid px-5 py-3 text-xs font-semibold uppercase tracking-widest"
               style={{
                 gridTemplateColumns: '1fr 10rem 6rem',
-                backgroundColor: '#16191F',
-                borderBottom: '1px solid #252830',
-                color: '#6B7280',
+                backgroundColor: '#1A242C',
+                borderBottom: '1px solid #25333E',
+                color: '#64748B',
               }}
             >
               <span>Title</span>
@@ -155,18 +156,18 @@ export default async function Dashboard() {
               <Link
                 key={ws.id as string}
                 href={`/workspace/${ws.id as string}`}
-                className="grid items-center px-5 py-3.5 transition-colors hover:bg-[#1C1F27]"
+                className="grid items-center px-5 py-3.5 transition-colors hover:bg-[#1E2E38]"
                 style={{
                   gridTemplateColumns: '1fr 10rem 6rem',
-                  borderTop: idx === 0 ? 'none' : '1px solid #1E2126',
-                  backgroundColor: '#16191F',
+                  borderTop: idx === 0 ? 'none' : '1px solid #1A2832',
+                  backgroundColor: '#1A242C',
                   textDecoration: 'none',
                 }}
               >
                 <span className="text-sm font-medium text-white truncate pr-4">
                   {ws.title as string}
                 </span>
-                <span className="text-xs truncate" style={{ color: '#8B909A' }}>
+                <span className="text-xs truncate" style={{ color: '#94A3B8' }}>
                   {ws.course_label as string}
                 </span>
                 <span className="text-xs tabular-nums" style={{ color: '#4B5563' }}>

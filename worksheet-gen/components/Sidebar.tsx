@@ -59,7 +59,6 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
 
   function isNavActive(href: string, exact: boolean) {
     if (exact) return pathname === href;
-    // Worksheets nav also activates on workspace pages
     if (href === "/worksheets") return pathname.startsWith("/worksheets") || pathname.startsWith("/workspace");
     return pathname.startsWith(href);
   }
@@ -69,16 +68,16 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
       className="flex flex-col h-screen flex-shrink-0"
       style={{
         width: 232,
-        backgroundColor: "#0B0D10",
-        borderRight: "1px solid #1A1D22",
+        backgroundColor: "#141B21",
+        borderRight: "1px solid #25333E",
       }}
     >
       {/* ── Logo ── */}
-      <div className="px-5 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: "1px solid #1A1D22" }}>
+      <div className="px-5 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: "1px solid #25333E" }}>
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
           <div
             className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #5254A3 0%, #7C7FF5 100%)" }}
+            style={{ background: "linear-gradient(135deg, #0891B2 0%, #06B6D4 100%)" }}
           >
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
               <path d="M2 9.5h4M2 7h6M2 4.5h5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
@@ -86,8 +85,8 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
             </svg>
           </div>
           <span className="text-[15px] font-semibold tracking-tight">
-            <span className="text-white">Edu</span>
-            <span style={{ color: "#7C7FF5" }}>Hub</span>
+            <span style={{ color: "#F8FAFC" }}>Edu</span>
+            <span style={{ color: "#06B6D4" }}>Hub</span>
           </span>
         </Link>
       </div>
@@ -105,12 +104,12 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
                 href={item.href}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm mb-0.5 transition-all"
                 style={{
-                  color: active ? "#E8EAED" : "#8B929E",
-                  backgroundColor: active ? "#1A1D24" : "transparent",
+                  color: active ? "#F8FAFC" : "#94A3B8",
+                  backgroundColor: active ? "#1A242C" : "transparent",
                   fontWeight: active ? 500 : 400,
                 }}
               >
-                <span style={{ color: active ? "#7C7FF5" : "#4B5563" }}>{item.icon}</span>
+                <span style={{ color: active ? "#06B6D4" : "#4B5563" }}>{item.icon}</span>
                 {item.label}
               </Link>
             );
@@ -120,7 +119,6 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
         {/* ── Recent worksheets section ── */}
         {recentWorksheets.length > 0 && (
           <div className="px-3 pt-3 pb-4">
-            {/* Section divider + label */}
             <div className="flex items-center gap-2 px-3 mb-1">
               <span
                 className="text-[10px] font-semibold uppercase tracking-widest flex-shrink-0"
@@ -128,10 +126,9 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
               >
                 Recent
               </span>
-              <div className="flex-1" style={{ height: 1, backgroundColor: '#1A1D22' }} />
+              <div className="flex-1" style={{ height: 1, backgroundColor: '#25333E' }} />
             </div>
 
-            {/* Worksheet links */}
             {recentWorksheets.map((ws) => {
               const active = pathname === `/workspace/${ws.id}`;
               return (
@@ -140,19 +137,19 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
                   href={`/workspace/${ws.id}`}
                   className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-all group"
                   style={{
-                    color: active ? "#C4C8FF" : "#6B7280",
-                    backgroundColor: active ? "#1A1D24" : "transparent",
+                    color: active ? "#A5F3FC" : "#6B7280",
+                    backgroundColor: active ? "#1A242C" : "transparent",
                   }}
                   onMouseEnter={(e) => {
-                    if (!active) e.currentTarget.style.backgroundColor = "#141720";
-                    if (!active) e.currentTarget.style.color = "#9AA0AC";
+                    if (!active) e.currentTarget.style.backgroundColor = "#1A242C";
+                    if (!active) e.currentTarget.style.color = "#94A3B8";
                   }}
                   onMouseLeave={(e) => {
                     if (!active) e.currentTarget.style.backgroundColor = "transparent";
                     if (!active) e.currentTarget.style.color = "#6B7280";
                   }}
                 >
-                  <DocIcon color={active ? "#7C7FF5" : "#3D4450"} />
+                  <DocIcon color={active ? "#06B6D4" : "#3D4450"} />
                   <span className="truncate leading-snug">{ws.title}</span>
                 </Link>
               );
@@ -162,16 +159,16 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
       </div>
 
       {/* ── Admin — pinned bottom ── */}
-      <div className="px-3 pb-4 pt-3 flex-shrink-0" style={{ borderTop: "1px solid #1A1D22" }}>
+      <div className="px-3 pb-4 pt-3 flex-shrink-0" style={{ borderTop: "1px solid #25333E" }}>
         <Link
           href="/admin/review"
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
           style={{
-            color: pathname.startsWith("/admin") ? "#E8EAED" : "#8B929E",
-            backgroundColor: pathname.startsWith("/admin") ? "#1A1D24" : "transparent",
+            color: pathname.startsWith("/admin") ? "#F8FAFC" : "#94A3B8",
+            backgroundColor: pathname.startsWith("/admin") ? "#1A242C" : "transparent",
           }}
         >
-          <span style={{ color: pathname.startsWith("/admin") ? "#7C7FF5" : "#4B5563" }}>
+          <span style={{ color: pathname.startsWith("/admin") ? "#06B6D4" : "#4B5563" }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="8" cy="8" r="6" />
               <path d="M8 5v3l2 2" />

@@ -58,11 +58,11 @@ function ClassCard({ c }: { c: ClassRow }) {
   return (
     <Link href={`/courses/${c.id}`} style={{ textDecoration: 'none' }}>
       <div
-        className="rounded-xl overflow-hidden transition-colors duration-150 group cursor-pointer flex flex-col h-full border border-[#252830] hover:border-[#4D528A]"
-        style={{ backgroundColor: '#16191F' }}
+        className="rounded-xl overflow-hidden transition-colors duration-150 group cursor-pointer flex flex-col h-full border border-[#25333E] hover:border-[#06B6D4]"
+        style={{ backgroundColor: '#1A242C' }}
       >
         {/* Header */}
-        <div className="px-5 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid #1E2126' }}>
+        <div className="px-5 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid #1A2832' }}>
           <div className="flex items-start justify-between gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0"
@@ -85,11 +85,11 @@ function ClassCard({ c }: { c: ClassRow }) {
           </div>
           <h3
             className="font-semibold text-base leading-snug mb-1 transition-colors"
-            style={{ color: '#E8EAED' }}
+            style={{ color: '#F8FAFC' }}
           >
             {c.label}
           </h3>
-          <p className="text-xs" style={{ color: '#5A6070' }}>
+          <p className="text-xs" style={{ color: '#64748B' }}>
             {meta ? `${meta} · ` : ''}{c.subject}
           </p>
         </div>
@@ -97,21 +97,21 @@ function ClassCard({ c }: { c: ClassRow }) {
         {/* Stats row */}
         <div
           className="grid grid-cols-3 flex-shrink-0"
-          style={{ borderBottom: '1px solid #1E2126' }}
+          style={{ borderBottom: '1px solid #1A2832' }}
         >
           {[
             { value: String(c.student_count), label: 'students' },
             { value: String(c.worksheet_count), label: 'question sets' },
             { value: formatRelative(c.latest_ws_date), label: 'last active' },
           ].map(({ value, label }, i) => (
-            <div key={label} className="flex flex-col gap-0.5 px-5 py-4" style={i > 0 ? { borderLeft: '1px solid #1E2126' } : {}}>
+            <div key={label} className="flex flex-col gap-0.5 px-5 py-4" style={i > 0 ? { borderLeft: '1px solid #1A2832' } : {}}>
               <span
                 className="text-lg font-bold tracking-tight"
-                style={{ color: '#E8EAED', lineHeight: 1.2 }}
+                style={{ color: '#F8FAFC', lineHeight: 1.2 }}
               >
                 {value}
               </span>
-              <span className="text-xs" style={{ color: '#4B5563' }}>{label}</span>
+              <span className="text-xs" style={{ color: '#64748B' }}>{label}</span>
             </div>
           ))}
         </div>
@@ -120,7 +120,7 @@ function ClassCard({ c }: { c: ClassRow }) {
         <div className="px-5 py-4 flex-1">
           {c.latest_ws_title ? (
             <div>
-              <p className="text-xs mb-2" style={{ color: '#3D4350' }}>Latest assignment</p>
+              <p className="text-xs mb-2" style={{ color: '#64748B' }}>Latest assignment</p>
               <div className="flex items-center gap-3">
                 <div
                   className="w-0.5 h-9 rounded-full flex-shrink-0"
@@ -129,11 +129,11 @@ function ClassCard({ c }: { c: ClassRow }) {
                 <div className="min-w-0">
                   <p
                     className="text-sm font-medium leading-tight truncate"
-                    style={{ color: '#C8CDD6' }}
+                    style={{ color: '#F8FAFC' }}
                   >
                     {c.latest_ws_title}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: '#4B5563' }}>
+                  <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
                     {formatRelative(c.latest_ws_date)}
                   </p>
                 </div>
@@ -149,12 +149,12 @@ function ClassCard({ c }: { c: ClassRow }) {
           className="px-5 py-3 flex items-center justify-between flex-shrink-0"
           style={{ borderTop: '1px solid #1A1D22' }}
         >
-          <span className="text-xs" style={{ color: '#3D4350' }}>
+          <span className="text-xs" style={{ color: '#64748B' }}>
             Created {formatRelative(c.created_at)}
           </span>
           <span
-            className="text-xs font-medium transition-colors group-hover:text-[#7C7FF5]"
-            style={{ color: '#4B5563' }}
+            className="text-xs font-medium transition-colors group-hover:text-[#06B6D4]"
+            style={{ color: '#64748B' }}
           >
             Open class →
           </span>
@@ -192,7 +192,7 @@ export default async function ClassesPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Classes</h1>
-          <p className="text-sm mt-1" style={{ color: '#5A6070' }}>
+          <p className="text-sm mt-1" style={{ color: '#64748B' }}>
             {classes.length} {classes.length === 1 ? 'class' : 'classes'}
           </p>
         </div>
@@ -209,7 +209,7 @@ export default async function ClassesPage() {
           className="rounded-xl flex items-center justify-center"
           style={{
             minHeight: 240,
-            border: '1.5px dashed #1E2126',
+            border: '1.5px dashed #25333E',
           }}
         >
           <AddCourseCard
@@ -223,8 +223,8 @@ export default async function ClassesPage() {
           className="mt-4 rounded-2xl p-14 flex flex-col items-center justify-center col-span-2"
           style={{ backgroundColor: 'rgba(63,68,110,0.06)', border: '1px dashed rgba(77,82,138,0.22)' }}
         >
-          <p className="text-sm mb-2" style={{ color: '#A8B0BE' }}>No classes yet.</p>
-          <p className="text-xs" style={{ color: '#4B5563' }}>Create your first class to get started.</p>
+          <p className="text-sm mb-2" style={{ color: '#94A3B8' }}>No classes yet.</p>
+          <p className="text-xs" style={{ color: '#64748B' }}>Create your first class to get started.</p>
         </div>
       )}
     </div>

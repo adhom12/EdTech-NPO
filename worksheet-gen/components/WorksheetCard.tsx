@@ -37,27 +37,26 @@ export function WorksheetCard({ worksheet }: WorksheetCardProps) {
       href={`/workspace/${worksheet.id}`}
       className="relative group block rounded-xl p-5 transition-all duration-150"
       style={{
-        backgroundColor: "#1E2024",
-        border: "1px solid #2C2E33",
+        backgroundColor: "#1A242C",
+        border: "1px solid #25333E",
         textDecoration: "none",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "#3A3D44")
+        (e.currentTarget.style.borderColor = "#06B6D4")
       }
       onMouseLeave={(e) =>
-        (e.currentTarget.style.borderColor = "#2C2E33")
+        (e.currentTarget.style.borderColor = "#25333E")
       }
     >
       {/* Title row with three-dot menu */}
       <div className="flex items-start justify-between gap-2 mb-3">
         <h3
           className="text-sm font-semibold leading-snug flex-1"
-          style={{ color: "#FFFFFF" }}
+          style={{ color: "#F8FAFC" }}
         >
           {worksheet.title}
         </h3>
 
-        {/* Three-dot context menu */}
         <div
           ref={menuRef}
           className="relative flex-shrink-0"
@@ -70,9 +69,9 @@ export function WorksheetCard({ worksheet }: WorksheetCardProps) {
               setMenuOpen((v) => !v);
             }}
             className="p-1 rounded-md transition-all duration-150 opacity-0 group-hover:opacity-100"
-            style={{ color: "#9AA0A6" }}
+            style={{ color: "#94A3B8" }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#2C2E33")
+              (e.currentTarget.style.backgroundColor = "#25333E")
             }
             onMouseLeave={(e) =>
               (e.currentTarget.style.backgroundColor = "transparent")
@@ -89,8 +88,8 @@ export function WorksheetCard({ worksheet }: WorksheetCardProps) {
             <div
               className="absolute right-0 top-full mt-1 w-32 rounded-lg py-1 z-20 shadow-2xl"
               style={{
-                backgroundColor: "#2A2D33",
-                border: "1px solid #3A3D44",
+                backgroundColor: "#1A242C",
+                border: "1px solid #25333E",
               }}
             >
               <button
@@ -123,16 +122,16 @@ export function WorksheetCard({ worksheet }: WorksheetCardProps) {
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <span
           className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-          style={{ backgroundColor: "#2C2E33", color: "#9AA0A6" }}
+          style={{ backgroundColor: "#25333E", color: "#94A3B8" }}
         >
           {worksheet.syllabus}
         </span>
-        <span className="text-xs" style={{ color: "#9AA0A6" }}>
+        <span className="text-xs" style={{ color: "#94A3B8" }}>
           {worksheet.subject}
         </span>
       </div>
 
-      <p className="text-xs" style={{ color: "#6B7280" }}>
+      <p className="text-xs" style={{ color: "#64748B" }}>
         Modified {worksheet.modifiedAt}
       </p>
     </Link>

@@ -30,13 +30,28 @@
       "Bash(npm install *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(rm -rf \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\api\\\\seed-from-supabase\")"
+      "Bash(rm -rf \"C:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\\\\worksheet-gen\\\\app\\\\api\\\\seed-from-supabase\")",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git rm *)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" log --oneline -15)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" status)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" diff)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" add worksheet-gen/app/admin/review/page.tsx worksheet-gen/components/workspace/DocumentCanvas.tsx)",
+      "Bash(git -C 'c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO' commit -m ' *)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" push)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" add worksheet-gen/components/workspace/DocumentCanvas.tsx worksheet-gen/components/workspace/WorkspaceClient.tsx)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" add \"worksheet-gen/app/workspace/[id]/page.tsx\" worksheet-gen/components/workspace/WorkspaceClient.tsx)",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" add \"worksheet-gen/app/courses/[id]/page.tsx\")",
+      "Bash(git -C \"c:\\\\Users\\\\adamh\\\\Documents\\\\GitHub\\\\EdTech NPO\" add worksheet-gen/components/Navbar.tsx)",
+      "Bash(rm \"c:/Users/adamh/Documents/GitHub/EdTech NPO/worksheet-gen/app/page.tsx\" && rm \"c:/Users/adamh/Documents/GitHub/EdTech NPO/worksheet-gen/app/courses/[id]/page.tsx\" && rm \"c:/Users/adamh/Documents/GitHub/EdTech NPO/worksheet-gen/app/admin/review/page.tsx\" && rm \"c:/Users/adamh/Documents/GitHub/EdTech NPO/worksheet-gen/app/admin/review/ReviewTable.tsx\" && echo \"done\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO",
       "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO\\worksheet-gen\\app\\api\\questions",
       "C:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO\\worksheet-gen\\app\\courses",
-      "C:\\Users\\adamh\\.claude"
+      "C:\\Users\\adamh\\.claude",
+      "c:\\Users\\adamh\\Documents\\GitHub\\EdTech NPO\\worksheet-gen\\app\\courses\\[id]"
     ]
   }
 }
