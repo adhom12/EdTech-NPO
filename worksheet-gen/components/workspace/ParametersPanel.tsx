@@ -112,7 +112,7 @@ function GroupCheckbox({
       checked={checked}
       onChange={onChange}
       className="cursor-pointer flex-shrink-0"
-      style={{ accentColor: "#4D528A", width: 13, height: 13 }}
+      style={{ accentColor: "#e8753b", width: 13, height: 13 }}
     />
   );
 }
@@ -174,7 +174,6 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
     setTimeout(() => setIsEditing(false), 150);
   }, [draft, draftSkills, onApply]);
 
-  // Fetch skills scoped to curriculum when panel opens
   useEffect(() => {
     if (!isEditing) return;
     if (skillFetchRef.current) skillFetchRef.current.abort();
@@ -233,18 +232,18 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
       className="params-panel flex flex-col flex-shrink-0 overflow-hidden"
       style={{
         width: "20%",
-        backgroundColor: "#1E2024",
-        borderRight: "1px solid #2C2E33",
+        backgroundColor: "#ffffff",
+        borderRight: "1px solid rgba(71,87,77,0.1)",
       }}
     >
       {/* Panel header */}
       <div
         className="flex-shrink-0 flex items-center justify-between px-5 py-5"
-        style={{ borderBottom: "1px solid #2C2E33" }}
+        style={{ borderBottom: "1px solid #e5e2d9" }}
       >
         <span
           className="text-xs font-semibold uppercase tracking-widest"
-          style={{ color: "#9AA0A6" }}
+          style={{ color: "#8a9a8f" }}
         >
           Parameters
         </span>
@@ -253,13 +252,13 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
           <button
             onClick={enterEdit}
             className="flex items-center gap-1.5 text-xs font-medium transition-colors rounded px-1.5 py-1"
-            style={{ color: "#9AA0A6" }}
+            style={{ color: "#8a9a8f" }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#FFFFFF";
-              (e.currentTarget as HTMLElement).style.backgroundColor = "#2C2E33";
+              (e.currentTarget as HTMLElement).style.color = "#47574d";
+              (e.currentTarget as HTMLElement).style.backgroundColor = "#f0ede6";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#9AA0A6";
+              (e.currentTarget as HTMLElement).style.color = "#8a9a8f";
               (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
             }}
           >
@@ -270,9 +269,9 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
           <button
             onClick={cancelEdit}
             className="text-xs font-medium transition-colors rounded px-1.5 py-1"
-            style={{ color: "#9AA0A6" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#FFFFFF"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#9AA0A6"; }}
+            style={{ color: "#8a9a8f" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#47574d"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#8a9a8f"; }}
           >
             Cancel
           </button>
@@ -286,20 +285,20 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
           <div className="px-5 py-6 space-y-6">
             {CONTROLS.map((ctrl) => (
               <div key={ctrl.name}>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#9AA0A6" }}>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8a9a8f" }}>
                   {ctrl.label}
                 </p>
-                <p className="text-sm font-medium leading-snug" style={{ color: "#FFFFFF" }}>
+                <p className="text-sm font-medium leading-snug" style={{ color: "#47574d" }}>
                   {values[ctrl.name]}
                 </p>
               </div>
             ))}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#9AA0A6" }}>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8a9a8f" }}>
                 Skills
               </p>
               {selectedSkills.length === 0 ? (
-                <p className="text-sm font-medium leading-snug" style={{ color: "#4B5563" }}>
+                <p className="text-sm font-medium leading-snug" style={{ color: "#b0bfb4" }}>
                   None selected
                 </p>
               ) : (
@@ -307,11 +306,11 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                   {selectedSkills.map((s) => (
                     <div key={s.id} className="flex items-start gap-1.5">
                       {s.spec_reference && (
-                        <span className="text-xs font-mono flex-shrink-0 mt-0.5" style={{ color: "#4D528A" }}>
+                        <span className="text-xs font-mono flex-shrink-0 mt-0.5" style={{ color: "#e8753b" }}>
                           {s.spec_reference}
                         </span>
                       )}
-                      <span className="text-xs leading-snug" style={{ color: "#E5E7EB" }}>
+                      <span className="text-xs leading-snug" style={{ color: "#6b7b70" }}>
                         {s.skill_name}
                       </span>
                     </div>
@@ -337,7 +336,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                 <label
                   htmlFor={`edit-${ctrl.name}`}
                   className="text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: "#9AA0A6" }}
+                  style={{ color: "#8a9a8f" }}
                 >
                   {ctrl.label}
                 </label>
@@ -349,15 +348,15 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                       setDraft((prev) => ({ ...prev, [ctrl.name]: e.target.value }));
                     }}
                     className="w-full pl-3 pr-8 py-2 rounded-lg text-sm appearance-none cursor-pointer focus:outline-none transition-colors"
-                    style={{ backgroundColor: "#121417", border: "1px solid #3A3D44", color: "#FFFFFF" }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = "#4D528A")}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = "#3A3D44")}
+                    style={{ backgroundColor: "#faf9f7", border: "1px solid #e5e2d9", color: "#47574d" }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "#e8753b")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e2d9")}
                   >
                     {ctrl.options.map((opt) => (
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
                   </select>
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#9AA0A6" }}>
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#8a9a8f" }}>
                     <ChevronIcon />
                   </span>
                 </div>
@@ -366,7 +365,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
 
             {/* Skill picker */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#9AA0A6" }}>
+              <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#8a9a8f" }}>
                 Skills{draftSkills.length > 0 ? ` · ${draftSkills.length} selected` : ""}
               </label>
 
@@ -376,21 +375,21 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                 onChange={(e) => setSkillFilter(e.target.value)}
                 placeholder="Filter skills…"
                 className="w-full px-3 py-1.5 rounded-lg text-xs focus:outline-none"
-                style={{ backgroundColor: "#121417", border: "1px solid #3A3D44", color: "#FFFFFF" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#4D528A")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "#3A3D44")}
+                style={{ backgroundColor: "#faf9f7", border: "1px solid #e5e2d9", color: "#47574d" }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#e8753b")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e2d9")}
               />
 
               <div
                 className="rounded-lg overflow-y-auto"
-                style={{ border: "1px solid #3A3D44", maxHeight: "280px" }}
+                style={{ border: "1px solid #e5e2d9", maxHeight: "280px" }}
               >
                 {allSkills.length === 0 ? (
-                  <p className="px-3 py-4 text-xs text-center" style={{ color: "#4B5563" }}>
+                  <p className="px-3 py-4 text-xs text-center" style={{ color: "#b0bfb4" }}>
                     Loading skills…
                   </p>
                 ) : Object.keys(skillsByTopic).length === 0 ? (
-                  <p className="px-3 py-4 text-xs text-center" style={{ color: "#4B5563" }}>
+                  <p className="px-3 py-4 text-xs text-center" style={{ color: "#b0bfb4" }}>
                     No skills match
                   </p>
                 ) : (
@@ -405,7 +404,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                       <div key={groupLabel}>
                         <div
                           className="px-3 py-1.5 text-xs font-semibold sticky top-0 flex items-center gap-2"
-                          style={{ backgroundColor: "#0F1114", color: "#9AA0A6" }}
+                          style={{ backgroundColor: "#faf9f7", color: "#8a9a8f" }}
                         >
                           <GroupCheckbox
                             checked={allSelected}
@@ -414,7 +413,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                           />
                           <span className="flex-1 truncate">{groupLabel}</span>
                           {selectedInGroup.length > 0 && (
-                            <span style={{ color: "#4D528A" }}>
+                            <span style={{ color: "#e8753b" }}>
                               {selectedInGroup.length}/{groupSkills.length}
                             </span>
                           )}
@@ -427,27 +426,27 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                               onClick={() => toggleSkill(skill)}
                               className="w-full text-left px-3 py-2 flex items-start gap-2 transition-colors"
                               style={{
-                                backgroundColor: isSelected ? "rgba(77,82,138,0.25)" : "transparent",
-                                borderTop: idx === 0 ? "none" : "1px solid #2C2E33",
+                                backgroundColor: isSelected ? "rgba(232,117,59,0.07)" : "transparent",
+                                borderTop: idx === 0 ? "none" : "1px solid #f0ede6",
                               }}
                               onMouseEnter={(e) => {
-                                if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)";
+                                if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = "#f5f3ef";
                               }}
                               onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLElement).style.backgroundColor = isSelected ? "rgba(77,82,138,0.25)" : "transparent";
+                                (e.currentTarget as HTMLElement).style.backgroundColor = isSelected ? "rgba(232,117,59,0.07)" : "transparent";
                               }}
                             >
                               <span
                                 className="flex-shrink-0 mt-0.5 text-xs"
-                                style={{ color: isSelected ? "#4D528A" : "#3A3D44" }}
+                                style={{ color: isSelected ? "#e8753b" : "#c0cdc5" }}
                               >
                                 {isSelected ? "✓" : "○"}
                               </span>
-                              <span className="flex-1 text-xs leading-snug" style={{ color: isSelected ? "#FFFFFF" : "#E5E7EB" }}>
+                              <span className="flex-1 text-xs leading-snug" style={{ color: isSelected ? "#47574d" : "#6b7b70" }}>
                                 {skill.skill_name}
                               </span>
                               {skill.spec_reference && (
-                                <span className="flex-shrink-0 text-xs font-mono" style={{ color: "#9AA0A6" }}>
+                                <span className="flex-shrink-0 text-xs font-mono" style={{ color: "#8a9a8f" }}>
                                   {skill.spec_reference}
                                 </span>
                               )}
@@ -464,9 +463,9 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                 <button
                   onClick={() => setDraftSkills([])}
                   className="text-xs self-start"
-                  style={{ color: "#9AA0A6" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#FFFFFF"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#9AA0A6"; }}
+                  style={{ color: "#8a9a8f" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#47574d"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#8a9a8f"; }}
                 >
                   Clear selection
                 </button>
@@ -481,7 +480,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
         <div
           className="flex-shrink-0 px-4 pb-4 pt-3"
           style={{
-            borderTop: "1px solid #2C2E33",
+            borderTop: "1px solid #e5e2d9",
             transition: "opacity 150ms ease-out",
             opacity: animIn ? 1 : 0,
           }}
@@ -489,7 +488,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
           <button
             onClick={applyEdit}
             className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-85"
-            style={{ backgroundColor: "#4D528A" }}
+            style={{ backgroundColor: "#e8753b" }}
           >
             Update Parameters
           </button>

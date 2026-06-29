@@ -34,7 +34,7 @@ export default async function WorkspacePage({
   return (
     <div
       className="flex flex-col overflow-hidden animate-page-in"
-      style={{ height: "100vh", backgroundColor: "#121417" }}
+      style={{ height: "100vh", backgroundColor: "#e7e5de" }}
     >
       <WorkspaceHeader title={title} worksheetId={id} backHref={backHref} />
       <div className="workspace-columns flex flex-1 overflow-hidden">

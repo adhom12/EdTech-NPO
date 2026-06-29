@@ -35,7 +35,7 @@ function QuestionSkeleton({ marks }: { marks: number }) {
           <div
             key={i}
             className="w-full"
-            style={{ borderBottom: "1px solid #E5E7EB", height: "24px" }}
+            style={{ borderBottom: "1px solid #e5e2d9", height: "24px" }}
           />
         ))}
       </div>
@@ -64,7 +64,7 @@ function QuestionBlock({
       <div className="flex items-baseline justify-between mb-3">
         <span
           className="text-sm font-bold tracking-tight"
-          style={{ fontFamily: "Georgia, serif", color: "#111827" }}
+          style={{ fontFamily: "Georgia, serif", color: "#47574d" }}
         >
           {q.number}.
         </span>
@@ -90,8 +90,8 @@ function QuestionBlock({
           <span
             className="text-xs font-medium px-2 py-0.5 rounded"
             style={{
-              backgroundColor: "#F3F4F6",
-              color: "#6B7280",
+              backgroundColor: "#f0ede6",
+              color: "#6b7b70",
             }}
           >
             [{q.marks} mark{q.marks !== 1 ? "s" : ""}]
@@ -118,7 +118,7 @@ function QuestionBlock({
               <p
                 key={i}
                 className="text-sm italic"
-                style={{ color: "#6B7280", fontFamily: "Georgia, serif" }}
+                style={{ color: "#6b7b70", fontFamily: "Georgia, serif" }}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             );
@@ -128,7 +128,7 @@ function QuestionBlock({
             <p
               key={i}
               className="text-sm leading-relaxed"
-              style={{ color: "#1F2937", fontFamily: "Georgia, serif" }}
+              style={{ color: "#47574d", fontFamily: "Georgia, serif" }}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );
@@ -141,7 +141,7 @@ function QuestionBlock({
           <div
             key={i}
             className="w-full"
-            style={{ borderBottom: "1px solid #E5E7EB", height: "24px" }}
+            style={{ borderBottom: "1px solid #e5e2d9", height: "24px" }}
           />
         ))}
       </div>
@@ -152,9 +152,9 @@ function QuestionBlock({
           <button
             onClick={() => onRegenerate(q.number)}
             className="text-xs font-medium transition-colors"
-            style={{ color: "#6B7280" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#374151" }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6B7280" }}
+            style={{ color: "#6b7b70" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#47574d" }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6b7b70" }}
           >
             Regenerate
           </button>
@@ -163,9 +163,9 @@ function QuestionBlock({
           <button
             onClick={() => onFlag(q.id!)}
             className="text-xs font-medium transition-colors"
-            style={{ color: "#6B7280" }}
+            style={{ color: "#6b7b70" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#F28B82" }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6B7280" }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6b7b70" }}
           >
             Flag
           </button>
@@ -189,27 +189,27 @@ export function DocumentCanvas({
   return (
     <div
       className="document-canvas-wrapper hide-scrollbar flex-1 overflow-y-scroll"
-      style={{ backgroundColor: "#171A20", minWidth: 0 }}
+      style={{ backgroundColor: "#dde9f0", minWidth: 0 }}
     >
       {/* Elevated paper */}
       <div
         className="print-paper mx-auto my-8 rounded-sm"
         style={{
           backgroundColor: "#FFFFFF",
-          color: "#1F2937",
+          color: "#47574d",
           maxWidth: "700px",
           padding: "56px 64px 80px",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.55)",
+          boxShadow: "0 4px 32px rgba(71,87,77,0.18), 0 1px 8px rgba(71,87,77,0.10)",
         }}
       >
         {/* Document header */}
         <div
           className="mb-8 pb-6"
-          style={{ borderBottom: "1px solid #E5E7EB" }}
+          style={{ borderBottom: "1px solid #e5e2d9" }}
         >
           <p
             className="text-xs font-semibold uppercase tracking-widest mb-2"
-            style={{ color: "#9CA3AF" }}
+            style={{ color: "#8a9a8f" }}
           >
             {headerMeta}
           </p>
@@ -217,12 +217,12 @@ export function DocumentCanvas({
             className="text-xl font-bold leading-snug"
             style={{
               fontFamily: "Georgia, serif",
-              color: "#111827",
+              color: "#47574d",
             }}
           >
             {worksheetTitle}
           </h2>
-          <p className="mt-2 text-sm" style={{ color: "#6B7280" }}>
+          <p className="mt-2 text-sm" style={{ color: "#6b7b70" }}>
             Answer all questions. Show all working clearly.
           </p>
         </div>

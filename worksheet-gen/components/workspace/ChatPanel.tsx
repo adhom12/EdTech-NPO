@@ -65,17 +65,17 @@ export function ChatPanel({ onSubmit }: ChatPanelProps) {
       className="chat-panel flex flex-col flex-shrink-0 overflow-hidden"
       style={{
         width: "30%",
-        backgroundColor: "#1E2024",
-        borderLeft: "1px solid #2C2E33",
+        backgroundColor: "#ffffff",
+        borderLeft: "1px solid rgba(71,87,77,0.1)",
       }}
     >
       {/* Panel header */}
       <div
         className="flex-shrink-0 px-5 py-4"
-        style={{ borderBottom: "1px solid #2C2E33" }}
+        style={{ borderBottom: "1px solid #e5e2d9" }}
       >
-        <p className="text-sm font-semibold text-white">AI Assistant</p>
-        <p className="text-xs mt-0.5" style={{ color: "#9AA0A6" }}>
+        <p className="text-sm font-semibold" style={{ color: "#47574d" }}>AI Assistant</p>
+        <p className="text-xs mt-0.5" style={{ color: "#6b7b70" }}>
           Chat to modify this worksheet
         </p>
       </div>
@@ -95,13 +95,13 @@ export function ChatPanel({ onSubmit }: ChatPanelProps) {
               style={
                 msg.role === "user"
                   ? {
-                      backgroundColor: "#4D528A",
-                      color: "#FFFFFF",
+                      backgroundColor: "#47574d",
+                      color: "#ffffff",
                       borderRadius: "16px 16px 4px 16px",
                     }
                   : {
-                      backgroundColor: "#2A2D33",
-                      color: "#E5E7EB",
+                      backgroundColor: "#f0ede6",
+                      color: "#47574d",
                       borderRadius: "16px 16px 16px 4px",
                     }
               }
@@ -115,7 +115,7 @@ export function ChatPanel({ onSubmit }: ChatPanelProps) {
       {/* Lower anchor — macro pills + input */}
       <div
         className="flex-shrink-0 p-4 space-y-3"
-        style={{ borderTop: "1px solid #2C2E33" }}
+        style={{ borderTop: "1px solid #e5e2d9" }}
       >
         {/* Macro pills */}
         <div className="flex flex-wrap gap-2">
@@ -125,17 +125,17 @@ export function ChatPanel({ onSubmit }: ChatPanelProps) {
               onClick={() => handlePill(pill)}
               className="px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
               style={{
-                backgroundColor: "#2A2D33",
-                color: "#9AA0A6",
-                border: "1px solid #2C2E33",
+                backgroundColor: "#f0ede6",
+                color: "#6b7b70",
+                border: "1px solid #e5e2d9",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "#343840";
-                (e.currentTarget as HTMLElement).style.color = "#FFFFFF";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "#e5e2d9";
+                (e.currentTarget as HTMLElement).style.color = "#47574d";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "#2A2D33";
-                (e.currentTarget as HTMLElement).style.color = "#9AA0A6";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "#f0ede6";
+                (e.currentTarget as HTMLElement).style.color = "#6b7b70";
               }}
             >
               {pill}
@@ -153,18 +153,18 @@ export function ChatPanel({ onSubmit }: ChatPanelProps) {
             placeholder="Type mutation prompt..."
             className="flex-1 px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-colors"
             style={{
-              backgroundColor: "#121417",
-              border: "1px solid #2C2E33",
-              color: "#FFFFFF",
+              backgroundColor: "#faf9f7",
+              border: "1px solid #e5e2d9",
+              color: "#47574d",
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "#4D528A")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "#2C2E33")}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "#e8753b")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e2d9")}
           />
           <button
             onClick={handleSend}
             aria-label="Send"
             className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg transition-opacity hover:opacity-85"
-            style={{ backgroundColor: "#4D528A" }}
+            style={{ backgroundColor: "#e8753b" }}
           >
             <svg
               width="15"

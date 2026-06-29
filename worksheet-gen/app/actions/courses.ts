@@ -26,5 +26,7 @@ export async function createCourse(formData: FormData) {
   }
 
   revalidatePath('/')
+  revalidatePath('/worksheets')
+  revalidatePath('/courses')
   redirect('/')
 }
