@@ -100,11 +100,25 @@ export default async function CourseDetailPage({
     student_identifier: (s.student_identifier as string | null) ?? null,
   }))
 
-  const events = eventRows.map((ev) => ({
-    event_type: ev.event_type as string,
-    payload: (ev.payload ?? {}) as Record<string, unknown>,
-    created_at: ev.created_at as string,
+  // One assignment event per worksheet (from worksheet created_at — no race conditions)
+  const assignmentEvents = worksheetRows.map((ws) => ({
+    event_type: 'worksheet_assigned',
+    payload: { title: ws.title as string } as Record<string, unknown>,
+    created_at: ws.created_at as string,
   }))
+
+  // Real analytics events, excluding worksheet_assigned (avoid duplicates from old seeding)
+  const analyticsEvents = eventRows
+    .filter((ev) => ev.event_type !== 'worksheet_assigned')
+    .map((ev) => ({
+      event_type: ev.event_type as string,
+      payload: (ev.payload ?? {}) as Record<string, unknown>,
+      created_at: ev.created_at as string,
+    }))
+
+  const events = [...assignmentEvents, ...analyticsEvents]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 20)
 
   return (
     <div className="animate-page-in">

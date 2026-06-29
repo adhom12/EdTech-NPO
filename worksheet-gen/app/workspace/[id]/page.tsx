@@ -4,6 +4,7 @@ import "katex/dist/katex.min.css";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceClient } from "@/components/workspace/WorkspaceClient";
 import { getDb } from "@/lib/aurora/client";
+import { SEEDED_WORKSHEET_QUESTIONS } from "@/lib/seeded-worksheets";
 
 export default async function WorkspacePage({
   params,
@@ -14,7 +15,7 @@ export default async function WorkspacePage({
 
   const sql = await getDb();
   const rows = await sql`
-    SELECT w.title, w.course_id, w.questions_snapshot, c.curriculum_id, c.subject,
+    SELECT w.title, w.course_id, c.curriculum_id, c.subject,
            cu.board, cu.qualification
     FROM worksheets w
     LEFT JOIN courses c ON w.course_id = c.id
@@ -32,7 +33,7 @@ export default async function WorkspacePage({
   const initialSyllabus = row?.board && row?.qualification
     ? `${row.board} ${row.qualification}`
     : null;
-  const initialQuestions = row?.questions_snapshot ?? null;
+  const initialQuestions = SEEDED_WORKSHEET_QUESTIONS[title] ?? null;
 
   return (
     <div
