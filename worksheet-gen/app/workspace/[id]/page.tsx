@@ -4,14 +4,16 @@ import "katex/dist/katex.min.css";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceClient } from "@/components/workspace/WorkspaceClient";
 import { getDb } from "@/lib/aurora/client";
-import { SEEDED_WORKSHEET_QUESTIONS } from "@/lib/seeded-worksheets";
+import { SEEDED_WORKSHEET_QUESTIONS, GROUP_ASSIGNMENT_QUESTIONS } from "@/lib/seeded-worksheets";
 
 export default async function WorkspacePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ demo?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, { demo }] = await Promise.all([params, searchParams]);
 
   const sql = await getDb();
   const rows = await sql`
@@ -33,7 +35,12 @@ export default async function WorkspacePage({
   const initialSyllabus = row?.board && row?.qualification
     ? `${row.board} ${row.qualification}`
     : null;
-  const initialQuestions = SEEDED_WORKSHEET_QUESTIONS[title] ?? null;
+  let initialQuestions = SEEDED_WORKSHEET_QUESTIONS[title] ?? null;
+
+  // Demo: group assignment shortcut — pre-populate with targeted remediation questions
+  if (demo === 'group-assignment') {
+    initialQuestions = GROUP_ASSIGNMENT_QUESTIONS;
+  }
 
   return (
     <div

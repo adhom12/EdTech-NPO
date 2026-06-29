@@ -442,7 +442,11 @@ function RemediationCard({ card, courseId }: { card: SuggCard; courseId: string 
           <p className="text-xs leading-relaxed mb-3" style={{ color: '#8a9a8f' }}>{card.insight}</p>
 
           <Link
-            href={`/workspace/new?course_id=${courseId}`}
+            href={
+              card.action === 'Create Group Assignment'
+                ? `/workspace/new?demo=group-assignment&course_id=${courseId}`
+                : `/workspace/new?course_id=${courseId}`
+            }
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:opacity-85"
             style={{ backgroundColor: 'rgba(71,87,77,0.07)', color: '#47574d', border: '1px solid rgba(71,87,77,0.2)' }}
           >

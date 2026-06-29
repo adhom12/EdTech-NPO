@@ -194,6 +194,74 @@ const QUADRATIC_EQUATIONS: Question[] = [
   },
 ]
 
+// Pre-built group remediation set — used when "Create Group Assignment" is clicked
+// in the Indices & Surds smart suggestion on the demo branch
+export const GROUP_ASSIGNMENT_QUESTIONS: Question[] = [
+  {
+    number: 1,
+    marks: 2,
+    blocks: [
+      { type: 'p', text: 'State the value of $5^0$.' },
+      { type: 'subtext', text: 'Give a reason for your answer.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Zero Index',
+  },
+  {
+    number: 2,
+    marks: 3,
+    blocks: [
+      { type: 'p', text: 'Simplify each expression, leaving your answer as a single power of $x$:' },
+      { type: 'p', text: '(a) $x^5 \\times x^3$' },
+      { type: 'p', text: '(b) $x^8 \\div x^2$' },
+      { type: 'p', text: '(c) $(x^3)^4$' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Index Laws',
+  },
+  {
+    number: 3,
+    marks: 2,
+    blocks: [
+      { type: 'p', text: 'A student writes: $2^3 \\times 2^4 = 4^7$.' },
+      { type: 'p', text: 'Identify the error and write the correct simplified answer.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Index Laws',
+  },
+  {
+    number: 4,
+    marks: 3,
+    blocks: [
+      { type: 'p', text: 'Write the following as a single power with a positive index:' },
+      { type: 'display', math: '\\frac{x^{-2} \\times x^5}{x^{-1}}' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Negative Indices',
+  },
+  {
+    number: 5,
+    marks: 4,
+    blocks: [
+      { type: 'p', text: 'Evaluate:' },
+      { type: 'display', math: '\\left(\\frac{27}{8}\\right)^{-\\frac{2}{3}}' },
+      { type: 'subtext', text: 'Give your answer as a fraction in its simplest form.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Fractional & Negative Indices',
+  },
+]
+
 export const SEEDED_WORKSHEET_QUESTIONS: Record<string, Question[]> = {
   'Indices & Surds — Homework 1': INDICES_SURDS,
   'Circle Theorems — Mock Exam': CIRCLE_THEOREMS,
