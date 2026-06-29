@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { renameWorksheet, deleteWorksheet, assignWorksheetToCourse, createWorksheet } from '@/app/actions/worksheets'
@@ -322,10 +322,18 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
   const [creating, setCreating] = useState(false)
   const [createAnimating, setCreateAnimating] = useState(false)
   const [createTitle, setCreateTitle] = useState('Untitled worksheet')
-  const [createCourseId, setCreateCourseId] = useState(() => courses[0]?.id ?? '')
+  const [createCourseIds, setCreateCourseIds] = useState<string[]>([])
+  const [createSubject, setCreateSubject] = useState('')
+  const [createSyllabus, setCreateSyllabus] = useState('')
+  const [classDropdownOpen, setClassDropdownOpen] = useState(false)
+  const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false)
+  const [syllabusDropdownOpen, setSyllabusDropdownOpen] = useState(false)
   const [createPending, setCreatePending] = useState(false)
   const createTitleRef = useRef<HTMLInputElement>(null)
   const createCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const classDropdownRef = useRef<HTMLDivElement>(null)
+  const subjectDropdownRef = useRef<HTMLDivElement>(null)
+  const syllabusDropdownRef = useRef<HTMLDivElement>(null)
 
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [menuAnimating, setMenuAnimating] = useState(false)
@@ -457,6 +465,58 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
     setAssignPending(false)
   }
 
+  // Derived options for subject / syllabus dropdowns
+  const uniqueSubjects = useMemo(
+    () => [...new Set(courses.map((c) => c.subject))].sort(),
+    [courses]
+  )
+  const uniqueSyllabuses = useMemo(() => {
+    const s = new Set<string>()
+    courses.forEach((c) => { if (c.board && c.qualification) s.add(`${abbreviateBoard(c.board)} ${c.qualification}`) })
+    return [...s].sort()
+  }, [courses])
+
+  function courseMatches(c: CourseOption): boolean {
+    const subjectOk = !createSubject || c.subject.toLowerCase() === createSubject.toLowerCase()
+    const syllabusOk = !createSyllabus || (c.board ? `${abbreviateBoard(c.board)} ${c.qualification ?? ''}`.trim() === createSyllabus : false)
+    return subjectOk && syllabusOk
+  }
+
+  // Clear class selections that no longer match when filters change
+  useEffect(() => {
+    if (!creating) return
+    setCreateCourseIds((prev) => prev.filter((id) => {
+      const c = courses.find((x) => x.id === id)
+      return c ? courseMatches(c) : false
+    }))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createSubject, createSyllabus, creating])
+
+  // Outside-click handlers for custom dropdowns
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (classDropdownRef.current && !classDropdownRef.current.contains(e.target as Node)) setClassDropdownOpen(false)
+    }
+    if (classDropdownOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [classDropdownOpen])
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(e.target as Node)) setSubjectDropdownOpen(false)
+    }
+    if (subjectDropdownOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [subjectDropdownOpen])
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (syllabusDropdownRef.current && !syllabusDropdownRef.current.contains(e.target as Node)) setSyllabusDropdownOpen(false)
+    }
+    if (syllabusDropdownOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [syllabusDropdownOpen])
+
   // Create new worksheet lifecycle
   useEffect(() => {
     if (!creating) return
@@ -469,7 +529,12 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
 
   function openCreate() {
     setCreateTitle('Untitled worksheet')
-    setCreateCourseId(courses[0]?.id ?? '')
+    setCreateCourseIds([])
+    setCreateSubject('')
+    setCreateSyllabus('')
+    setClassDropdownOpen(false)
+    setSubjectDropdownOpen(false)
+    setSyllabusDropdownOpen(false)
     setCreateAnimating(false)
     setCreating(true)
   }
@@ -482,13 +547,14 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
 
   async function handleCreate() {
     const title = createTitle.trim() || 'Untitled worksheet'
-    if (!createCourseId || createPending) return
+    if (createCourseIds.length === 0 || createPending) return
     setCreatePending(true)
-    const result = await createWorksheet(createCourseId, title)
+    const results = await Promise.all(createCourseIds.map((id) => createWorksheet(id, title)))
     setCreatePending(false)
-    if ('id' in result) {
+    const first = results.find((r): r is { id: string } => 'id' in r)
+    if (first) {
       closeCreate()
-      router.push(`/workspace/${result.id}`)
+      router.push(`/workspace/${first.id}`)
     }
   }
 
@@ -734,9 +800,9 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
           onMouseDown={(e) => { if (e.target === e.currentTarget) closeCreate() }}
         >
           <div
-            className="rounded-2xl p-6 w-full"
+            className="rounded-2xl w-full"
             style={{
-              maxWidth: 380,
+              maxWidth: 440,
               backgroundColor: '#ffffff',
               border: '1px solid rgba(71,87,77,0.08)',
               boxShadow: '0 24px 64px rgba(71,87,77,0.2), 0 8px 24px rgba(71,87,77,0.1)',
@@ -745,55 +811,234 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               transform: createAnimating ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.97)',
             }}
           >
-            <h3 className="text-sm font-semibold mb-4" style={{ color: '#47574d' }}>New worksheet</h3>
+            <div className="px-6 pt-6 pb-5">
+              <h3 className="text-sm font-semibold mb-5" style={{ color: '#47574d' }}>New worksheet</h3>
 
-            <div className="flex flex-col gap-3 mb-5">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: '#b0bfb4', letterSpacing: '0.1em' }}>
-                  Title
-                </label>
-                <input
-                  ref={createTitleRef}
-                  value={createTitle}
-                  onChange={(e) => setCreateTitle(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') closeCreate() }}
-                  className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all duration-200"
-                  style={{ backgroundColor: '#f5f3ef', border: '1px solid #e5e2d9', color: '#47574d' }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#e8753b' }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e2d9' }}
-                  placeholder="Worksheet title"
-                />
-              </div>
+              <div className="flex flex-col gap-4">
+                {/* Title */}
+                <div>
+                  <label className="block mb-1.5" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b0bfb4' }}>
+                    Title
+                  </label>
+                  <input
+                    ref={createTitleRef}
+                    value={createTitle}
+                    onChange={(e) => setCreateTitle(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') closeCreate() }}
+                    className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-colors"
+                    style={{ backgroundColor: '#f5f3ef', border: '1px solid #e5e2d9', color: '#47574d' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = '#e8753b' }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e2d9' }}
+                    placeholder="Worksheet title"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: '#b0bfb4', letterSpacing: '0.1em' }}>
-                  Class
-                </label>
-                {courses.length === 0 ? (
-                  <p className="text-xs" style={{ color: '#b0bfb4' }}>No classes yet. Create a class first.</p>
-                ) : (
-                  <div className="relative">
-                    <select
-                      value={createCourseId}
-                      onChange={(e) => setCreateCourseId(e.target.value)}
-                      className="w-full pl-3 pr-8 py-2 rounded-lg text-sm appearance-none outline-none transition-all duration-200"
-                      style={{ backgroundColor: '#f5f3ef', border: '1px solid #e5e2d9', color: '#47574d' }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = '#e8753b' }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e2d9' }}
-                    >
-                      {courses.map((c) => (
-                        <option key={c.id} value={c.id}>{c.label}</option>
-                      ))}
-                    </select>
-                    <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#8a9a8f" strokeWidth="1.5" strokeLinecap="round">
-                      <path d="M2.5 4l3 3 3-3" />
-                    </svg>
+                {/* Subject + Syllabus side-by-side */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Subject */}
+                  <div>
+                    <label className="block mb-1.5" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b0bfb4' }}>
+                      Subject
+                    </label>
+                    <div ref={subjectDropdownRef} className="relative">
+                      <button
+                        onClick={() => { setSubjectDropdownOpen((o) => !o); setSyllabusDropdownOpen(false); setClassDropdownOpen(false) }}
+                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left"
+                        style={{
+                          backgroundColor: '#f5f3ef',
+                          border: `1px solid ${subjectDropdownOpen ? '#e8753b' : '#e5e2d9'}`,
+                          color: createSubject ? '#47574d' : '#b0bfb4',
+                        }}
+                      >
+                        <span className="truncate">{createSubject || 'Any'}</span>
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#8a9a8f" strokeWidth="1.5" strokeLinecap="round" className="flex-shrink-0 ml-2" style={{ transform: subjectDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>
+                          <path d="M2.5 4l3 3 3-3" />
+                        </svg>
+                      </button>
+                      {subjectDropdownOpen && (
+                        <div
+                          className="absolute left-0 right-0 z-50 rounded-xl py-1 overflow-hidden"
+                          style={{
+                            top: 'calc(100% + 4px)',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #e8753b',
+                            boxShadow: '0 8px 24px rgba(71,87,77,0.14), 0 2px 8px rgba(71,87,77,0.08)',
+                            maxHeight: 200,
+                            overflowY: 'auto',
+                          }}
+                        >
+                          {['', ...uniqueSubjects].map((opt) => (
+                            <button
+                              key={opt || '__any'}
+                              onClick={() => { setCreateSubject(opt); setSubjectDropdownOpen(false) }}
+                              className="w-full text-left px-4 py-2.5 text-sm transition-colors"
+                              style={{
+                                backgroundColor: createSubject === opt ? 'rgba(204,218,229,0.5)' : 'transparent',
+                                color: '#47574d',
+                              }}
+                              onMouseEnter={(e) => { if (createSubject !== opt) (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(204,218,229,0.35)' }}
+                              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = createSubject === opt ? 'rgba(204,218,229,0.5)' : 'transparent' }}
+                            >
+                              {opt || <span style={{ color: '#b0bfb4' }}>Any</span>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+
+                  {/* Syllabus */}
+                  <div>
+                    <label className="block mb-1.5" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b0bfb4' }}>
+                      Syllabus
+                    </label>
+                    <div ref={syllabusDropdownRef} className="relative">
+                      <button
+                        onClick={() => { setSyllabusDropdownOpen((o) => !o); setSubjectDropdownOpen(false); setClassDropdownOpen(false) }}
+                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left"
+                        style={{
+                          backgroundColor: '#f5f3ef',
+                          border: `1px solid ${syllabusDropdownOpen ? '#e8753b' : '#e5e2d9'}`,
+                          color: createSyllabus ? '#47574d' : '#b0bfb4',
+                        }}
+                      >
+                        <span className="truncate">{createSyllabus || 'Any'}</span>
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#8a9a8f" strokeWidth="1.5" strokeLinecap="round" className="flex-shrink-0 ml-2" style={{ transform: syllabusDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>
+                          <path d="M2.5 4l3 3 3-3" />
+                        </svg>
+                      </button>
+                      {syllabusDropdownOpen && (
+                        <div
+                          className="absolute left-0 right-0 z-50 rounded-xl py-1 overflow-hidden"
+                          style={{
+                            top: 'calc(100% + 4px)',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #e8753b',
+                            boxShadow: '0 8px 24px rgba(71,87,77,0.14), 0 2px 8px rgba(71,87,77,0.08)',
+                            maxHeight: 200,
+                            overflowY: 'auto',
+                          }}
+                        >
+                          {['', ...uniqueSyllabuses].map((opt) => (
+                            <button
+                              key={opt || '__any'}
+                              onClick={() => { setCreateSyllabus(opt); setSyllabusDropdownOpen(false) }}
+                              className="w-full text-left px-4 py-2.5 text-sm transition-colors"
+                              style={{
+                                backgroundColor: createSyllabus === opt ? 'rgba(204,218,229,0.5)' : 'transparent',
+                                color: '#47574d',
+                              }}
+                              onMouseEnter={(e) => { if (createSyllabus !== opt) (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(204,218,229,0.35)' }}
+                              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = createSyllabus === opt ? 'rgba(204,218,229,0.5)' : 'transparent' }}
+                            >
+                              {opt || <span style={{ color: '#b0bfb4' }}>Any</span>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Classes multi-select */}
+                <div>
+                  <label className="block mb-1.5" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b0bfb4' }}>
+                    Classes{createCourseIds.length > 0 ? ` · ${createCourseIds.length} selected` : ''}
+                  </label>
+                  {courses.length === 0 ? (
+                    <p className="text-xs" style={{ color: '#b0bfb4' }}>No classes yet. Create a class first.</p>
+                  ) : (
+                    <div ref={classDropdownRef} className="relative">
+                      <button
+                        onClick={() => { setClassDropdownOpen((o) => !o); setSubjectDropdownOpen(false); setSyllabusDropdownOpen(false) }}
+                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left"
+                        style={{
+                          backgroundColor: '#f5f3ef',
+                          border: `1px solid ${classDropdownOpen ? '#e8753b' : '#e5e2d9'}`,
+                          color: createCourseIds.length > 0 ? '#47574d' : '#b0bfb4',
+                        }}
+                      >
+                        <span className="truncate">
+                          {createCourseIds.length === 0
+                            ? 'Select classes…'
+                            : createCourseIds.length === 1
+                              ? courses.find((c) => c.id === createCourseIds[0])?.label ?? '1 class'
+                              : `${createCourseIds.length} classes selected`}
+                        </span>
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#8a9a8f" strokeWidth="1.5" strokeLinecap="round" className="flex-shrink-0 ml-2" style={{ transform: classDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>
+                          <path d="M2.5 4l3 3 3-3" />
+                        </svg>
+                      </button>
+
+                      {classDropdownOpen && (
+                        <div
+                          className="absolute left-0 right-0 z-50 rounded-xl py-1"
+                          style={{
+                            top: 'calc(100% + 4px)',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #e8753b',
+                            boxShadow: '0 8px 24px rgba(71,87,77,0.14), 0 2px 8px rgba(71,87,77,0.08)',
+                            maxHeight: 220,
+                            overflowY: 'auto',
+                          }}
+                        >
+                          {courses.map((course) => {
+                            const matches = courseMatches(course)
+                            const isSelected = createCourseIds.includes(course.id)
+                            return (
+                              <button
+                                key={course.id}
+                                onClick={() => {
+                                  if (!matches) return
+                                  setCreateCourseIds((prev) =>
+                                    prev.includes(course.id)
+                                      ? prev.filter((id) => id !== course.id)
+                                      : [...prev, course.id]
+                                  )
+                                }}
+                                className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors"
+                                style={{
+                                  backgroundColor: isSelected ? 'rgba(204,218,229,0.5)' : 'transparent',
+                                  cursor: matches ? 'pointer' : 'default',
+                                  opacity: matches ? 1 : 0.4,
+                                }}
+                                onMouseEnter={(e) => { if (matches && !isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(204,218,229,0.35)' }}
+                                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = isSelected ? 'rgba(204,218,229,0.5)' : 'transparent' }}
+                              >
+                                {/* Checkbox indicator */}
+                                <span
+                                  className="flex-shrink-0 w-4 h-4 rounded flex items-center justify-center text-xs"
+                                  style={{
+                                    border: `1.5px solid ${isSelected ? '#e8753b' : '#c0cdc5'}`,
+                                    backgroundColor: isSelected ? '#e8753b' : 'transparent',
+                                    color: '#ffffff',
+                                  }}
+                                >
+                                  {isSelected && (
+                                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M1.5 4.5l2 2 4-4" />
+                                    </svg>
+                                  )}
+                                </span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-sm font-medium truncate" style={{ color: '#47574d' }}>{course.label}</span>
+                                  <span className="text-xs truncate" style={{ color: '#8a9a8f' }}>
+                                    {course.subject}{course.board ? ` · ${abbreviateBoard(course.board)} ${course.qualification}` : ''}
+                                  </span>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
+            {/* Footer */}
+            <div className="px-6 py-4 flex justify-end gap-2" style={{ borderTop: '1px solid #f0ede6' }}>
               <button
                 onClick={closeCreate}
                 className="px-4 py-2 rounded-lg text-sm transition-all duration-200"
@@ -805,13 +1050,16 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               </button>
               <button
                 onClick={handleCreate}
-                disabled={createPending || courses.length === 0}
+                disabled={createPending || createCourseIds.length === 0}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-200"
-                style={{ backgroundColor: createPending ? '#c0cdc5' : '#e8753b', cursor: createPending ? 'wait' : 'pointer' }}
-                onMouseEnter={(e) => { if (!createPending) e.currentTarget.style.backgroundColor = '#d4622a' }}
-                onMouseLeave={(e) => { if (!createPending) e.currentTarget.style.backgroundColor = '#e8753b' }}
+                style={{
+                  backgroundColor: createPending || createCourseIds.length === 0 ? '#c0cdc5' : '#e8753b',
+                  cursor: createPending ? 'wait' : createCourseIds.length === 0 ? 'not-allowed' : 'pointer',
+                }}
+                onMouseEnter={(e) => { if (!createPending && createCourseIds.length > 0) e.currentTarget.style.backgroundColor = '#d4622a' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = createPending || createCourseIds.length === 0 ? '#c0cdc5' : '#e8753b' }}
               >
-                {createPending ? 'Creating…' : 'Create'}
+                {createPending ? 'Creating…' : `Create${createCourseIds.length > 1 ? ` (${createCourseIds.length})` : ''}`}
               </button>
             </div>
           </div>
