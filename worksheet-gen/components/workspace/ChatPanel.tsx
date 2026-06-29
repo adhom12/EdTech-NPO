@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 
 const MACRO_PILLS = [
-  "Add Step-by-Step Answer Key",
-  "Convert to Short Answer",
-  "Balance Difficulty",
+  "Increase difficulty",
+  "Add more questions",
+  "Focus on a different topic",
 ];
 
 interface Message {
@@ -13,19 +13,17 @@ interface Message {
   text: string;
 }
 
-const INITIAL_MESSAGES: Message[] = [
-  {
-    role: "system",
-    text: "Worksheet loaded. 3 structured questions generated for Cambridge IGCSE Physics — Forces & Newton's Laws.",
-  },
-];
-
 interface ChatPanelProps {
   onSubmit: (text: string) => void;
+  subject?: string | null;
 }
 
-export function ChatPanel({ onSubmit }: ChatPanelProps) {
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+export function ChatPanel({ onSubmit, subject }: ChatPanelProps) {
+  const greeting = `Hi! Here is your worksheet for ${subject ?? "this subject"}. What would you like to change?`;
+
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "system", text: greeting },
+  ]);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -150,7 +148,7 @@ export function ChatPanel({ onSubmit }: ChatPanelProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type mutation prompt..."
+            placeholder="Ask for changes…"
             className="flex-1 px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-colors"
             style={{
               backgroundColor: "#faf9f7",

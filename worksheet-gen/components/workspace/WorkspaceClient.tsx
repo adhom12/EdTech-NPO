@@ -155,7 +155,7 @@ export function WorkspaceClient({
         onFlag={handleFlag}
         onRegenerate={handleRegenerate}
       />
-      <ChatPanel onSubmit={handleChatSubmit} />
+      <ChatPanel onSubmit={handleChatSubmit} subject={parameters.subject} />
     </>
   );
 }

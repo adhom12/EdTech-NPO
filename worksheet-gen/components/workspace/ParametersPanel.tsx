@@ -11,13 +11,13 @@ interface Control {
 
 const CONTROLS: Control[] = [
   {
-    label: "Active Syllabus",
+    label: "Syllabus",
     name: "syllabus",
     defaultValue: "Cambridge IGCSE",
     options: ["Cambridge IGCSE", "Edexcel GCSE", "IB MYP", "IB DP", "A-Level"],
   },
   {
-    label: "Core Subject",
+    label: "Subject",
     name: "subject",
     defaultValue: "Physics",
     options: [
@@ -42,24 +42,14 @@ const CONTROLS: Control[] = [
       "Grade 12",
     ],
   },
-  {
-    label: "Criterion",
-    name: "criterion",
-    defaultValue: "A — Knowing & Understanding",
-    options: [
-      "A — Knowing & Understanding",
-      "B — Investigating Patterns",
-      "C — Communicating",
-      "D — Applying Mathematics",
-    ],
-  },
-  {
-    label: "Target Difficulty",
-    name: "difficulty",
-    defaultValue: "Meeting",
-    options: ["Approaching", "Meeting", "Exceeding"],
-  },
 ];
+
+function abbreviateSyllabus(s: string): string {
+  const lower = s.toLowerCase();
+  if (lower.includes("cambridge assessment international")) return "CIE IGCSE";
+  if (lower.includes("cambridge igcse")) return "CIE IGCSE";
+  return s;
+}
 
 const PencilIcon = () => (
   <svg
@@ -289,7 +279,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
                   {ctrl.label}
                 </p>
                 <p className="text-sm font-medium leading-snug" style={{ color: "#47574d" }}>
-                  {values[ctrl.name]}
+                  {ctrl.name === "syllabus" ? abbreviateSyllabus(values[ctrl.name]) : values[ctrl.name]}
                 </p>
               </div>
             ))}
