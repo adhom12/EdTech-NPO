@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { ParametersPanel } from "./ParametersPanel";
 import { DocumentCanvas } from "./DocumentCanvas";
 import { ChatPanel } from "./ChatPanel";
+import { WorkspaceSetup } from "./WorkspaceSetup";
 import { INITIAL_QUESTIONS } from "@/lib/questions";
 import type { Question } from "@/lib/questions";
 import type { Block } from "@/lib/renderMath";
@@ -16,7 +17,6 @@ export const DEFAULT_PARAMETERS: Record<string, string> = {
   criterion: "A — Knowing & Understanding",
   difficulty: "Meeting",
 };
-
 
 export function WorkspaceClient({
   worksheetTitle,
@@ -40,6 +40,7 @@ export function WorkspaceClient({
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS);
   const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
   const [isGenerating, setIsGenerating] = useState(false);
+  const [setupComplete, setSetupComplete] = useState(false);
 
   // Question selection
   const [selectedQuestionNumber, setSelectedQuestionNumber] = useState<number | null>(null);
@@ -49,19 +50,25 @@ export function WorkspaceClient({
     setSelectedQuestionNumber(n);
   }, []);
 
-  const handleApplyParameters = useCallback(async (newParams: Record<string, string>, skills: SkillRow[]) => {
+  const handleApplyParameters = useCallback(async (
+    newParams: Record<string, string>,
+    skills: SkillRow[],
+    options?: { count?: number; topic?: string }
+  ) => {
     setParameters(newParams);
     setSelectedSkills(skills);
     setSelectedQuestionNumber(null);
     setIsGenerating(true);
 
     const skillPayload = skills.map(s => ({ skill_name: s.skill_name, spec_reference: s.spec_reference }));
+    const count = options?.count ?? 5;
+    const topic = options?.topic || undefined;
 
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newParams, skills: skillPayload, count: 5, course_id: courseId }),
+        body: JSON.stringify({ ...newParams, topic, skills: skillPayload, count, course_id: courseId }),
       });
 
       if (!res.ok) {
@@ -72,11 +79,10 @@ export function WorkspaceClient({
 
       const data = await res.json();
 
-      // Annotate with skill subtopic info where topic is missing (AI-generated without topic param)
       const annotated: Question[] = (data.questions as Question[]).map(q => ({
         ...q,
         subtopic: q.subtopic ?? (skills.length > 0 ? skills[0].subtopic : undefined),
-        topic: q.topic ?? (skills.length > 0 ? skills[0].topic : undefined),
+        topic: q.topic ?? (topic || (skills.length > 0 ? skills[0].topic : undefined)),
       }));
 
       setQuestions(annotated);
@@ -86,6 +92,19 @@ export function WorkspaceClient({
       setIsGenerating(false);
     }
   }, [courseId]);
+
+  const handleSetupGenerate = useCallback(async ({
+    topic,
+    skills,
+    questionCount,
+  }: {
+    topic: string;
+    skills: SkillRow[];
+    questionCount: number;
+  }) => {
+    setSetupComplete(true);
+    await handleApplyParameters(parameters, skills, { count: questionCount, topic });
+  }, [parameters, handleApplyParameters]);
 
   const handleChatSubmit = useCallback(
     async (text: string) => {
@@ -160,6 +179,19 @@ export function WorkspaceClient({
       body: JSON.stringify({ question_id: questionId, reason: reason.trim() }),
     })
   }, [])
+
+  if (!setupComplete) {
+    return (
+      <WorkspaceSetup
+        worksheetTitle={worksheetTitle}
+        subject={parameters.subject}
+        syllabus={parameters.syllabus}
+        grade={parameters.grade}
+        curriculumId={curriculumId}
+        onGenerate={handleSetupGenerate}
+      />
+    );
+  }
 
   return (
     <>
