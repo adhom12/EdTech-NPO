@@ -17,11 +17,11 @@ export async function POST() {
   try {
     const sql = await getDb()
 
-    // Get seeded course IDs
-    const courseLabels = [...new Set(SEEDED_WORKSHEETS.map((w) => w.courseLabel))]
+    // Get seeded course IDs — hardcoded labels, no array operator needed
     const courses = await sql`
       SELECT id, label FROM courses
-      WHERE teacher_id = ${DEV_TEACHER_ID} AND label = ANY(${courseLabels})
+      WHERE teacher_id = ${DEV_TEACHER_ID}
+        AND (label = '10A Mathematics' OR label = '11A Mathematics')
     `
     const courseIdByLabel = Object.fromEntries(
       courses.map((c) => [c.label as string, c.id as string])
@@ -30,18 +30,18 @@ export async function POST() {
     const seededTitles = SEEDED_WORKSHEETS.map((w) => w.title)
     const seededCourseIds = Object.values(courseIdByLabel)
 
-    // Delete any worksheets that aren't part of the seed
-    await sql`
-      DELETE FROM worksheets
-      WHERE course_id = ANY(${seededCourseIds})
-        AND title != ALL(${seededTitles})
-    `
+    // Delete non-seeded worksheets for seeded courses
+    // Guard: skip if no courses found (nothing to clean up)
+    if (seededCourseIds.length > 0) {
+      await sql`
+        DELETE FROM worksheets
+        WHERE course_id IN ${sql(seededCourseIds)}
+          AND title NOT IN ${sql(seededTitles)}
+      `
+    }
 
-    // Also delete orphaned worksheets created by this teacher (no course, not seeded)
-    await sql`
-      DELETE FROM worksheets
-      WHERE course_id IS NULL
-    `
+    // Delete orphaned worksheets (no course attached)
+    await sql`DELETE FROM worksheets WHERE course_id IS NULL`
 
     // Reset seeded worksheet timestamps so activity stream looks fresh
     for (const ws of SEEDED_WORKSHEETS) {
@@ -56,6 +56,7 @@ export async function POST() {
 
     return NextResponse.json({ ok: true })
   } catch (err) {
+    console.error('[demo-reset]', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
