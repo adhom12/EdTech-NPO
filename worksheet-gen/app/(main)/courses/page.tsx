@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { getDb } from '@/lib/aurora/client'
 import { AddCourseCard } from '@/components/AddCourseCard'

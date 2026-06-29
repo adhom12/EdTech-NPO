@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import "katex/dist/katex.min.css";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceClient } from "@/components/workspace/WorkspaceClient";

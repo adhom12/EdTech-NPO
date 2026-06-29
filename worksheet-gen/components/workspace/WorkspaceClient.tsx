@@ -11,7 +11,7 @@ import type { SkillRow } from "./ParametersPanel";
 
 export const DEFAULT_PARAMETERS: Record<string, string> = {
   syllabus: "Cambridge IGCSE",
-  subject: "Physics",
+  subject: "Mathematics",
   grade: "Grade 10",
   criterion: "A — Knowing & Understanding",
   difficulty: "Meeting",

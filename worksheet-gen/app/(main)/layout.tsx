@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { getDb } from "@/lib/aurora/client";

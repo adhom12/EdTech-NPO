@@ -15,92 +15,72 @@ export const INITIAL_QUESTIONS: Question[] = [
   {
     number: 1,
     marks: 2,
-    topic: "Forces & Motion",
-    subtopic: "Kinematics — Equations of Motion",
+    topic: "Algebra",
+    subtopic: "Solving Quadratic Equations",
     blocks: [
       {
         type: "p",
-        text: "A car starts from rest and accelerates uniformly along a straight road. After travelling a displacement of $s = 40\\text{ m}$, the car reaches a final velocity of $v = 20\\text{ m/s}$.",
-      },
-      {
-        type: "p",
-        text: "Using the equation of motion:",
+        text: "Solve the equation",
       },
       {
         type: "display",
-        math: "v^2 = u^2 + 2as",
+        math: "2x^2 - 5x - 3 = 0",
       },
       {
-        type: "p",
-        text: "calculate the acceleration $a$ of the car. Give your answer in $\\text{m/s}^2$.",
+        type: "subtext",
+        text: "Show all working clearly.",
       },
     ],
   },
   {
     number: 2,
     marks: 3,
-    topic: "Forces & Motion",
-    subtopic: "Dynamics — Newton's Second Law",
+    topic: "Geometry & Mensuration",
+    subtopic: "Circle Theorems",
     blocks: [
       {
         type: "p",
-        text: "A vehicle of mass $m = 1200\\text{ kg}$ is travelling at $u = 30\\text{ m/s}$. The driver applies the brakes and the vehicle decelerates uniformly to rest over a distance of $s = 75\\text{ m}$.",
+        text: "Points $A$, $B$ and $C$ lie on a circle with centre $O$. The angle $\\angle AOB = 112°$.",
       },
       {
         type: "p",
-        text: "(a) Show, using $v^2 = u^2 + 2as$, that the magnitude of the deceleration is $6\\text{ m/s}^2$.",
+        text: "(a) Find the angle $\\angle ACB$.",
       },
       {
         type: "p",
-        text: "(b) State Newton's second law of motion and apply it to calculate the braking force $F$:",
-      },
-      {
-        type: "display",
-        math: "F = ma",
+        text: "(b) Point $D$ lies on the major arc $AB$. Find the angle $\\angle ADB$.",
       },
       {
         type: "subtext",
-        text: "Give the direction of $F$ relative to the direction of motion.",
+        text: "Give reasons for each answer.",
       },
     ],
   },
   {
     number: 3,
     marks: 5,
-    topic: "Forces & Motion",
-    subtopic: "Momentum & Impulse",
+    topic: "Statistics & Probability",
+    subtopic: "Probability — Combined Events",
     blocks: [
       {
         type: "p",
-        text: "The linear momentum $p$ of a body of mass $m$ moving at velocity $v$ is defined as:",
-      },
-      {
-        type: "display",
-        math: "p = mv",
+        text: "A bag contains 5 red counters and 3 blue counters. Two counters are drawn at random without replacement.",
       },
       {
         type: "p",
-        text: "Newton's second law, expressed in terms of the rate of change of momentum, states:",
-      },
-      {
-        type: "display",
-        math: "F = \\frac{\\Delta p}{\\Delta t} = \\frac{m(v - u)}{\\Delta t}",
+        text: "(a) Complete the tree diagram for the two draws.",
       },
       {
         type: "p",
-        text: "A ball of mass $m = 0.15\\text{ kg}$ travels at $u = +12\\text{ m/s}$ and strikes a wall. It rebounds along the same line at $v = -8\\text{ m/s}$. The contact time is $\\Delta t = 0.040\\text{ s}$.",
+        text: "(b) Find the probability that both counters are the same colour.",
       },
       {
         type: "p",
-        text: "(a) Calculate the change in momentum $\\Delta p$ of the ball.",
+        text: "(c) Given that the first counter drawn is red, find the probability that the second counter is also red.",
       },
       {
-        type: "p",
-        text: "(b) Hence calculate the magnitude of the average force $F$ exerted by the wall on the ball, and state its direction.",
-      },
-      {
-        type: "p",
-        text: "(c) State the force exerted by the ball on the wall during contact, justifying your answer using Newton's third law.",
+        type: "subtext",
+        text: "Give all probabilities as fractions in their simplest form.",
       },
     ],
   },

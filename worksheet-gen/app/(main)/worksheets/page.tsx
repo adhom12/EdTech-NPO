@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { getDb } from '@/lib/aurora/client'
 import { WorksheetsClient, type WorksheetDoc, type CourseOption } from './WorksheetsClient'
 

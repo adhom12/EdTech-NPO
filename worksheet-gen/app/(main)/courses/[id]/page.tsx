@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { notFound } from 'next/navigation'
 import { getDb } from '@/lib/aurora/client'
 import { CourseTabView } from './CourseTabView'
