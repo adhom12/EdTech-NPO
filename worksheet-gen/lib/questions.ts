@@ -7,12 +7,16 @@ export interface Question {
   blocks: Block[];
   verified?: boolean;
   source?: string;
+  topic?: string;
+  subtopic?: string;
 }
 
 export const INITIAL_QUESTIONS: Question[] = [
   {
     number: 1,
     marks: 2,
+    topic: "Forces & Motion",
+    subtopic: "Kinematics — Equations of Motion",
     blocks: [
       {
         type: "p",
@@ -35,6 +39,8 @@ export const INITIAL_QUESTIONS: Question[] = [
   {
     number: 2,
     marks: 3,
+    topic: "Forces & Motion",
+    subtopic: "Dynamics — Newton's Second Law",
     blocks: [
       {
         type: "p",
@@ -61,6 +67,8 @@ export const INITIAL_QUESTIONS: Question[] = [
   {
     number: 3,
     marks: 5,
+    topic: "Forces & Motion",
+    subtopic: "Momentum & Impulse",
     blocks: [
       {
         type: "p",

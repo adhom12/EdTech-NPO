@@ -31,6 +31,7 @@ function dbRowToQuestion(row: DbRow, index: number): Question {
     blocks,
     verified: row.verified as boolean,
     source: (row.source as string) ?? undefined,
+    topic: (row.topic_name as string) ?? undefined,
   }
 }
 
@@ -149,24 +150,28 @@ export async function POST(request: NextRequest) {
   try {
     verifiedRows = topicId
       ? await sql`
-          SELECT * FROM questions
-          WHERE syllabus = ${syllabus}
-            AND subject = ${subject}
-            AND grade = ${gradeNum}
-            AND criterion = ${criterion}
-            AND difficulty = ${difficulty}
-            AND verified = true
-            AND topic_id = ${topicId}
+          SELECT q.*, t.name AS topic_name
+          FROM questions q
+          LEFT JOIN topics t ON q.topic_id = t.id
+          WHERE q.syllabus = ${syllabus}
+            AND q.subject = ${subject}
+            AND q.grade = ${gradeNum}
+            AND q.criterion = ${criterion}
+            AND q.difficulty = ${difficulty}
+            AND q.verified = true
+            AND q.topic_id = ${topicId}
           LIMIT ${count}
         ` as DbRow[]
       : await sql`
-          SELECT * FROM questions
-          WHERE syllabus = ${syllabus}
-            AND subject = ${subject}
-            AND grade = ${gradeNum}
-            AND criterion = ${criterion}
-            AND difficulty = ${difficulty}
-            AND verified = true
+          SELECT q.*, t.name AS topic_name
+          FROM questions q
+          LEFT JOIN topics t ON q.topic_id = t.id
+          WHERE q.syllabus = ${syllabus}
+            AND q.subject = ${subject}
+            AND q.grade = ${gradeNum}
+            AND q.criterion = ${criterion}
+            AND q.difficulty = ${difficulty}
+            AND q.verified = true
           LIMIT ${count}
         ` as DbRow[]
   } catch (err) {
@@ -218,10 +223,12 @@ export async function POST(request: NextRequest) {
 
   let insertedRows: DbRow[] = []
   try {
-    insertedRows = await sql`
+    const rawInserted = await sql`
       INSERT INTO questions ${sql(insertPayload, 'topic_id', 'syllabus', 'subject', 'grade', 'criterion', 'difficulty', 'question_type', 'question_text', 'mark_scheme', 'source', 'verified')}
       RETURNING *
     ` as DbRow[]
+    // Attach topic name from request since we know it without a follow-up JOIN
+    insertedRows = rawInserted.map(r => ({ ...r, topic_name: topic || null }))
   } catch (err) {
     return NextResponse.json({ error: 'Failed to store questions', detail: String(err) }, { status: 500 })
   }

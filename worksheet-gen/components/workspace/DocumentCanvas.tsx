@@ -9,6 +9,8 @@ interface DocumentCanvasProps {
   questions: Question[];
   loadingIds: Set<number>;
   isGenerating?: boolean;
+  selectedQuestionNumber?: number | null;
+  onSelectQuestion?: (n: number | null) => void;
   onFlag?: (questionId: string) => void;
   onRegenerate?: (questionNumber: number) => void;
 }
@@ -46,11 +48,15 @@ function QuestionSkeleton({ marks }: { marks: number }) {
 function QuestionBlock({
   q,
   isLoading,
+  isSelected,
+  onSelect,
   onFlag,
   onRegenerate,
 }: {
   q: Question;
   isLoading: boolean;
+  isSelected: boolean;
+  onSelect: (n: number | null) => void;
   onFlag?: (questionId: string) => void;
   onRegenerate?: (questionNumber: number) => void;
 }) {
@@ -59,7 +65,19 @@ function QuestionBlock({
   }
 
   return (
-    <div className="question-block group relative mb-10 pb-6">
+    <div
+      className="question-block group relative mb-10 pb-6 rounded-md"
+      style={{
+        cursor: isSelected ? "default" : "pointer",
+        backgroundColor: isSelected ? "rgba(232,117,59,0.05)" : "transparent",
+        outline: isSelected ? "1.5px solid rgba(232,117,59,0.22)" : "1.5px solid transparent",
+        transition: "background-color 150ms ease, outline-color 150ms ease",
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(isSelected ? null : q.number);
+      }}
+    >
       {/* Question header */}
       <div className="flex items-baseline justify-between mb-3">
         <span
@@ -146,28 +164,33 @@ function QuestionBlock({
         ))}
       </div>
 
-      {/* Hover actions */}
-      <div className="question-hover-actions absolute -bottom-2 left-0 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+      {/* Actions — always visible when selected, hover-only otherwise */}
+      <div
+        className={`question-hover-actions absolute -bottom-2 left-0 flex items-center gap-4 transition-opacity duration-150 ${
+          isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {onRegenerate && (
           <button
             onClick={() => onRegenerate(q.number)}
             className="text-xs font-medium transition-colors"
-            style={{ color: "#6b7b70" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#47574d" }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6b7b70" }}
+            style={{ color: isSelected ? "#47574d" : "#6b7b70" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#e8753b"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = isSelected ? "#47574d" : "#6b7b70"; }}
           >
-            Regenerate
+            ↻ Regenerate
           </button>
         )}
-        {onFlag && q.id && (
+        {onFlag && q.id && q.verified === false && (
           <button
             onClick={() => onFlag(q.id!)}
             className="text-xs font-medium transition-colors"
-            style={{ color: "#6b7b70" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#F28B82" }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#6b7b70" }}
+            style={{ color: isSelected ? "#47574d" : "#6b7b70" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#F28B82"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = isSelected ? "#47574d" : "#6b7b70"; }}
           >
-            Flag
+            ⚑ Flag
           </button>
         )}
       </div>
@@ -181,6 +204,8 @@ export function DocumentCanvas({
   questions,
   loadingIds,
   isGenerating = false,
+  selectedQuestionNumber,
+  onSelectQuestion,
   onFlag,
   onRegenerate,
 }: DocumentCanvasProps) {
@@ -191,7 +216,7 @@ export function DocumentCanvas({
       className="document-canvas-wrapper hide-scrollbar flex-1 overflow-y-scroll"
       style={{ backgroundColor: "#e7e5de", minWidth: 0 }}
     >
-      {/* Elevated paper */}
+      {/* Elevated paper — clicking the background deselects */}
       <div
         className="print-paper mx-auto my-8 rounded-sm"
         style={{
@@ -201,6 +226,7 @@ export function DocumentCanvas({
           padding: "56px 64px 80px",
           boxShadow: "0 4px 32px rgba(71,87,77,0.18), 0 1px 8px rgba(71,87,77,0.10)",
         }}
+        onClick={() => onSelectQuestion?.(null)}
       >
         {/* Document header */}
         <div
@@ -238,6 +264,8 @@ export function DocumentCanvas({
                   key={q.number}
                   q={q}
                   isLoading={loadingIds.has(q.number)}
+                  isSelected={selectedQuestionNumber === q.number}
+                  onSelect={onSelectQuestion ?? (() => {})}
                   onFlag={onFlag}
                   onRegenerate={onRegenerate}
                 />

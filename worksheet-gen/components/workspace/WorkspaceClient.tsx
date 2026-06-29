@@ -41,9 +41,18 @@ export function WorkspaceClient({
   const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Question selection
+  const [selectedQuestionNumber, setSelectedQuestionNumber] = useState<number | null>(null);
+  const selectedQuestion = questions.find(q => q.number === selectedQuestionNumber) ?? null;
+
+  const handleSelectQuestion = useCallback((n: number | null) => {
+    setSelectedQuestionNumber(n);
+  }, []);
+
   const handleApplyParameters = useCallback(async (newParams: Record<string, string>, skills: SkillRow[]) => {
     setParameters(newParams);
     setSelectedSkills(skills);
+    setSelectedQuestionNumber(null);
     setIsGenerating(true);
 
     const skillPayload = skills.map(s => ({ skill_name: s.skill_name, spec_reference: s.spec_reference }));
@@ -62,13 +71,21 @@ export function WorkspaceClient({
       }
 
       const data = await res.json();
-      setQuestions(data.questions);
+
+      // Annotate with skill subtopic info where topic is missing (AI-generated without topic param)
+      const annotated: Question[] = (data.questions as Question[]).map(q => ({
+        ...q,
+        subtopic: q.subtopic ?? (skills.length > 0 ? skills[0].subtopic : undefined),
+        topic: q.topic ?? (skills.length > 0 ? skills[0].topic : undefined),
+      }));
+
+      setQuestions(annotated);
     } catch (err) {
       console.error("Generate fetch failed:", err);
     } finally {
       setIsGenerating(false);
     }
-  }, []);
+  }, [courseId]);
 
   const handleChatSubmit = useCallback(
     async (text: string) => {
@@ -118,7 +135,13 @@ export function WorkspaceClient({
         const data = await res.json();
         const [newQ] = data.questions as Question[];
         if (newQ) {
-          setQuestions(prev => prev.map(q => q.number === questionNumber ? { ...newQ, number: questionNumber } : q));
+          const annotated = {
+            ...newQ,
+            number: questionNumber,
+            subtopic: newQ.subtopic ?? (selectedSkills.length > 0 ? selectedSkills[0].subtopic : undefined),
+            topic: newQ.topic ?? (selectedSkills.length > 0 ? selectedSkills[0].topic : undefined),
+          };
+          setQuestions(prev => prev.map(q => q.number === questionNumber ? annotated : q));
         }
       }
     } catch (err) {
@@ -145,6 +168,8 @@ export function WorkspaceClient({
         selectedSkills={selectedSkills}
         onApply={handleApplyParameters}
         curriculumId={curriculumId}
+        selectedQuestion={selectedQuestion}
+        onClearSelection={() => setSelectedQuestionNumber(null)}
       />
       <DocumentCanvas
         worksheetTitle={worksheetTitle}
@@ -152,6 +177,8 @@ export function WorkspaceClient({
         questions={questions}
         loadingIds={loadingIds}
         isGenerating={isGenerating}
+        selectedQuestionNumber={selectedQuestionNumber}
+        onSelectQuestion={handleSelectQuestion}
         onFlag={handleFlag}
         onRegenerate={handleRegenerate}
       />

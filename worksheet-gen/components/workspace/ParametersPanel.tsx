@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import type { Question } from "@/lib/questions";
 
 interface Control {
   label: string;
@@ -120,9 +121,11 @@ interface ParametersPanelProps {
   selectedSkills: SkillRow[];
   onApply: (values: Record<string, string>, skills: SkillRow[]) => void;
   curriculumId: string | null;
+  selectedQuestion?: Question | null;
+  onClearSelection?: () => void;
 }
 
-export function ParametersPanel({ values, selectedSkills, onApply, curriculumId }: ParametersPanelProps) {
+export function ParametersPanel({ values, selectedSkills, onApply, curriculumId, selectedQuestion, onClearSelection }: ParametersPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [animIn, setAnimIn] = useState(false);
   const [draft, setDraft] = useState<Record<string, string>>(values);
@@ -130,6 +133,14 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
   const [allSkills, setAllSkills] = useState<SkillRow[]>([]);
   const [skillFilter, setSkillFilter] = useState("");
   const skillFetchRef = useRef<AbortController | null>(null);
+
+  // Exit edit mode whenever a question is selected
+  useEffect(() => {
+    if (selectedQuestion) {
+      setAnimIn(false);
+      setTimeout(() => setIsEditing(false), 150);
+    }
+  }, [selectedQuestion]);
 
   const enterEdit = useCallback(() => {
     setDraft(values);
@@ -226,52 +237,147 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
         borderRight: "1px solid rgba(71,87,77,0.1)",
       }}
     >
-      {/* Panel header */}
+      {/* Panel header — switches between params header and question detail header */}
       <div
         className="flex-shrink-0 flex items-center justify-between px-5 py-5"
         style={{ borderBottom: "1px solid #e5e2d9" }}
       >
-        <span
-          className="text-xs font-semibold uppercase tracking-widest"
-          style={{ color: "#8a9a8f" }}
-        >
-          Parameters
-        </span>
-
-        {!isEditing ? (
-          <button
-            onClick={enterEdit}
-            className="flex items-center gap-1.5 text-xs font-medium transition-colors rounded px-1.5 py-1"
-            style={{ color: "#8a9a8f" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#47574d";
-              (e.currentTarget as HTMLElement).style.backgroundColor = "#f0ede6";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#8a9a8f";
-              (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
-            }}
-          >
-            <PencilIcon />
-            Edit
-          </button>
+        {selectedQuestion ? (
+          <>
+            <button
+              onClick={onClearSelection}
+              className="flex items-center gap-1 text-xs font-medium transition-colors"
+              style={{ color: "#8a9a8f" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#47574d"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#8a9a8f"; }}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 2L4 6l4 4" />
+              </svg>
+              Parameters
+            </button>
+            <span className="text-xs font-semibold" style={{ color: "#47574d" }}>
+              Q{selectedQuestion.number}
+            </span>
+          </>
         ) : (
-          <button
-            onClick={cancelEdit}
-            className="text-xs font-medium transition-colors rounded px-1.5 py-1"
-            style={{ color: "#8a9a8f" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#47574d"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#8a9a8f"; }}
-          >
-            Cancel
-          </button>
+          <>
+            <span
+              className="text-xs font-semibold uppercase tracking-widest"
+              style={{ color: "#8a9a8f" }}
+            >
+              Parameters
+            </span>
+
+            {!isEditing ? (
+              <button
+                onClick={enterEdit}
+                className="flex items-center gap-1.5 text-xs font-medium transition-colors rounded px-1.5 py-1"
+                style={{ color: "#8a9a8f" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#47574d";
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "#f0ede6";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#8a9a8f";
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+                }}
+              >
+                <PencilIcon />
+                Edit
+              </button>
+            ) : (
+              <button
+                onClick={cancelEdit}
+                className="text-xs font-medium transition-colors rounded px-1.5 py-1"
+                style={{ color: "#8a9a8f" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#47574d"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#8a9a8f"; }}
+              >
+                Cancel
+              </button>
+            )}
+          </>
         )}
       </div>
 
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto hide-scrollbar">
-        {/* VIEW STATE */}
-        {!isEditing && (
+        {/* QUESTION DETAIL STATE */}
+        {selectedQuestion && (
+          <div className="px-5 py-7 space-y-6">
+            {/* Q number + marks + source badge */}
+            <div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <span
+                  className="text-2xl font-bold"
+                  style={{ color: "#47574d", fontFamily: "Georgia, serif" }}
+                >
+                  Q{selectedQuestion.number}
+                </span>
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full font-medium"
+                  style={{ backgroundColor: "#f0ede6", color: "#6b7b70" }}
+                >
+                  {selectedQuestion.marks} {selectedQuestion.marks === 1 ? "mark" : "marks"}
+                </span>
+              </div>
+              {selectedQuestion.verified === false && (
+                <span
+                  className="inline-block text-xs px-2 py-0.5 rounded font-semibold"
+                  style={{ backgroundColor: "#EDE9FE", color: "#6D28D9" }}
+                >
+                  AI Generated
+                </span>
+              )}
+              {selectedQuestion.verified === true && (
+                <span
+                  className="inline-block text-xs px-2 py-0.5 rounded font-semibold"
+                  style={{ backgroundColor: "#DCFCE7", color: "#15803D" }}
+                >
+                  ✓ Verified
+                </span>
+              )}
+            </div>
+
+            {/* Topic */}
+            <div>
+              <p
+                className="font-semibold uppercase mb-2"
+                style={{ fontSize: 10, letterSpacing: "0.13em", color: "#b0bfb4" }}
+              >
+                Topic
+              </p>
+              <p className="text-sm font-semibold leading-snug" style={{ color: "#47574d" }}>
+                {selectedQuestion.topic ?? "—"}
+              </p>
+            </div>
+
+            {/* Subtopic */}
+            <div>
+              <p
+                className="font-semibold uppercase mb-2"
+                style={{ fontSize: 10, letterSpacing: "0.13em", color: "#b0bfb4" }}
+              >
+                Subtopic
+              </p>
+              <p className="text-sm font-semibold leading-snug" style={{ color: "#47574d" }}>
+                {selectedQuestion.subtopic ?? "—"}
+              </p>
+            </div>
+
+            {/* Contextual hint */}
+            <p
+              className="text-xs leading-relaxed"
+              style={{ color: "#b0bfb4" }}
+            >
+              Use the AI assistant to ask questions or request changes about this question.
+            </p>
+          </div>
+        )}
+
+        {/* PARAMS VIEW STATE */}
+        {!selectedQuestion && !isEditing && (
           <div className="px-5 py-7 space-y-6">
             {CONTROLS.map((ctrl) => (
               <div key={ctrl.name}>
@@ -317,8 +423,8 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
           </div>
         )}
 
-        {/* EDIT STATE */}
-        {isEditing && (
+        {/* PARAMS EDIT STATE */}
+        {!selectedQuestion && isEditing && (
           <div
             className="px-5 py-6 space-y-5"
             style={{
@@ -471,8 +577,8 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
         )}
       </div>
 
-      {/* Footer — only in edit mode */}
-      {isEditing && (
+      {/* Footer — only in edit mode (not when question selected) */}
+      {!selectedQuestion && isEditing && (
         <div
           className="flex-shrink-0 px-4 pb-4 pt-3"
           style={{
