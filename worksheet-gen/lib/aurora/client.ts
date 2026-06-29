@@ -1,6 +1,7 @@
 import { awsCredentialsProvider } from '@vercel/functions/oidc'
 import { Signer } from '@aws-sdk/rds-signer'
 import postgres, { type Sql } from 'postgres'
+import { seedDemoData } from './seed'
 
 let _sql: Sql | null = null
 
@@ -34,6 +35,8 @@ export async function getDb(): Promise<Sql> {
     fetch_types: false, // skip OID type-fetching round-trip on connect
     connect_timeout: 15,
   })
+
+  seedDemoData(_sql).catch(() => {})
 
   return _sql
 }
