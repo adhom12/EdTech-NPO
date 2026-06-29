@@ -14,7 +14,7 @@ export default async function WorkspacePage({
 
   const sql = await getDb();
   const rows = await sql`
-    SELECT w.title, w.course_id, c.curriculum_id, c.subject,
+    SELECT w.title, w.course_id, w.questions_snapshot, c.curriculum_id, c.subject,
            cu.board, cu.qualification
     FROM worksheets w
     LEFT JOIN courses c ON w.course_id = c.id
@@ -32,6 +32,7 @@ export default async function WorkspacePage({
   const initialSyllabus = row?.board && row?.qualification
     ? `${row.board} ${row.qualification}`
     : null;
+  const initialQuestions = row?.questions_snapshot ?? null;
 
   return (
     <div
@@ -46,6 +47,7 @@ export default async function WorkspacePage({
           courseId={courseId}
           initialSubject={initialSubject}
           initialSyllabus={initialSyllabus}
+          initialQuestions={initialQuestions}
         />
       </div>
     </div>

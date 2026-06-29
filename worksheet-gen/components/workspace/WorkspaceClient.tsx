@@ -24,12 +24,14 @@ export function WorkspaceClient({
   courseId,
   initialSubject,
   initialSyllabus,
+  initialQuestions,
 }: {
   worksheetTitle: string;
   curriculumId: string | null;
   courseId: string | null;
   initialSubject?: string | null;
   initialSyllabus?: string | null;
+  initialQuestions?: Question[] | null;
 }) {
   const [parameters, setParameters] = useState<Record<string, string>>({
     ...DEFAULT_PARAMETERS,
@@ -37,10 +39,14 @@ export function WorkspaceClient({
     ...(initialSubject ? { subject: initialSubject } : {}),
   });
   const [selectedSkills, setSelectedSkills] = useState<SkillRow[]>([]);
-  const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS);
+  const [questions, setQuestions] = useState<Question[]>(
+    initialQuestions && initialQuestions.length > 0 ? initialQuestions : INITIAL_QUESTIONS
+  );
   const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
   const [isGenerating, setIsGenerating] = useState(false);
-  const [setupComplete, setSetupComplete] = useState(false);
+  const [setupComplete, setSetupComplete] = useState(
+    !!(initialQuestions && initialQuestions.length > 0)
+  );
 
   // Question selection
   const [selectedQuestionNumber, setSelectedQuestionNumber] = useState<number | null>(null);

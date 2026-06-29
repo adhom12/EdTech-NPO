@@ -4,6 +4,155 @@ const DEV_TEACHER_ID = 'e3987e0e-6bd4-4438-94fe-e821e1f1e0f1'
 
 let _seeded = false
 
+// ── Question snapshots ────────────────────────────────────────────────────────
+
+const INDICES_SURDS_QUESTIONS = [
+  {
+    number: 1,
+    marks: 2,
+    blocks: [
+      { type: 'p', text: 'Simplify $3^7 \\div 3^4$, giving your answer as a power of 3.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Index Laws',
+  },
+  {
+    number: 2,
+    marks: 2,
+    blocks: [
+      { type: 'p', text: 'Evaluate $\\left(\\dfrac{2}{5}\\right)^{-2}$.' },
+      { type: 'subtext', text: 'Give your answer as a fraction in its simplest form.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Negative Indices',
+  },
+  {
+    number: 3,
+    marks: 2,
+    blocks: [
+      { type: 'p', text: 'Write $\\sqrt{48}$ in the form $a\\sqrt{3}$, where $a$ is an integer.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Simplifying Surds',
+  },
+  {
+    number: 4,
+    marks: 3,
+    blocks: [
+      { type: 'p', text: 'Expand and simplify $(3 + \\sqrt{5})(3 - \\sqrt{5})$.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Multiplying Surds',
+  },
+  {
+    number: 5,
+    marks: 4,
+    blocks: [
+      { type: 'p', text: 'Rationalise the denominator and simplify fully:' },
+      { type: 'display', math: '\\frac{10}{3 + \\sqrt{2}}' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Indices & Surds',
+    subtopic: 'Rationalising Denominators',
+  },
+]
+
+const CIRCLE_THEOREMS_QUESTIONS = [
+  {
+    number: 1,
+    marks: 2,
+    blocks: [
+      { type: 'p', text: 'O is the centre of a circle. Points A, B and C lie on the circle.' },
+      { type: 'p', text: 'Angle $AOB = 124°$.' },
+      { type: 'p', text: 'Find angle $ACB$, giving a reason for your answer.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Circle Theorems',
+    subtopic: 'Angle at the Centre',
+  },
+  {
+    number: 2,
+    marks: 2,
+    blocks: [
+      { type: 'p', text: '$AB$ is a diameter of a circle with centre $O$. $C$ is a point on the circumference.' },
+      { type: 'p', text: 'Find angle $ACB$, giving a reason.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Circle Theorems',
+    subtopic: 'Angle in a Semicircle',
+  },
+  {
+    number: 3,
+    marks: 3,
+    blocks: [
+      { type: 'p', text: '$ABCD$ is a cyclic quadrilateral.' },
+      { type: 'p', text: 'Angle $ABC = 117°$ and angle $BCD = 78°$.' },
+      { type: 'p', text: '(a) Find angle $ADC$.' },
+      { type: 'p', text: '(b) Find angle $DAB$.' },
+      { type: 'subtext', text: 'State the circle theorem used in each part.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Circle Theorems',
+    subtopic: 'Cyclic Quadrilaterals',
+  },
+  {
+    number: 4,
+    marks: 3,
+    blocks: [
+      { type: 'p', text: 'A tangent from external point $T$ touches a circle with centre $O$ at point $A$.' },
+      { type: 'p', text: '$OA = 5\\text{ cm}$ and $OT = 13\\text{ cm}$.' },
+      { type: 'p', text: 'Calculate the length $AT$, giving a reason for any right angle used.' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Circle Theorems',
+    subtopic: 'Tangent-Radius',
+  },
+  {
+    number: 5,
+    marks: 4,
+    blocks: [
+      { type: 'p', text: 'A circle has centre $O$. $A$ and $B$ are points on the circle and $TA$ is a tangent to the circle at $A$.' },
+      { type: 'p', text: 'Angle $OAB = 32°$.' },
+      { type: 'p', text: '(a) Find angle $OBA$. Give a reason for your answer. [2]' },
+      { type: 'p', text: '(b) Hence find angle $TAB$. Give a reason for your answer. [2]' },
+    ],
+    verified: true,
+    source: 'seed',
+    topic: 'Circle Theorems',
+    subtopic: 'Tangent-Radius',
+  },
+]
+
+const WORKSHEET_SNAPSHOTS: Record<string, object[]> = {
+  'Indices & Surds — Homework 1': INDICES_SURDS_QUESTIONS,
+  'Circle Theorems — Mock Exam': CIRCLE_THEOREMS_QUESTIONS,
+}
+
+// ── Schema migration ───────────────────────────────────────────────────────────
+
+export async function ensureSchema(sql: Sql): Promise<void> {
+  try {
+    await sql`ALTER TABLE worksheets ADD COLUMN IF NOT EXISTS questions_snapshot JSONB`
+  } catch {
+    // Column already exists or table missing — either way non-fatal
+  }
+}
+
+// ── Student and worksheet seed data ───────────────────────────────────────────
+
 const STUDENTS: Record<string, string[]> = {
   '10A Mathematics': [
     'Amara Osei', 'Josh Patel', 'Chloe Thompson', 'Ethan Williams',
@@ -46,7 +195,11 @@ export async function seedDemoData(sql: Sql): Promise<void> {
       SELECT id FROM courses
       WHERE teacher_id = ${DEV_TEACHER_ID} AND label IN ('10A Mathematics', '10E Mathematics', '11A Mathematics')
     `
-    if (existing.length >= 3) return
+    if (existing.length >= 3) {
+      // Still update any missing question snapshots on re-runs
+      await seedMissingSnapshots(sql)
+      return
+    }
 
     // Curriculum
     let curriculumId: string
@@ -93,18 +246,47 @@ export async function seedDemoData(sql: Sql): Promise<void> {
     }
 
     // Worksheets
+    const worksheetIds: Record<string, string> = {}
     for (const [label, titles] of Object.entries(WORKSHEETS)) {
       const courseId = courseIds[label]
       if (!courseId) continue
-      const count = await sql`SELECT COUNT(*)::int AS n FROM worksheets WHERE course_id = ${courseId}`
-      if ((count[0].n as number) > 0) continue
       for (const title of titles) {
-        await sql`INSERT INTO worksheets (course_id, title) VALUES (${courseId}, ${title})`
+        const check = await sql`SELECT id FROM worksheets WHERE course_id = ${courseId} AND title = ${title} LIMIT 1`
+        if (check.length > 0) {
+          worksheetIds[title] = check[0].id as string
+        } else {
+          const [row] = await sql`
+            INSERT INTO worksheets (course_id, title) VALUES (${courseId}, ${title}) RETURNING id
+          `
+          worksheetIds[title] = row.id as string
+        }
       }
     }
+
+    // Question snapshots
+    for (const [title, questions] of Object.entries(WORKSHEET_SNAPSHOTS)) {
+      const worksheetId = worksheetIds[title]
+      if (!worksheetId) continue
+      await sql`
+        UPDATE worksheets SET questions_snapshot = ${JSON.stringify(questions)}::jsonb
+        WHERE id = ${worksheetId} AND questions_snapshot IS NULL
+      `
+    }
   } catch (err) {
-    // Never crash the app over seed failures
     console.error('[seed] demo data seed failed:', err)
     _seeded = false
+  }
+}
+
+async function seedMissingSnapshots(sql: Sql): Promise<void> {
+  try {
+    for (const [title, questions] of Object.entries(WORKSHEET_SNAPSHOTS)) {
+      await sql`
+        UPDATE worksheets SET questions_snapshot = ${JSON.stringify(questions)}::jsonb
+        WHERE title = ${title} AND questions_snapshot IS NULL
+      `
+    }
+  } catch {
+    // Non-fatal — snapshots will just be missing
   }
 }
