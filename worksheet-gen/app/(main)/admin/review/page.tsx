@@ -18,17 +18,17 @@ export default async function AdminReviewPage() {
   `;
 
   return (
-    <div className="max-w-[900px] mx-auto px-8 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 style={{ color: "#E8EAED", fontSize: "1.25rem", fontWeight: 600 }}>
+    <div className="max-w-[900px] mx-auto px-8 py-8 animate-page-in">
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-xl font-bold tracking-tight" style={{ color: '#47574d' }}>
           Review Queue
-          <span
-            className="ml-2 text-sm font-normal px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: "#2C2E33", color: "#9AA0A6" }}
-          >
-            {questions.length}
-          </span>
         </h1>
+        <span
+          className="text-xs font-semibold px-2.5 py-1 rounded-full"
+          style={{ backgroundColor: '#f0ede6', color: '#8a9a8f', border: '1px solid #e5e2d9' }}
+        >
+          {questions.length}
+        </span>
       </div>
 
       <ReviewTable questions={questions as unknown as Parameters<typeof ReviewTable>[0]['questions']} />
