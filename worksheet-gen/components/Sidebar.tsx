@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DemoResetButton } from "./DemoResetButton";
 
 type RecentWorksheet = {
   id: string
@@ -166,8 +167,11 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
         )}
       </div>
 
-      {/* ── Admin — pinned bottom ── */}
+      {/* ── Demo reset + Admin — pinned bottom ── */}
       <div className="px-3 pb-4 pt-3 flex-shrink-0" style={{ borderTop: "1px solid #e5e2d9" }}>
+        <div className="mb-2">
+          <DemoResetButton />
+        </div>
         <div className="relative">
           {pathname.startsWith("/admin") && (
             <span
