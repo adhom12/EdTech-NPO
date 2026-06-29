@@ -100,21 +100,28 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
           {NAV.map((item) => {
             const active = isNavActive(item.href, item.exact ?? false);
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm mb-0.5 transition-all duration-200 ease-in-out"
-                style={{
-                  color: active ? "#2c4a3e" : "#8a9a8f",
-                  backgroundColor: active ? "#ccdae5" : "transparent",
-                  fontWeight: active ? 600 : 400,
-                }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = "#f0ede6" }}
-                onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = "transparent" }}
-              >
-                <span style={{ color: active ? "#47574d" : "#b0bfb4" }}>{item.icon}</span>
-                {item.label}
-              </Link>
+              <div key={item.href} className="relative mb-0.5">
+                {active && (
+                  <span
+                    className="absolute left-0 rounded-full pointer-events-none"
+                    style={{ top: 6, bottom: 6, width: 2, backgroundColor: '#e8753b' }}
+                  />
+                )}
+                <Link
+                  href={item.href}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ease-in-out"
+                  style={{
+                    color: active ? "#47574d" : "#8a9a8f",
+                    backgroundColor: "transparent",
+                    fontWeight: active ? 600 : 400,
+                  }}
+                  onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = "#f0ede6" }}
+                  onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = "transparent" }}
+                >
+                  <span style={{ color: active ? "#47574d" : "#b0bfb4" }}>{item.icon}</span>
+                  {item.label}
+                </Link>
+              </div>
             );
           })}
         </nav>
@@ -161,24 +168,33 @@ export function Sidebar({ recentWorksheets = [] }: { recentWorksheets?: RecentWo
 
       {/* ── Admin — pinned bottom ── */}
       <div className="px-3 pb-4 pt-3 flex-shrink-0" style={{ borderTop: "1px solid #e5e2d9" }}>
-        <Link
-          href="/admin/review"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ease-in-out"
-          style={{
-            color: pathname.startsWith("/admin") ? "#2c4a3e" : "#8a9a8f",
-            backgroundColor: pathname.startsWith("/admin") ? "#ccdae5" : "transparent",
-          }}
-          onMouseEnter={(e) => { if (!pathname.startsWith("/admin")) e.currentTarget.style.backgroundColor = "#f0ede6" }}
-          onMouseLeave={(e) => { if (!pathname.startsWith("/admin")) e.currentTarget.style.backgroundColor = "transparent" }}
-        >
-          <span style={{ color: pathname.startsWith("/admin") ? "#47574d" : "#b0bfb4" }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="8" cy="8" r="6" />
-              <path d="M8 5v3l2 2" />
-            </svg>
-          </span>
-          Admin Review
-        </Link>
+        <div className="relative">
+          {pathname.startsWith("/admin") && (
+            <span
+              className="absolute left-0 rounded-full pointer-events-none"
+              style={{ top: 6, bottom: 6, width: 2, backgroundColor: '#e8753b' }}
+            />
+          )}
+          <Link
+            href="/admin/review"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ease-in-out"
+            style={{
+              color: pathname.startsWith("/admin") ? "#47574d" : "#8a9a8f",
+              backgroundColor: "transparent",
+              fontWeight: pathname.startsWith("/admin") ? 600 : 400,
+            }}
+            onMouseEnter={(e) => { if (!pathname.startsWith("/admin")) e.currentTarget.style.backgroundColor = "#f0ede6" }}
+            onMouseLeave={(e) => { if (!pathname.startsWith("/admin")) e.currentTarget.style.backgroundColor = "transparent" }}
+          >
+            <span style={{ color: pathname.startsWith("/admin") ? "#47574d" : "#b0bfb4" }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 5v3l2 2" />
+              </svg>
+            </span>
+            Admin Review
+          </Link>
+        </div>
       </div>
     </aside>
   );

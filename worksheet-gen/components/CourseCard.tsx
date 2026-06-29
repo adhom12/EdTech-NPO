@@ -57,7 +57,7 @@ export function CourseCard({
       <p className="text-xs mb-3" style={{ color: '#8a9a8f' }}>
         {board} {qualification} · {subject}
       </p>
-      <p className="text-xs" style={{ color: '#b0bfb4' }}>
+      <p className="text-xs" style={{ color: '#64748B' }}>
         {worksheetCount} question set{worksheetCount !== 1 ? 's' : ''}
       </p>
     </Link>

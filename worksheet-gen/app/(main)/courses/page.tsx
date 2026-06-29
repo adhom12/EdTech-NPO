@@ -106,7 +106,7 @@ function ClassCard({ c }: { c: ClassRow }) {
               <span className="text-lg font-bold tracking-tight" style={{ color: '#47574d', lineHeight: 1.2 }}>
                 {value}
               </span>
-              <span className="text-xs" style={{ color: '#b0bfb4' }}>{label}</span>
+              <span className="text-xs" style={{ color: '#64748B' }}>{label}</span>
             </div>
           ))}
         </div>
@@ -115,14 +115,14 @@ function ClassCard({ c }: { c: ClassRow }) {
         <div className="px-5 py-4 flex-1">
           {c.latest_ws_title ? (
             <div>
-              <p className="text-xs mb-2" style={{ color: '#b0bfb4' }}>Latest assignment</p>
+              <p className="text-xs mb-2" style={{ color: '#64748B' }}>Latest assignment</p>
               <div className="flex items-center gap-3">
                 <div className="w-0.5 h-9 rounded-full flex-shrink-0" style={{ backgroundColor: accent }} />
                 <div className="min-w-0">
                   <p className="text-sm font-medium leading-tight truncate" style={{ color: '#47574d' }}>
                     {c.latest_ws_title}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: '#b0bfb4' }}>
+                  <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
                     {formatRelative(c.latest_ws_date)}
                   </p>
                 </div>
@@ -135,7 +135,7 @@ function ClassCard({ c }: { c: ClassRow }) {
 
         {/* Footer CTA */}
         <div className="px-5 py-3 flex items-center justify-between flex-shrink-0" style={{ borderTop: '1px solid #f0ede6' }}>
-          <span className="text-xs" style={{ color: '#b0bfb4' }}>
+          <span className="text-xs" style={{ color: '#64748B' }}>
             Created {formatRelative(c.created_at)}
           </span>
           <span

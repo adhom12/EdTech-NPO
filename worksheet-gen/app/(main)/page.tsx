@@ -166,7 +166,7 @@ export default async function Dashboard() {
                 <span className="text-xs truncate" style={{ color: '#8a9a8f' }}>
                   {ws.course_label as string}
                 </span>
-                <span className="text-xs tabular-nums" style={{ color: '#b0bfb4' }}>
+                <span className="text-xs tabular-nums" style={{ color: '#64748B' }}>
                   {formatRelative(ws.created_at as string)}
                 </span>
               </Link>

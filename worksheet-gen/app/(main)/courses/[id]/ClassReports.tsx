@@ -65,13 +65,13 @@ const REMEDIATION_CARDS = [
 
 function masteryColor(pct: number) {
   if (pct >= 75) return '#16a34a'
-  if (pct >= 50) return '#d97706'
+  if (pct >= 50) return '#B45309'
   return '#dc2626'
 }
 
 function masteryLabel(pct: number) {
   if (pct >= 75) return { text: 'Strong',     color: '#16a34a' }
-  if (pct >= 50) return { text: 'Developing', color: '#d97706' }
+  if (pct >= 50) return { text: 'Developing', color: '#B45309' }
   return             { text: 'Needs work',  color: '#dc2626' }
 }
 
@@ -86,8 +86,8 @@ function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
 function SparkIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-      <path d="M6.5 1v2M6.5 10v2M1 6.5h2M10 6.5h2M2.93 2.93l1.42 1.42M8.65 8.65l1.42 1.42M2.93 10.07l1.42-1.42M8.65 4.35l1.42-1.42" stroke="#7C3AED" strokeWidth="1.3" strokeLinecap="round"/>
-      <circle cx="6.5" cy="6.5" r="1.8" fill="#7C3AED" />
+      <path d="M6.5 1v2M6.5 10v2M1 6.5h2M10 6.5h2M2.93 2.93l1.42 1.42M8.65 8.65l1.42 1.42M2.93 10.07l1.42-1.42M8.65 4.35l1.42-1.42" stroke="#47574d" strokeWidth="1.3" strokeLinecap="round"/>
+      <circle cx="6.5" cy="6.5" r="1.8" fill="#47574d" />
     </svg>
   )
 }
@@ -353,7 +353,7 @@ function RemediationCard({
             {isIndividual ? (
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                style={{ backgroundColor: '#f0ede6', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.2)' }}
+                style={{ backgroundColor: '#f0ede6', color: '#47574d', border: '1px solid rgba(71,87,77,0.18)' }}
               >
                 {card.label.charAt(0)}
               </div>
@@ -390,7 +390,7 @@ function RemediationCard({
           <Link
             href={`/workspace/new?course_id=${courseId}`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:opacity-85"
-            style={{ backgroundColor: 'rgba(124,58,237,0.08)', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.2)' }}
+            style={{ backgroundColor: 'rgba(71,87,77,0.07)', color: '#47574d', border: '1px solid rgba(71,87,77,0.2)' }}
           >
             <SparkIcon />
             {card.action}
