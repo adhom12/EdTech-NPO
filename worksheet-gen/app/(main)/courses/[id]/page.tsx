@@ -123,7 +123,17 @@ export default async function CourseDetailPage({
         events={events}
         suggestedTopics={suggestedTopics}
         sort={sort}
-        reportsNode={<ClassReports courseId={id} />}
+        reportsNode={
+          <ClassReports
+            courseId={id}
+            worksheets={worksheetRows.map((w) => ({
+              id: w.id as string,
+              title: w.title as string,
+              createdAt: w.created_at as string,
+            }))}
+            students={students}
+          />
+        }
       />
     </div>
   )
