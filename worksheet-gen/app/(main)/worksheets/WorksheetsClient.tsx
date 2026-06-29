@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { renameWorksheet, deleteWorksheet, assignWorksheetToCourse } from '@/app/actions/worksheets'
+import { renameWorksheet, deleteWorksheet, assignWorksheetToCourse, createWorksheet } from '@/app/actions/worksheets'
 
 export type WorksheetDoc = {
   id: string
@@ -314,8 +315,17 @@ function ToolBtn({
 }
 
 export function WorksheetsClient({ worksheets, courses }: { worksheets: WorksheetDoc[]; courses: CourseOption[] }) {
+  const router = useRouter()
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [sort, setSort] = useState<'newest' | 'az'>('newest')
+
+  const [creating, setCreating] = useState(false)
+  const [createAnimating, setCreateAnimating] = useState(false)
+  const [createTitle, setCreateTitle] = useState('Untitled worksheet')
+  const [createCourseId, setCreateCourseId] = useState(() => courses[0]?.id ?? '')
+  const [createPending, setCreatePending] = useState(false)
+  const createTitleRef = useRef<HTMLInputElement>(null)
+  const createCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [menuAnimating, setMenuAnimating] = useState(false)
@@ -447,6 +457,41 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
     setAssignPending(false)
   }
 
+  // Create new worksheet lifecycle
+  useEffect(() => {
+    if (!creating) return
+    const id = requestAnimationFrame(() => {
+      setCreateAnimating(true)
+      setTimeout(() => { createTitleRef.current?.select() }, 50)
+    })
+    return () => cancelAnimationFrame(id)
+  }, [creating])
+
+  function openCreate() {
+    setCreateTitle('Untitled worksheet')
+    setCreateCourseId(courses[0]?.id ?? '')
+    setCreateAnimating(false)
+    setCreating(true)
+  }
+
+  function closeCreate() {
+    setCreateAnimating(false)
+    if (createCloseTimer.current) clearTimeout(createCloseTimer.current)
+    createCloseTimer.current = setTimeout(() => setCreating(false), 200)
+  }
+
+  async function handleCreate() {
+    const title = createTitle.trim() || 'Untitled worksheet'
+    if (!createCourseId || createPending) return
+    setCreatePending(true)
+    const result = await createWorksheet(createCourseId, title)
+    setCreatePending(false)
+    if ('id' in result) {
+      closeCreate()
+      router.push(`/workspace/${result.id}`)
+    }
+  }
+
   async function handleDelete() {
     if (!menu) return
     const { id, courseId } = menu
@@ -473,6 +518,17 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#47574d' }}>Recent worksheets</h1>
         <div className="flex items-center gap-2.5">
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-85"
+            style={{ backgroundColor: '#e8753b' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+              <path d="M6 1v10M1 6h10" />
+            </svg>
+            New worksheet
+          </button>
+          <div style={{ width: 1, height: 18, backgroundColor: '#e5e2d9' }} />
           <button
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200"
             style={{ color: '#8a9a8f', backgroundColor: '#faf9f7', border: '1px solid #e5e2d9' }}
@@ -663,6 +719,102 @@ export function WorksheetsClient({ worksheets, courses }: { worksheets: Workshee
               </svg>
             }
           />
+        </div>
+      )}
+
+      {/* ── New worksheet modal ── */}
+      {creating && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{
+            backgroundColor: `rgba(71,87,77,${createAnimating ? 0.3 : 0})`,
+            transition: 'background-color 200ms ease',
+            pointerEvents: createAnimating ? 'auto' : 'none',
+          }}
+          onMouseDown={(e) => { if (e.target === e.currentTarget) closeCreate() }}
+        >
+          <div
+            className="rounded-2xl p-6 w-full"
+            style={{
+              maxWidth: 380,
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(71,87,77,0.08)',
+              boxShadow: '0 24px 64px rgba(71,87,77,0.2), 0 8px 24px rgba(71,87,77,0.1)',
+              transition: 'opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+              opacity: createAnimating ? 1 : 0,
+              transform: createAnimating ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.97)',
+            }}
+          >
+            <h3 className="text-sm font-semibold mb-4" style={{ color: '#47574d' }}>New worksheet</h3>
+
+            <div className="flex flex-col gap-3 mb-5">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: '#b0bfb4', letterSpacing: '0.1em' }}>
+                  Title
+                </label>
+                <input
+                  ref={createTitleRef}
+                  value={createTitle}
+                  onChange={(e) => setCreateTitle(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') closeCreate() }}
+                  className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all duration-200"
+                  style={{ backgroundColor: '#f5f3ef', border: '1px solid #e5e2d9', color: '#47574d' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#e8753b' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e2d9' }}
+                  placeholder="Worksheet title"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: '#b0bfb4', letterSpacing: '0.1em' }}>
+                  Class
+                </label>
+                {courses.length === 0 ? (
+                  <p className="text-xs" style={{ color: '#b0bfb4' }}>No classes yet. Create a class first.</p>
+                ) : (
+                  <div className="relative">
+                    <select
+                      value={createCourseId}
+                      onChange={(e) => setCreateCourseId(e.target.value)}
+                      className="w-full pl-3 pr-8 py-2 rounded-lg text-sm appearance-none outline-none transition-all duration-200"
+                      style={{ backgroundColor: '#f5f3ef', border: '1px solid #e5e2d9', color: '#47574d' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = '#e8753b' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e2d9' }}
+                    >
+                      {courses.map((c) => (
+                        <option key={c.id} value={c.id}>{c.label}</option>
+                      ))}
+                    </select>
+                    <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#8a9a8f" strokeWidth="1.5" strokeLinecap="round">
+                      <path d="M2.5 4l3 3 3-3" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={closeCreate}
+                className="px-4 py-2 rounded-lg text-sm transition-all duration-200"
+                style={{ color: '#8a9a8f' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#6b7b70'; e.currentTarget.style.backgroundColor = '#f0ede6' }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#8a9a8f'; e.currentTarget.style.backgroundColor = 'transparent' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={createPending || courses.length === 0}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-200"
+                style={{ backgroundColor: createPending ? '#c0cdc5' : '#e8753b', cursor: createPending ? 'wait' : 'pointer' }}
+                onMouseEnter={(e) => { if (!createPending) e.currentTarget.style.backgroundColor = '#d4622a' }}
+                onMouseLeave={(e) => { if (!createPending) e.currentTarget.style.backgroundColor = '#e8753b' }}
+              >
+                {createPending ? 'Creating…' : 'Create'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
