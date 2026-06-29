@@ -272,19 +272,25 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
       <div className="flex-1 overflow-y-auto hide-scrollbar">
         {/* VIEW STATE */}
         {!isEditing && (
-          <div className="px-5 py-6 space-y-6">
+          <div className="px-5 py-7 space-y-6">
             {CONTROLS.map((ctrl) => (
               <div key={ctrl.name}>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8a9a8f" }}>
+                <p
+                  className="font-semibold uppercase mb-2"
+                  style={{ fontSize: 10, letterSpacing: "0.13em", color: "#b0bfb4" }}
+                >
                   {ctrl.label}
                 </p>
-                <p className="text-sm font-medium leading-snug" style={{ color: "#47574d" }}>
+                <p className="text-sm font-semibold leading-snug" style={{ color: "#47574d" }}>
                   {ctrl.name === "syllabus" ? abbreviateSyllabus(values[ctrl.name]) : values[ctrl.name]}
                 </p>
               </div>
             ))}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8a9a8f" }}>
+              <p
+                className="font-semibold uppercase mb-2"
+                style={{ fontSize: 10, letterSpacing: "0.13em", color: "#b0bfb4" }}
+              >
                 Skills
               </p>
               {selectedSkills.length === 0 ? (
@@ -325,8 +331,8 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
               <div key={ctrl.name} className="flex flex-col gap-1.5">
                 <label
                   htmlFor={`edit-${ctrl.name}`}
-                  className="text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: "#8a9a8f" }}
+                  className="font-semibold uppercase"
+                  style={{ fontSize: 10, letterSpacing: "0.13em", color: "#b0bfb4" }}
                 >
                   {ctrl.label}
                 </label>
@@ -355,7 +361,7 @@ export function ParametersPanel({ values, selectedSkills, onApply, curriculumId 
 
             {/* Skill picker */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#8a9a8f" }}>
+              <label className="font-semibold uppercase" style={{ fontSize: 10, letterSpacing: "0.13em", color: "#b0bfb4" }}>
                 Skills{draftSkills.length > 0 ? ` · ${draftSkills.length} selected` : ""}
               </label>
 

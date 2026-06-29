@@ -189,7 +189,7 @@ export function DocumentCanvas({
   return (
     <div
       className="document-canvas-wrapper hide-scrollbar flex-1 overflow-y-scroll"
-      style={{ backgroundColor: "#dde9f0", minWidth: 0 }}
+      style={{ backgroundColor: "#e7e5de", minWidth: 0 }}
     >
       {/* Elevated paper */}
       <div

@@ -112,28 +112,30 @@ export function ChatPanel({ onSubmit, subject }: ChatPanelProps) {
 
       {/* Lower anchor — macro pills + input */}
       <div
-        className="flex-shrink-0 p-4 space-y-3"
+        className="flex-shrink-0 px-4 pt-4 pb-4"
         style={{ borderTop: "1px solid #e5e2d9" }}
       >
         {/* Macro pills */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-4">
           {MACRO_PILLS.map((pill) => (
             <button
               key={pill}
               onClick={() => handlePill(pill)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+              className="px-3.5 py-2 rounded-full text-xs font-medium transition-all duration-200"
               style={{
-                backgroundColor: "#f0ede6",
-                color: "#6b7b70",
-                border: "1px solid #e5e2d9",
+                backgroundColor: "transparent",
+                color: "#47574d",
+                border: "1.5px solid #ccdae5",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "#e5e2d9";
-                (e.currentTarget as HTMLElement).style.color = "#47574d";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "#ccdae5";
+                (e.currentTarget as HTMLElement).style.borderColor = "#aabfcf";
+                (e.currentTarget as HTMLElement).style.color = "#2c4a3e";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "#f0ede6";
-                (e.currentTarget as HTMLElement).style.color = "#6b7b70";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+                (e.currentTarget as HTMLElement).style.borderColor = "#ccdae5";
+                (e.currentTarget as HTMLElement).style.color = "#47574d";
               }}
             >
               {pill}
@@ -142,7 +144,7 @@ export function ChatPanel({ onSubmit, subject }: ChatPanelProps) {
         </div>
 
         {/* Text input row */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <input
             type="text"
             value={input}
