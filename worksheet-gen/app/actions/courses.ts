@@ -34,6 +34,8 @@ export async function createCourse(formData: FormData) {
 export async function deleteCourse(id: string) {
   try {
     const sql = await getDb()
+    // Unlink worksheets so they survive in the worksheets tab
+    await sql`UPDATE worksheets SET course_id = NULL WHERE course_id = ${id}`
     await sql`DELETE FROM courses WHERE id = ${id} AND teacher_id = ${DEV_TEACHER_ID}`
     revalidatePath('/courses')
     revalidatePath('/')

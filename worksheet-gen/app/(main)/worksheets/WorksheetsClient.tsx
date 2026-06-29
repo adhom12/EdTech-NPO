@@ -8,9 +8,9 @@ import { renameWorksheet, deleteWorksheet, assignWorksheetToCourse, createWorksh
 export type WorksheetDoc = {
   id: string
   title: string
-  courseId: string
-  courseLabel: string
-  subject: string
+  courseId: string | null
+  courseLabel: string | null
+  subject: string | null
   curriculumId: string | null
   board: string | null
   qualification: string | null
@@ -68,7 +68,7 @@ function abbreviateBoard(board: string): string {
   return board.trim()
 }
 
-function subjectAccent(subject: string): string {
+function subjectAccent(subject: string | null | undefined): string {
   const s = (subject ?? '').toLowerCase()
   if (s.includes('math')) return '#4F46E5'
   if (s.includes('physics')) return '#0891B2'
@@ -87,7 +87,7 @@ const EXAM_QS = [
   { n: '4', marks: 4, lines: [78, 58], answers: 2 },
 ] as const
 
-function DocThumbnail({ subject }: { subject: string }) {
+function DocThumbnail({ subject }: { subject: string | null }) {
   const accent = subjectAccent(subject)
   return (
     <div
@@ -138,7 +138,7 @@ function DocThumbnail({ subject }: { subject: string }) {
   )
 }
 
-function SubjectChip({ subject }: { subject: string }) {
+function SubjectChip({ subject }: { subject: string | null }) {
   const accent = subjectAccent(subject)
   return (
     <span

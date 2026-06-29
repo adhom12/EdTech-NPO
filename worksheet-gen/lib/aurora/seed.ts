@@ -36,6 +36,11 @@ export async function seedDemoData(sql: Sql): Promise<void> {
   _seeded = true
 
   try {
+    // Remove the old Biology class if it was seeded in a previous run
+    await sql`
+      DELETE FROM courses WHERE teacher_id = ${DEV_TEACHER_ID} AND label = '10B Biology'
+    `
+
     // Fast check — if demo courses already exist, bail immediately
     const existing = await sql`
       SELECT id FROM courses

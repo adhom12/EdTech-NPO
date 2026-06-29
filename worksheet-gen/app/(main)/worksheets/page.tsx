@@ -21,9 +21,9 @@ export default async function WorksheetsPage() {
         cu.board,
         cu.qualification
       FROM worksheets w
-      JOIN courses c ON w.course_id = c.id
+      LEFT JOIN courses c ON w.course_id = c.id
       LEFT JOIN curricula cu ON c.curriculum_id = cu.id
-      WHERE c.teacher_id = ${DEV_TEACHER_ID}
+      WHERE c.teacher_id = ${DEV_TEACHER_ID} OR c.id IS NULL
       ORDER BY w.created_at DESC
     `,
     sql`
@@ -38,9 +38,9 @@ export default async function WorksheetsPage() {
   const worksheets: WorksheetDoc[] = rows.map((r) => ({
     id: r.id as string,
     title: r.title as string,
-    courseId: r.course_id as string,
-    courseLabel: r.course_label as string,
-    subject: r.subject as string,
+    courseId: (r.course_id as string) ?? null,
+    courseLabel: (r.course_label as string) ?? null,
+    subject: (r.subject as string) ?? null,
     curriculumId: (r.curriculum_id as string) ?? null,
     board: (r.board as string) ?? null,
     qualification: (r.qualification as string) ?? null,
