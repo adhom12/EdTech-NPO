@@ -55,30 +55,101 @@ export function ReviewTable({ questions }: { questions: PendingQuestion[] }) {
   const visible = questions.filter((q) => !done.has(q.id));
 
   if (visible.length === 0) {
-    return <p style={{ color: "#9AA0A6", fontSize: "0.875rem" }}>Queue is empty — nothing to review.</p>;
+    return (
+      <p className="text-sm" style={{ color: '#b0bfb4' }}>
+        Queue is empty — nothing to review.
+      </p>
+    );
   }
 
   return (
     <div className="flex flex-col gap-3">
       {visible.map((q) => (
-        <div key={q.id} className="rounded-xl p-5" style={{ backgroundColor: "#1E2024", border: "1px solid #2C2E33" }}>
+        <div
+          key={q.id}
+          className="rounded-xl p-5"
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid rgba(71,87,77,0.1)',
+            boxShadow: '0 1px 3px rgba(71,87,77,0.08)',
+          }}
+        >
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <div className="flex flex-wrap gap-2">
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-1.5">
                 {[q.syllabus, q.subject, `Grade ${q.grade}`, q.difficulty, q.question_type].map((label) => (
-                  <span key={label} className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "#2C2E33", color: "#9AA0A6" }}>{label}</span>
+                  <span
+                    key={label}
+                    className="text-xs px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: '#f0ede6', color: '#8a9a8f', border: '1px solid #e5e2d9' }}
+                  >
+                    {label}
+                  </span>
                 ))}
                 {q.source && (
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "#1A2040", color: "#8B8FD4" }}>{q.source}</span>
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: '#fdf0e9', color: '#e8753b', border: '1px solid rgba(232,117,59,0.25)' }}
+                  >
+                    {q.source}
+                  </span>
                 )}
               </div>
-              {q.topic_name && <p className="text-xs" style={{ color: "#9AA0A6" }}>Topic: {q.topic_name} · {q.criterion}</p>}
-              <p className="text-sm" style={{ color: "#E8EAED" }}>{questionPreview(q.question_text)}</p>
-              <p className="text-xs" style={{ color: "#9AA0A6" }}>{markSchemeText(q.mark_scheme)}</p>
+
+              {/* Topic / criterion */}
+              {q.topic_name && (
+                <p className="text-xs" style={{ color: '#b0bfb4' }}>
+                  {q.topic_name} · {q.criterion}
+                </p>
+              )}
+
+              {/* Question preview */}
+              <p className="text-sm font-medium" style={{ color: '#47574d' }}>
+                {questionPreview(q.question_text)}
+              </p>
+
+              {/* Mark scheme */}
+              <p className="text-xs" style={{ color: '#8a9a8f' }}>
+                {markSchemeText(q.mark_scheme)}
+              </p>
             </div>
+
+            {/* Actions */}
             <div className="flex gap-2 shrink-0">
-              <button onClick={() => handleAction(q.id, "approve")} disabled={processing.has(q.id)} className="px-3 py-1.5 rounded-lg text-sm font-medium transition-opacity" style={{ backgroundColor: "#1A3A2A", color: "#81C995", opacity: processing.has(q.id) ? 0.5 : 1 }}>Approve</button>
-              <button onClick={() => handleAction(q.id, "reject")} disabled={processing.has(q.id)} className="px-3 py-1.5 rounded-lg text-sm font-medium transition-opacity" style={{ backgroundColor: "#2C1A1A", color: "#F28B82", opacity: processing.has(q.id) ? 0.5 : 1 }}>Reject</button>
+              <button
+                onClick={() => handleAction(q.id, "approve")}
+                disabled={processing.has(q.id)}
+                className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200"
+                style={{
+                  backgroundColor: '#f0fdf4',
+                  color: '#16a34a',
+                  border: '1px solid #bbf7d0',
+                  opacity: processing.has(q.id) ? 0.5 : 1,
+                  cursor: processing.has(q.id) ? 'wait' : 'pointer',
+                }}
+                onMouseEnter={(e) => { if (!processing.has(q.id)) e.currentTarget.style.backgroundColor = '#dcfce7' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f0fdf4' }}
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleAction(q.id, "reject")}
+                disabled={processing.has(q.id)}
+                className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200"
+                style={{
+                  backgroundColor: '#fff1f2',
+                  color: '#dc2626',
+                  border: '1px solid #fecaca',
+                  opacity: processing.has(q.id) ? 0.5 : 1,
+                  cursor: processing.has(q.id) ? 'wait' : 'pointer',
+                }}
+                onMouseEnter={(e) => { if (!processing.has(q.id)) e.currentTarget.style.backgroundColor = '#fee2e2' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff1f2' }}
+              >
+                Reject
+              </button>
             </div>
           </div>
         </div>
