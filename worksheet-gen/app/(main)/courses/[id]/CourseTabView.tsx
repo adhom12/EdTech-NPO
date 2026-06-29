@@ -56,6 +56,10 @@ function formatRelative(dateStr: string): string {
 }
 
 function formatEventLabel(eventType: string, payload: Record<string, unknown>): string {
+  if (eventType === 'worksheet_assigned') {
+    const title = payload.title as string | undefined
+    return title ? `${title} was assigned to the class` : 'Worksheet assigned to class'
+  }
   if (eventType === 'worksheet_generated') {
     const count = payload.count as number | undefined
     const difficulty = payload.difficulty as string | undefined
@@ -225,7 +229,8 @@ export function CourseTabView({
                         events.map((ev, idx) => {
                           let payload: Record<string, unknown> = {}
                           try { payload = ev.payload } catch {}
-                          const isGenerated = ev.event_type === 'worksheet_generated'
+                          const dotColor = ev.event_type === 'worksheet_assigned' || ev.event_type === 'worksheet_generated'
+                            ? '#e8753b' : '#dc2626'
                           return (
                             <div
                               key={idx}
@@ -239,8 +244,8 @@ export function CourseTabView({
                                   className="rounded-full flex-shrink-0"
                                   style={{
                                     width: 7, height: 7,
-                                    backgroundColor: isGenerated ? '#e8753b' : '#dc2626',
-                                    boxShadow: isGenerated ? '0 0 7px rgba(232,117,59,0.5)' : '0 0 7px rgba(220,38,38,0.5)',
+                                    backgroundColor: dotColor,
+                                    boxShadow: `0 0 7px ${dotColor}80`,
                                   }}
                                 />
                                 <span className="text-sm" style={{ color: '#47574d' }}>{formatEventLabel(ev.event_type, payload)}</span>

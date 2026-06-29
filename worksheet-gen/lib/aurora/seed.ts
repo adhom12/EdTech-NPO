@@ -192,12 +192,16 @@ export async function seedDemoData(sql: Sql): Promise<void> {
 
     // Fast check — if demo courses already exist, bail immediately
     const existing = await sql`
-      SELECT id FROM courses
+      SELECT id, label FROM courses
       WHERE teacher_id = ${DEV_TEACHER_ID} AND label IN ('10A Mathematics', '10E Mathematics', '11A Mathematics')
     `
     if (existing.length >= 3) {
-      // Still update any missing question snapshots on re-runs
+      // Still patch any missing data on re-runs
       await seedMissingSnapshots(sql)
+      const ids = Object.fromEntries(
+        existing.map((r) => [r.label as string, r.id as string])
+      )
+      await seedMissingEvents(sql, ids)
       return
     }
 
@@ -272,6 +276,9 @@ export async function seedDemoData(sql: Sql): Promise<void> {
         WHERE id = ${worksheetId} AND questions_snapshot IS NULL
       `
     }
+
+    // Activity stream events
+    await seedMissingEvents(sql, courseIds)
   } catch (err) {
     console.error('[seed] demo data seed failed:', err)
     _seeded = false
@@ -287,6 +294,36 @@ async function seedMissingSnapshots(sql: Sql): Promise<void> {
       `
     }
   } catch {
-    // Non-fatal — snapshots will just be missing
+    // Non-fatal
+  }
+}
+
+const SEED_EVENTS = [
+  { courseLabel: '10A Mathematics', title: 'Indices & Surds — Homework 1',        daysAgo: 5 },
+  { courseLabel: '11A Mathematics', title: 'Quadratic Equations — Practice Paper', daysAgo: 7 },
+  { courseLabel: '11A Mathematics', title: 'Circle Theorems — Mock Exam',          daysAgo: 3 },
+]
+
+async function seedMissingEvents(sql: Sql, courseIds: Record<string, string>): Promise<void> {
+  try {
+    for (const ev of SEED_EVENTS) {
+      const courseId = courseIds[ev.courseLabel]
+      if (!courseId) continue
+      const check = await sql`
+        SELECT id FROM analytics_events
+        WHERE course_id = ${courseId}
+          AND event_type = 'worksheet_assigned'
+          AND payload->>'title' = ${ev.title}
+        LIMIT 1
+      `
+      if (check.length > 0) continue
+      const ts = new Date(Date.now() - ev.daysAgo * 24 * 60 * 60 * 1000).toISOString()
+      await sql`
+        INSERT INTO analytics_events (course_id, event_type, payload, created_at)
+        VALUES (${courseId}, 'worksheet_assigned', ${JSON.stringify({ title: ev.title })}::jsonb, ${ts}::timestamptz)
+      `
+    }
+  } catch {
+    // Non-fatal
   }
 }
