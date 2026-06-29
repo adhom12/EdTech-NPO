@@ -31,6 +31,8 @@ export async function getDb(): Promise<Sql> {
     ssl: 'require',
     max: 3,
     idle_timeout: 20,
+    fetch_types: false, // skip OID type-fetching round-trip on connect
+    connect_timeout: 15,
   })
 
   return _sql
