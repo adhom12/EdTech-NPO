@@ -10,7 +10,7 @@ const STUDENTS: Record<string, string[]> = {
     'Priya Sharma', 'Finn McCarthy', 'Layla Hussain', 'Oliver Chen',
     'Sophia Nowak', 'James Okonkwo', 'Emma Rodriguez', 'Noah Fitzgerald',
   ],
-  '10B Biology': [
+  '10E Mathematics': [
     'Aisha Brown', 'Connor Walsh', 'Mei Lin', 'Tobias Müller',
     'Grace Adeyemi', "Ryan O'Brien", 'Fatima Al-Rashid', 'Lucas Kowalski',
     'Hannah Davies', 'Mohammed Hassan', 'Isla Morrison',
@@ -39,7 +39,7 @@ export async function seedDemoData(sql: Sql): Promise<void> {
     // Fast check — if demo courses already exist, bail immediately
     const existing = await sql`
       SELECT id FROM courses
-      WHERE teacher_id = ${DEV_TEACHER_ID} AND label IN ('10A Mathematics', '10B Biology', '11A Mathematics')
+      WHERE teacher_id = ${DEV_TEACHER_ID} AND label IN ('10A Mathematics', '10E Mathematics', '11A Mathematics')
     `
     if (existing.length >= 3) return
 
@@ -56,7 +56,7 @@ export async function seedDemoData(sql: Sql): Promise<void> {
     // Courses
     const courseDefs = [
       { label: '10A Mathematics', subject: 'Mathematics' },
-      { label: '10B Biology',     subject: 'Biology'     },
+      { label: '10E Mathematics', subject: 'Mathematics' },
       { label: '11A Mathematics', subject: 'Mathematics' },
     ]
     const courseIds: Record<string, string> = {}

@@ -30,3 +30,15 @@ export async function createCourse(formData: FormData) {
   revalidatePath('/courses')
   redirect('/')
 }
+
+export async function deleteCourse(id: string) {
+  try {
+    const sql = await getDb()
+    await sql`DELETE FROM courses WHERE id = ${id} AND teacher_id = ${DEV_TEACHER_ID}`
+    revalidatePath('/courses')
+    revalidatePath('/')
+    revalidatePath('/worksheets')
+  } catch (err) {
+    return { error: String(err) }
+  }
+}

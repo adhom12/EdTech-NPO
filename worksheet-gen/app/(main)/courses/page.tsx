@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getDb } from '@/lib/aurora/client'
 import { AddCourseCard } from '@/components/AddCourseCard'
+import { DeleteCourseButton } from '@/components/DeleteCourseButton'
 
 const DEV_TEACHER_ID = 'e3987e0e-6bd4-4438-94fe-e821e1f1e0f1'
 
@@ -137,9 +138,7 @@ function ClassCard({ c }: { c: ClassRow }) {
 
         {/* Footer CTA */}
         <div className="px-5 py-3 flex items-center justify-between flex-shrink-0" style={{ borderTop: '1px solid #f0ede6' }}>
-          <span className="text-xs" style={{ color: '#64748B' }}>
-            Created {formatRelative(c.created_at)}
-          </span>
+          <DeleteCourseButton id={c.id} label={c.label} />
           <span
             className="text-xs font-medium transition-colors group-hover:text-[#e8753b]"
             style={{ color: '#b0bfb4' }}
